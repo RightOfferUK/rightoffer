@@ -2,9 +2,12 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: session } = useSession();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -70,13 +73,27 @@ const Navbar = () => {
             >
               Seller code or buyer code?
             </motion.a>
-            <motion.button 
-              className="btn-primary-gradient px-6 py-2 rounded-md text-sm font-medium font-dm-sans font-semibold"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Sign Up For Agents
-            </motion.button>
+            {session ? (
+              <Link href="/dashboard">
+                <motion.button 
+                  className="btn-primary-gradient px-6 py-2 rounded-md text-sm font-medium font-dm-sans font-semibold"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Dashboard
+                </motion.button>
+              </Link>
+            ) : (
+              <Link href="/login">
+                <motion.button 
+                  className="btn-primary-gradient px-6 py-2 rounded-md text-sm font-medium font-dm-sans font-semibold"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Sign Up For Agents
+                </motion.button>
+              </Link>
+            )}
           </motion.div>
 
           {/* Mobile menu button */}
@@ -133,16 +150,33 @@ const Navbar = () => {
                 >
                   Seller code or buyer code?
                 </motion.a>
-                <motion.button 
-                  className="btn-primary-gradient w-full mt-4 px-6 py-2 rounded-md text-sm font-medium font-dm-sans font-semibold"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.8 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Sign Up For Agents
-                </motion.button>
+                {session ? (
+                  <Link href="/dashboard">
+                    <motion.button 
+                      className="btn-primary-gradient w-full mt-4 px-6 py-2 rounded-md text-sm font-medium font-dm-sans font-semibold"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.8 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Dashboard
+                    </motion.button>
+                  </Link>
+                ) : (
+                  <Link href="/login">
+                    <motion.button 
+                      className="btn-primary-gradient w-full mt-4 px-6 py-2 rounded-md text-sm font-medium font-dm-sans font-semibold"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.8 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Sign Up For Agents
+                    </motion.button>
+                  </Link>
+                )}
               </motion.div>
             </motion.div>
           )}

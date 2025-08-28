@@ -3,7 +3,7 @@ import Hero from '@/components/home/Hero';
 import HowItWorks from '@/components/home/HowItWorks';
 import ForAgents from '@/components/home/ForAgents';
 import ForSellers from '@/components/home/ForSellers';
-import Pricing from '@/components/home/PricingContact';
+import PricingContact from '@/components/home/PricingContact';
 import Footer from '@/components/layout/Footer';
 
 export default function Home() {
@@ -15,7 +15,7 @@ export default function Home() {
       <ForAgents />
       <ForSellers />
       <div className="bg-navy-gradient">
-        <Pricing />
+        <PricingContact />
         <Footer />
       </div>
     </div>

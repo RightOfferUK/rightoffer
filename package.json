@@ -9,12 +9,18 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@auth/core": "^0.40.0",
+    "@auth/mongodb-adapter": "^3.10.0",
     "daisyui": "^5.0.54",
+    "dotenv": "^17.2.1",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.542.0",
+    "mongodb": "^6.19.0",
     "next": "15.5.2",
+    "next-auth": "^5.0.0-beta.29",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "resend": "^6.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
