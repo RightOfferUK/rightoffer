@@ -1,0 +1,272 @@
+'use client';
+
+import React from 'react';
+import { motion } from 'framer-motion';
+import { 
+  Home, 
+  PoundSterling, 
+  TrendingUp,
+  CheckCircle,
+  AlertCircle,
+  Users,
+  Clock,
+  Eye
+} from 'lucide-react';
+
+interface Offer {
+  _id?: string;
+  id: string;
+  buyerName: string;
+  buyerEmail: string;
+  amount: string;
+  status: 'submitted' | 'verified' | 'countered' | 'pending verification' | 'accepted' | 'declined';
+  fundingType: 'Cash' | 'Mortgage' | 'Chain';
+  chain: boolean;
+  aipPresent: boolean;
+  submittedAt: string;
+  notes?: string;
+}
+
+interface SellerViewProps {
+  listing: {
+    _id: string;
+    address: string;
+    sellerName: string;
+    listedPrice: string;
+    mainPhoto: string;
+    status: string;
+    offers: Offer[];
+    createdAt: string;
+  };
+}
+
+const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
+  const getStatusColor = (status: Offer['status']) => {
+    switch (status) {
+      case 'submitted':
+        return 'text-yellow-400 bg-yellow-500/20';
+      case 'verified':
+        return 'text-green-400 bg-green-500/20';
+      case 'countered':
+        return 'text-blue-400 bg-blue-500/20';
+      case 'pending verification':
+        return 'text-orange-400 bg-orange-500/20';
+      case 'accepted':
+        return 'text-green-500 bg-green-500/30';
+      case 'declined':
+        return 'text-red-400 bg-red-500/20';
+      default:
+        return 'text-gray-400 bg-gray-500/20';
+    }
+  };
+
+  const sortedOffers = [...listing.offers].sort((a, b) => 
+    new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+  );
+
+  const highestOffer = listing.offers.length > 0 
+    ? Math.max(...listing.offers.map(offer => 
+        parseInt(offer.amount.replace(/[£,]/g, ''))
+      ))
+    : 0;
+
+  return (
+    <div className="min-h-screen bg-navy-gradient">
+      {/* Header */}
+      <div className="bg-navy-gradient border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Home className="w-6 h-6 text-orange-400" />
+            <h1 className="text-2xl font-bold text-white font-dm-sans">
+              Your Property
+            </h1>
+          </div>
+          
+          <div className="mb-4">
+            <h2 className="text-xl text-white font-semibold">{listing.address}</h2>
+            <p className="text-white/70">Hello {listing.sellerName}</p>
+          </div>
+          
+          <div className="flex flex-wrap gap-6 text-sm text-white/70">
+            <div className="flex items-center gap-2">
+              <PoundSterling className="w-4 h-4 text-green-400" />
+              <span>Listed: {listing.listedPrice}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-orange-400" />
+              <span>Highest Offer: {highestOffer > 0 ? `£${highestOffer.toLocaleString()}` : 'None yet'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Eye className="w-4 h-4 text-blue-400" />
+              <span>{listing.offers.length} offers received</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
+                listing.status === 'live' ? 'bg-green-500/20 text-green-400' :
+                listing.status === 'under-offer' ? 'bg-orange-500/20 text-orange-400' :
+                listing.status === 'sold' ? 'bg-blue-500/20 text-blue-400' :
+                'bg-gray-500/20 text-gray-400'
+              }`}>
+                {listing.status}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Main Content - Offers */}
+          <div className="lg:col-span-3">
+            {/* Property Image */}
+            {listing.mainPhoto && (
+              <div className="mb-8">
+                <img
+                  src={listing.mainPhoto}
+                  alt={listing.address}
+                  className="w-full h-64 md:h-96 object-cover rounded-lg shadow-lg"
+                />
+              </div>
+            )}
+
+            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6">
+              <h2 className="text-xl font-semibold text-white font-dm-sans mb-6">
+                Offers on Your Property ({listing.offers.length})
+              </h2>
+              
+              <div className="space-y-4">
+                {sortedOffers.length === 0 ? (
+                  <div className="text-center py-12">
+                    <TrendingUp className="w-12 h-12 text-white/40 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-white/70 mb-2">No offers yet</h3>
+                    <p className="text-white/50">Offers will appear here as they are submitted by potential buyers.</p>
+                  </div>
+                ) : (
+                  sortedOffers.map((offer, index) => (
+                    <motion.div
+                      key={offer.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                      className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6"
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <Users className="w-5 h-5 text-blue-400" />
+                            <h3 className="text-lg font-medium text-white">
+                              {offer.buyerName}
+                            </h3>
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(offer.status)}`}>
+                              {offer.status}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center gap-6 text-sm text-white/70 mb-3">
+                            <div className="flex items-center gap-2">
+                              <PoundSterling className="w-4 h-4 text-green-400" />
+                              <span className="text-green-400 font-semibold text-xl">
+                                {offer.amount}
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full ${
+                                offer.fundingType === 'Cash' ? 'bg-green-500' : 
+                                offer.fundingType === 'Mortgage' ? 'bg-blue-500' : 'bg-orange-500'
+                              }`}></div>
+                              <span>{offer.fundingType}</span>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              <span>{new Date(offer.submittedAt).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-4 text-sm">
+                            {offer.chain && (
+                              <div className="flex items-center gap-1 text-orange-400">
+                                <AlertCircle className="w-4 h-4" />
+                                <span>Has chain</span>
+                              </div>
+                            )}
+                            {offer.aipPresent && (
+                              <div className="flex items-center gap-1 text-green-400">
+                                <CheckCircle className="w-4 h-4" />
+                                <span>AIP Present</span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="mt-3 text-white/60 text-sm">
+                            <strong>Contact:</strong> {offer.buyerEmail}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {offer.notes && (
+                        <div className="mt-4 p-3 bg-white/5 rounded-lg">
+                          <h4 className="text-white/80 font-medium text-sm mb-2">Buyer's Message:</h4>
+                          <p className="text-white/80 text-sm">{offer.notes}</p>
+                        </div>
+                      )}
+                    </motion.div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar - Summary */}
+          <div className="lg:col-span-1">
+            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6 sticky top-6">
+              <h3 className="text-lg font-semibold text-white font-dm-sans mb-4">
+                Property Summary
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                  <h4 className="text-green-300 font-semibold mb-2">Listed Price</h4>
+                  <p className="text-white text-xl font-bold">{listing.listedPrice}</p>
+                </div>
+                
+                <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+                  <h4 className="text-orange-300 font-semibold mb-2">Highest Offer</h4>
+                  <p className="text-white text-xl font-bold">
+                    {highestOffer > 0 ? `£${highestOffer.toLocaleString()}` : 'None yet'}
+                  </p>
+                </div>
+                
+                <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                  <h4 className="text-blue-300 font-semibold mb-2">Total Offers</h4>
+                  <p className="text-white text-xl font-bold">{listing.offers.length}</p>
+                </div>
+                
+                <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                  <h4 className="text-purple-300 font-semibold mb-2">Status</h4>
+                  <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
+                    listing.status === 'live' ? 'bg-green-500/20 text-green-400' :
+                    listing.status === 'under-offer' ? 'bg-orange-500/20 text-orange-400' :
+                    listing.status === 'sold' ? 'bg-blue-500/20 text-blue-400' :
+                    'bg-gray-500/20 text-gray-400'
+                  }`}>
+                    {listing.status}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                <p className="text-blue-300 text-sm">
+                  <strong>Need help?</strong> Contact your agent to discuss any offers or questions about your property listing.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SellerView;

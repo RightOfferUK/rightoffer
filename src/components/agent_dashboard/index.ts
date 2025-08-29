@@ -5,6 +5,7 @@ export { default as ListingsTable } from './ListingsTable';
 export { default as OffersInbox } from './OffersInbox';
 export { default as MainContent } from './MainContent';
 export { default as RightSidebar } from './RightSidebar';
+export { default as AddListingModal } from './AddListingModal';
 
 // Future exports for other dashboard components:
 // export { default as ListingsTable } from './ListingsTable';
