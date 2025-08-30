@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { uploadImage } from '@/lib/supabase';
+import { useRealTimeOffers } from '@/hooks/useRealTimeOffers';
 import { 
   Home, 
   PoundSterling, 
@@ -17,7 +18,11 @@ import {
   Trash2,
   Mail,
   UserPlus,
-  Copy
+  Copy,
+  RefreshCw,
+  Check,
+  XCircle,
+  MessageSquare
 } from 'lucide-react';
 
 interface Offer {
@@ -32,6 +37,10 @@ interface Offer {
   aipPresent: boolean;
   submittedAt: string;
   notes?: string;
+  counterOffer?: string;
+  agentNotes?: string;
+  statusUpdatedAt?: string;
+  updatedBy?: string;
 }
 
 interface ListingData {
@@ -59,6 +68,16 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
   const [editedListing, setEditedListing] = useState<ListingData>(listing);
   const [isSaving, setIsSaving] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
+  
+  // Real-time offers hook
+  const { 
+    offers: liveOffers, 
+    totalOffers, 
+    highestOffer, 
+    loading: offersLoading, 
+    error: offersError,
+    refreshOffers 
+  } = useRealTimeOffers(listing._id, activeTab === 'offers');
   
   // Admin functionality state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -272,15 +291,67 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
     alert('Listing URL copied to clipboard!');
   };
 
-  const sortedOffers = [...listing.offers].sort((a, b) => 
+  // Offer management functions
+  const handleOfferStatusUpdate = async (offerId: string, status: string, counterOffer?: string, notes?: string) => {
+    try {
+      const response = await fetch(`/api/listings/${listing._id}/offers/${offerId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status,
+          counterOffer,
+          notes
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update offer status');
+      }
+
+      // Refresh offers to get updated data
+      await refreshOffers();
+      alert(`Offer ${status} successfully!`);
+    } catch (error) {
+      console.error('Error updating offer status:', error);
+      alert('Failed to update offer status. Please try again.');
+    }
+  };
+
+  const handleAcceptOffer = (offerId: string) => {
+    if (confirm('Are you sure you want to accept this offer? This will mark the property as under offer.')) {
+      handleOfferStatusUpdate(offerId, 'accepted');
+    }
+  };
+
+  const handleDeclineOffer = (offerId: string) => {
+    if (confirm('Are you sure you want to decline this offer?')) {
+      handleOfferStatusUpdate(offerId, 'declined');
+    }
+  };
+
+  const handleCounterOffer = (offerId: string) => {
+    const counterAmount = prompt('Enter your counter offer amount (e.g., £450,000):');
+    if (counterAmount) {
+      const notes = prompt('Add any notes for the buyer (optional):');
+      handleOfferStatusUpdate(offerId, 'countered', counterAmount, notes);
+    }
+  };
+
+  // Use real-time offers if available, otherwise fall back to listing offers
+  const displayOffers = liveOffers.length > 0 ? liveOffers : listing.offers;
+  const sortedOffers = [...displayOffers].sort((a, b) => 
     new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
   );
 
-  const highestOffer = listing.offers.length > 0 
-    ? Math.max(...listing.offers.map(offer => 
-        parseInt(offer.amount.replace(/[£,]/g, ''))
-      ))
-    : 0;
+  const displayHighestOffer = highestOffer > 0 ? highestOffer : (
+    listing.offers.length > 0 
+      ? Math.max(...listing.offers.map(offer => 
+          parseInt(offer.amount.replace(/[£,]/g, ''))
+        ))
+      : 0
+  );
 
   return (
     <div className="min-h-screen bg-navy-gradient">
@@ -396,7 +467,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                       : 'text-white/70 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  Live Offers ({listing.offers.length})
+                  Live Offers ({totalOffers || listing.offers.length})
                 </button>
               </div>
             </div>
@@ -552,6 +623,38 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
               )}
               {activeTab === 'offers' && (
                 <div className="space-y-4">
+                  {/* Offers Header with Refresh Button */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <h3 className="text-lg font-semibold text-white">
+                        All Offers ({totalOffers || listing.offers.length})
+                      </h3>
+                      {displayHighestOffer > 0 && (
+                        <div className="flex items-center gap-2 text-green-400">
+                          <TrendingUp className="w-4 h-4" />
+                          <span className="text-sm font-medium">
+                            Highest: £{displayHighestOffer.toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      onClick={refreshOffers}
+                      disabled={offersLoading}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white/70 hover:text-white transition-colors text-sm"
+                    >
+                      <RefreshCw className={`w-4 h-4 ${offersLoading ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </button>
+                  </div>
+
+                  {/* Error State */}
+                  {offersError && (
+                    <div className="p-4 bg-red-500/20 border border-red-500/30 rounded-lg">
+                      <p className="text-red-300 text-sm">{offersError}</p>
+                    </div>
+                  )}
+
                   {sortedOffers.length === 0 ? (
                     <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-8 text-center">
                       <TrendingUp className="w-12 h-12 text-white/40 mx-auto mb-4" />
@@ -621,6 +724,47 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                         {offer.notes && (
                           <div className="mt-4 p-3 bg-white/5 rounded-lg">
                             <p className="text-white/80 text-sm">{offer.notes}</p>
+                          </div>
+                        )}
+
+                        {/* Counter Offer Display */}
+                        {offer.counterOffer && (
+                          <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                              <MessageSquare className="w-4 h-4 text-blue-400" />
+                              <span className="text-blue-400 font-medium text-sm">Counter Offer</span>
+                            </div>
+                            <p className="text-white font-semibold">{offer.counterOffer}</p>
+                            {offer.agentNotes && (
+                              <p className="text-white/70 text-sm mt-1">{offer.agentNotes}</p>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Agent Actions */}
+                        {canEdit && offer.status === 'submitted' && (
+                          <div className="mt-4 flex items-center gap-2">
+                            <button
+                              onClick={() => handleAcceptOffer(offer.id)}
+                              className="flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors text-sm"
+                            >
+                              <Check className="w-4 h-4" />
+                              Accept
+                            </button>
+                            <button
+                              onClick={() => handleDeclineOffer(offer.id)}
+                              className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors text-sm"
+                            >
+                              <XCircle className="w-4 h-4" />
+                              Decline
+                            </button>
+                            <button
+                              onClick={() => handleCounterOffer(offer.id)}
+                              className="flex items-center gap-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm"
+                            >
+                              <MessageSquare className="w-4 h-4" />
+                              Counter
+                            </button>
                           </div>
                         )}
                       </motion.div>

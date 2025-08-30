@@ -60,9 +60,14 @@ export async function POST(request: NextRequest) {
     listing.offers.push(newOffer);
     await listing.save();
 
+    // Trigger real-time update event
+    // This could be enhanced with WebSocket or Server-Sent Events in the future
+    // For now, we'll rely on polling from the frontend
+    
     return NextResponse.json({ 
       message: 'Offer submitted successfully',
-      offerId: newOffer.id
+      offerId: newOffer.id,
+      offer: newOffer
     }, { status: 201 });
 
   } catch (error) {

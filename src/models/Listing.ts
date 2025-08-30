@@ -71,7 +71,11 @@ const ListingSchema = new mongoose.Schema({
       type: Date,
       default: Date.now
     },
-    notes: String
+    notes: String,
+    counterOffer: String,
+    agentNotes: String,
+    statusUpdatedAt: Date,
+    updatedBy: String
   }],
   createdAt: {
     type: Date,

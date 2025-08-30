@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useRealTimeOffers } from '@/hooks/useRealTimeOffers';
 import { 
   Home, 
   PoundSterling, 
@@ -10,7 +11,8 @@ import {
   AlertCircle,
   Users,
   Clock,
-  Eye
+  Eye,
+  RefreshCw
 } from 'lucide-react';
 
 interface Offer {
@@ -25,6 +27,10 @@ interface Offer {
   aipPresent: boolean;
   submittedAt: string;
   notes?: string;
+  counterOffer?: string;
+  agentNotes?: string;
+  statusUpdatedAt?: string;
+  updatedBy?: string;
 }
 
 interface SellerViewProps {
@@ -41,6 +47,16 @@ interface SellerViewProps {
 }
 
 const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
+  // Real-time offers hook
+  const { 
+    offers: liveOffers, 
+    totalOffers, 
+    highestOffer: liveHighestOffer, 
+    loading: offersLoading, 
+    error: offersError,
+    refreshOffers 
+  } = useRealTimeOffers(listing._id, true);
+
   const getStatusColor = (status: Offer['status']) => {
     switch (status) {
       case 'submitted':
@@ -60,15 +76,19 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
     }
   };
 
-  const sortedOffers = [...listing.offers].sort((a, b) => 
+  // Use real-time offers if available, otherwise fall back to listing offers
+  const displayOffers = liveOffers.length > 0 ? liveOffers : listing.offers;
+  const sortedOffers = [...displayOffers].sort((a, b) => 
     new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
   );
 
-  const highestOffer = listing.offers.length > 0 
-    ? Math.max(...listing.offers.map(offer => 
-        parseInt(offer.amount.replace(/[£,]/g, ''))
-      ))
-    : 0;
+  const highestOffer = liveHighestOffer > 0 ? liveHighestOffer : (
+    listing.offers.length > 0 
+      ? Math.max(...listing.offers.map(offer => 
+          parseInt(offer.amount.replace(/[£,]/g, ''))
+        ))
+      : 0
+  );
 
   return (
     <div className="min-h-screen bg-navy-gradient">
@@ -98,7 +118,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
             </div>
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4 text-blue-400" />
-              <span>{listing.offers.length} offers received</span>
+              <span>{totalOffers || listing.offers.length} offers received</span>
             </div>
             <div className="flex items-center gap-2">
               <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
@@ -130,9 +150,26 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
             )}
 
             <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-white font-dm-sans mb-6">
-                Offers on Your Property ({listing.offers.length})
-              </h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-white font-dm-sans">
+                  Offers on Your Property ({totalOffers || listing.offers.length})
+                </h2>
+                <button
+                  onClick={refreshOffers}
+                  disabled={offersLoading}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white/70 hover:text-white transition-colors text-sm"
+                >
+                  <RefreshCw className={`w-4 h-4 ${offersLoading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </button>
+              </div>
+
+              {/* Error State */}
+              {offersError && (
+                <div className="p-4 bg-red-500/20 border border-red-500/30 rounded-lg mb-4">
+                  <p className="text-red-300 text-sm">{offersError}</p>
+                </div>
+              )}
               
               <div className="space-y-4">
                 {sortedOffers.length === 0 ? (
@@ -240,7 +277,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                 
                 <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                   <h4 className="text-blue-300 font-semibold mb-2">Total Offers</h4>
-                  <p className="text-white text-xl font-bold">{listing.offers.length}</p>
+                  <p className="text-white text-xl font-bold">{totalOffers || listing.offers.length}</p>
                 </div>
                 
                 <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg">

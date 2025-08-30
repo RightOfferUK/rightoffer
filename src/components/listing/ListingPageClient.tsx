@@ -88,6 +88,14 @@ const ListingPageClient: React.FC<ListingPageClientProps> = ({ listing, canEdit 
       const result = await response.json();
       console.log('Offer submitted successfully:', result);
       
+      // Trigger a custom event to notify other components of the new offer
+      window.dispatchEvent(new CustomEvent('newOfferSubmitted', { 
+        detail: { 
+          listingId: listing._id, 
+          offer: result.offer 
+        } 
+      }));
+      
       // The BuyerOfferForm component will handle the success state
     } catch (error) {
       console.error('Error submitting offer:', error);
