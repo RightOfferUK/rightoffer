@@ -16,36 +16,36 @@
   background: linear-gradient(to right, #0b1822 0%, #0e2233 100%);
 }
 
-.bg-orange-gradient {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+.bg-purple-gradient {
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
 }
 
 /* Custom Button Styles */
 .btn-primary-gradient {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
   border: none;
   color: white;
   transition: all 0.3s ease;
 }
 
 .btn-primary-gradient:hover {
-  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(249, 115, 22, 0.3);
+  box-shadow: 0 10px 25px rgba(168, 85, 247, 0.3);
 }
 
 .btn-outline-primary {
-  border: 2px solid #f97316;
-  color: #f97316;
+  border: 2px solid #a855f7;
+  color: #a855f7;
   background: transparent;
   transition: all 0.3s ease;
 }
 
 .btn-outline-primary:hover {
-  background: #f97316;
+  background: #a855f7;
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(249, 115, 22, 0.3);
+  box-shadow: 0 10px 25px rgba(168, 85, 247, 0.3);
 }
 
 /* Smooth scrolling */
@@ -63,10 +63,10 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #f97316;
+  background: #a855f7;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #ea580c;
+  background: #9333ea;
 }
