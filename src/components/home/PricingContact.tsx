@@ -38,46 +38,75 @@ const PricingContact = () => {
             viewport={{ once: true }}
           >
             {/* Glass background effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-orange-600/20 rounded-3xl blur-xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-purple-600/20 rounded-3xl blur-xl"></div>
             
             <div className="relative backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl h-full flex flex-col">
               <motion.div
-                className="text-center flex-1 flex flex-col justify-between"
+                className="text-center flex-1 flex flex-col"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
                 viewport={{ once: true }}
               >
-                <div>
-                  <h3 className="text-2xl font-bold font-dm-sans text-white mb-4">Simple Pricing</h3>
-                  <div className="mb-6">
-                    <span className="text-6xl font-black font-dm-sans text-orange-500">£25</span>
-                    <p className="text-white/80 font-dm-sans mt-2">per property listing</p>
+                {/* Header */}
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold font-dm-sans text-white mb-2">Simple Pricing</h3>
+                  <p className="text-white/70 font-dm-sans text-sm">Transparent pricing, no hidden costs</p>
+                </div>
+
+                {/* Price */}
+                <div className="mb-8">
+                  <div className="flex items-baseline justify-center gap-2">
+                    <span className="text-6xl font-black font-dm-sans text-purple-500">£25</span>
+                    <span className="text-white/60 font-dm-sans text-lg">per listing</span>
                   </div>
-                  
-                  <div className="space-y-3 mb-8">
-                    <div className="flex items-center gap-3 text-white/90">
-                      <CheckCircle2 className="w-5 h-5 text-orange-500 flex-shrink-0" />
-                      <span className="font-dm-sans text-sm">Real-time transparency</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-white/90">
-                      <CheckCircle2 className="w-5 h-5 text-orange-500 flex-shrink-0" />
-                      <span className="font-dm-sans text-sm">Seller codes included</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-white/90">
-                      <CheckCircle2 className="w-5 h-5 text-orange-500 flex-shrink-0" />
-                      <span className="font-dm-sans text-sm">No monthly fees</span>
-                    </div>
+                  <p className="text-white/80 font-dm-sans text-sm mt-2">One-time payment • No monthly fees</p>
+                </div>
+                
+                {/* Features */}
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-center gap-3 text-white/90">
+                    <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
+                    <span className="font-dm-sans text-sm">Real-time offer transparency</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-white/90">
+                    <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
+                    <span className="font-dm-sans text-sm">Unique seller codes included</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-white/90">
+                    <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
+                    <span className="font-dm-sans text-sm">Unlimited buyer submissions</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-white/90">
+                    <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
+                    <span className="font-dm-sans text-sm">24/7 dashboard access</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-white/90">
+                    <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
+                    <span className="font-dm-sans text-sm">Email notifications</span>
                   </div>
                 </div>
 
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <div className="text-2xl font-bold text-purple-500 font-dm-sans">500+</div>
+                    <div className="text-white/70 text-xs font-dm-sans">Properties Listed</div>
+                  </div>
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <div className="text-2xl font-bold text-purple-500 font-dm-sans">98%</div>
+                    <div className="text-white/70 text-xs font-dm-sans">Satisfaction Rate</div>
+                  </div>
+                </div>
+
+                {/* CTA */}
                 <motion.button
                   className="btn-primary-gradient w-full px-6 py-3 rounded-xl font-dm-sans font-semibold text-base mt-auto"
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2 }}
                 >
-                  Get Started
+                  Start Listing Today
                 </motion.button>
               </motion.div>
             </div>

@@ -70,7 +70,7 @@ const ForSellers = () => {
             
             {/* Decorative elements */}
             <div className="absolute -top-4 -left-4 w-20 h-20 bg-green-500/20 rounded-full blur-xl"></div>
-            <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-orange-500/20 rounded-full blur-xl"></div>
+            <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-purple-500/20 rounded-full blur-xl"></div>
           </motion.div>
 
           {/* Right side - Content */}
@@ -86,7 +86,7 @@ const ForSellers = () => {
               variants={itemVariants}
             >
               Complete Control for 
-              <span className="text-orange-500"> Property Sellers</span>
+              <span className="text-purple-500"> Property Sellers</span>
             </motion.h2>
             
             <motion.p
@@ -109,8 +109,8 @@ const ForSellers = () => {
                   >
 
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-orange-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <IconComponent className="w-5 h-5 text-orange-500" />
+                      <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <IconComponent className="w-5 h-5 text-purple-500" />
                       </div>
                       <p className="text-gray-700 font-dm-sans text-lg leading-relaxed">
                         {benefit.text}

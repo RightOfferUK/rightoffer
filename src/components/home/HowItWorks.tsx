@@ -12,9 +12,9 @@ const HowItWorks = () => {
       description: "Real estate agents create a listing and generate a unique transparency code for the seller.",
       icon: Home,
       details: ["Upload property details", "Set asking price", "Generate seller code", "Share with all parties"],
-      color: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-50",
-      textColor: "text-blue-600"
+      color: "from-purple-500 to-purple-600",
+      bgColor: "bg-purple-50",
+      textColor: "text-purple-600"
     },
     {
       number: "02", 
@@ -22,9 +22,9 @@ const HowItWorks = () => {
       description: "Property owners use their code to see every single offer in real-time - no more wondering what you're missing.",
       icon: Eye,
       details: ["Access real-time dashboard", "See all incoming offers", "Compare offer details", "Track offer history"],
-      color: "from-green-500 to-green-600",
-      bgColor: "bg-green-50",
-      textColor: "text-green-600"
+      color: "from-purple-600 to-purple-700",
+      bgColor: "bg-purple-50",
+      textColor: "text-purple-600"
     },
     {
       number: "03",
@@ -32,9 +32,9 @@ const HowItWorks = () => {
       description: "Potential buyers can submit competitive offers directly through the platform with complete transparency.",
       icon: DollarSign,
       details: ["Browse available properties", "Submit competitive offers", "See market positioning", "Get instant feedback"],
-      color: "from-orange-500 to-orange-600",
-      bgColor: "bg-orange-50",
-      textColor: "text-orange-600"
+      color: "from-purple-700 to-purple-800",
+      bgColor: "bg-purple-50",
+      textColor: "text-purple-600"
     }
   ];
 
@@ -71,7 +71,7 @@ const HowItWorks = () => {
           viewport={{ once: true }}
         >
           <motion.span 
-            className="inline-block px-4 py-2 bg-orange-100 text-orange-600 rounded-full text-sm font-semibold font-dm-sans mb-4"
+            className="inline-block px-4 py-2 bg-purple-100 text-purple-600 rounded-full text-sm font-semibold font-dm-sans mb-4"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -88,7 +88,7 @@ const HowItWorks = () => {
             viewport={{ once: true }}
           >
             Real Estate Transparency
-            <span className="text-orange-500"> Made Simple</span>
+            <span className="text-purple-500"> Made Simple</span>
           </motion.h2>
           
           <motion.p 
@@ -215,7 +215,7 @@ const HowItWorks = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 viewport={{ once: true }}
               >
-                Ready to experience <span className="text-orange-500">transparent real estate</span>?
+                Ready to experience <span className="text-purple-500">transparent real estate</span>?
               </motion.h3>
               <motion.p 
                 className="text-gray-300 font-dm-sans text-base lg:text-lg"
