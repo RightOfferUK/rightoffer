@@ -12,6 +12,11 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: "RightOffer - Transparent Real Estate Offers",
   description: "Connect agents, sellers, and buyers with complete transparency. See all real estate offers in real-time, no hidden deals.",
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
 };
 
 export default function RootLayout({
@@ -22,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="rightoffer">
       <body
-        className={`${dmSans.variable} font-dm-sans antialiased bg-navy text-white`}
+        className={`${dmSans.variable} font-dm-sans antialiased bg-white text-gray-800`}
       >
         <SessionProvider>
           {children}
