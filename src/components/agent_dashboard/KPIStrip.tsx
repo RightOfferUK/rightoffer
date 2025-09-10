@@ -20,7 +20,7 @@ interface KPICardProps {
     direction: 'up' | 'down' | 'neutral';
     value: string;
   };
-  color: 'blue' | 'green' | 'orange' | 'purple' | 'red' | 'gray';
+  color: 'blue' | 'green' | 'purple' | 'purple' | 'red' | 'gray';
   index: number;
 }
 
@@ -46,11 +46,11 @@ const KPICard: React.FC<KPICardProps> = ({
       value: 'text-green-300',
       trend: 'text-green-400'
     },
-    orange: {
-      bg: 'bg-orange-500/20',
-      icon: 'text-orange-400',
-      value: 'text-orange-300',
-      trend: 'text-orange-400'
+    purple: {
+      bg: 'bg-purple-500/20',
+      icon: 'text-purple-400',
+      value: 'text-purple-300',
+      trend: 'text-purple-400'
     },
     purple: {
       bg: 'bg-purple-500/20',
@@ -157,7 +157,7 @@ const KPIStrip: React.FC = () => {
       subtitle: 'Offers to review',
       icon: Clock,
       trend: { direction: 'neutral' as const, value: 'No change' },
-      color: 'orange' as const
+      color: 'purple' as const
     },
     {
       title: 'Under Offer (STC)',

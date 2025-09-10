@@ -148,7 +148,7 @@ const ListingsTable = () => {
       case 'Live':
         return 'text-green-400 bg-green-500/20';
       case 'STC':
-        return 'text-orange-400 bg-orange-500/20';
+        return 'text-purple-400 bg-purple-500/20';
       case 'Draft':
         return 'text-gray-400 bg-gray-500/20';
       case 'Under Review':
@@ -208,7 +208,7 @@ const ListingsTable = () => {
                 onClick={() => setActiveFilter(filter)}
                 className={`px-3 py-1 rounded-full text-sm transition-colors ${
                   activeFilter === filter
-                    ? 'bg-orange-500 text-white'
+                    ? 'bg-purple-500 text-white'
                     : 'bg-white/10 text-white/70 hover:bg-white/20'
                 }`}
               >
@@ -224,7 +224,7 @@ const ListingsTable = () => {
               placeholder="Search listings..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-white/10 border border-white/20 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
+              className="bg-white/10 border border-white/20 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
             />
           </div>
         </div>
@@ -233,7 +233,7 @@ const ListingsTable = () => {
       {/* Loading State */}
       {loading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-orange-400" />
+          <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
           <span className="ml-2 text-white/70">Loading listings...</span>
         </div>
       )}
@@ -244,7 +244,7 @@ const ListingsTable = () => {
           <p className="text-red-400 mb-4">{error}</p>
           <button 
             onClick={fetchListings}
-            className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
+            className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors"
           >
             Try Again
           </button>
@@ -307,7 +307,7 @@ const ListingsTable = () => {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2 text-sm text-white/80">
-                      <TrendingUp className="w-4 h-4 text-orange-400" />
+                      <TrendingUp className="w-4 h-4 text-purple-400" />
                       {listing.offers}
                     </div>
                   </td>
@@ -372,7 +372,7 @@ const ListingsTable = () => {
                 setSearchTerm('');
                 setActiveFilter('All');
               }}
-              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
+              className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors"
             >
               Clear Filters
             </button>
@@ -692,7 +692,7 @@ const QuickEditModal: React.FC<{
             onClick={() => setActiveTab('edit')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
               activeTab === 'edit'
-                ? 'bg-orange-500 text-white'
+                ? 'bg-purple-500 text-white'
                 : 'text-white/70 hover:text-white hover:bg-white/10'
             }`}
           >
@@ -703,7 +703,7 @@ const QuickEditModal: React.FC<{
             onClick={() => setActiveTab('seller')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
               activeTab === 'seller'
-                ? 'bg-orange-500 text-white'
+                ? 'bg-purple-500 text-white'
                 : 'text-white/70 hover:text-white hover:bg-white/10'
             }`}
           >
@@ -714,7 +714,7 @@ const QuickEditModal: React.FC<{
             onClick={() => setActiveTab('buyer')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
               activeTab === 'buyer'
-                ? 'bg-orange-500 text-white'
+                ? 'bg-purple-500 text-white'
                 : 'text-white/70 hover:text-white hover:bg-white/10'
             }`}
           >
@@ -735,7 +735,7 @@ const QuickEditModal: React.FC<{
                   type="text"
                   value={editData.address}
                   onChange={(e) => setEditData({ ...editData, address: e.target.value })}
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                 />
               </div>
               <div>
@@ -746,14 +746,14 @@ const QuickEditModal: React.FC<{
                   type="text"
                   value={editData.listedPrice}
                   onChange={(e) => setEditData({ ...editData, listedPrice: e.target.value })}
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                   placeholder="£450,000"
                 />
               </div>
               <button
                 onClick={handleEditSave}
                 disabled={loading}
-                className="w-full px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
+                className="w-full px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Edit3 className="w-4 h-4" />}
                 {loading ? 'Saving...' : 'Save Changes'}
@@ -765,7 +765,7 @@ const QuickEditModal: React.FC<{
             <div className="space-y-4">
               <div className="p-4 bg-white/5 rounded-lg">
                 <h4 className="text-white font-medium mb-2">Current Seller Code</h4>
-                <code className="text-orange-400 font-mono text-lg">{listing.sellerCode}</code>
+                <code className="text-purple-400 font-mono text-lg">{listing.sellerCode}</code>
               </div>
               <p className="text-white/70 text-sm">
                 Resend the seller code to the property owner&apos;s email address so they can access their listing.
@@ -797,7 +797,7 @@ const QuickEditModal: React.FC<{
                     type="text"
                     value={buyerData.name}
                     onChange={(e) => setBuyerData({ ...buyerData, name: e.target.value })}
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                     placeholder="John Smith"
                   />
                 </div>
@@ -809,7 +809,7 @@ const QuickEditModal: React.FC<{
                     type="email"
                     value={buyerData.email}
                     onChange={(e) => setBuyerData({ ...buyerData, email: e.target.value })}
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                     placeholder="john@example.com"
                   />
                 </div>

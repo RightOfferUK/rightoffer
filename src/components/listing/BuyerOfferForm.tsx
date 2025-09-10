@@ -126,7 +126,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
       case 'countered':
         return 'text-blue-400 bg-blue-500/20 border-blue-500/30';
       case 'pending verification':
-        return 'text-orange-400 bg-orange-500/20 border-orange-500/30';
+        return 'text-purple-400 bg-purple-500/20 border-purple-500/30';
       case 'accepted':
         return 'text-green-500 bg-green-500/30 border-green-500/40';
       case 'declined':
@@ -215,7 +215,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
             </p>
             <button
               onClick={() => setSuccess(false)}
-              className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium"
+              className="px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors font-medium"
             >
               Submit Another Offer
             </button>
@@ -232,7 +232,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Home className="w-6 h-6 text-orange-400" />
+              <Home className="w-6 h-6 text-purple-400" />
               <div>
                 <h1 className="text-2xl font-bold text-white font-dm-sans">
                   Make an Offer
@@ -326,7 +326,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                 {/* Loading State */}
                 {loadingOffers ? (
                   <div className="text-center py-6">
-                    <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500 mb-2"></div>
+                    <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500 mb-2"></div>
                     <p className="text-white/70 text-sm">Loading your offers...</p>
                   </div>
                 ) : offers.length === 0 ? (
@@ -375,12 +375,12 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                         <div className="flex items-center gap-3 text-xs text-white/60">
                           <div className={`w-2 h-2 rounded-full ${
                             offer.fundingType === 'Cash' ? 'bg-green-500' : 
-                            offer.fundingType === 'Mortgage' ? 'bg-blue-500' : 'bg-orange-500'
+                            offer.fundingType === 'Mortgage' ? 'bg-blue-500' : 'bg-purple-500'
                           }`}></div>
                           <span>{offer.fundingType}</span>
                           {offer.chain && (
                             <div className="flex items-center gap-1">
-                              <AlertCircle className="w-3 h-3 text-orange-400" />
+                              <AlertCircle className="w-3 h-3 text-purple-400" />
                               <span>Chain</span>
                             </div>
                           )}
@@ -446,7 +446,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                     onChange={handleInputChange}
                     required
                     disabled={!!buyerDetails}
-                    className={`w-full px-4 py-3 border rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 ${
+                    className={`w-full px-4 py-3 border rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 ${
                       buyerDetails 
                         ? 'bg-white/5 border-green-500/30 cursor-not-allowed' 
                         : 'bg-white/10 border-white/20'
@@ -473,7 +473,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                     onChange={handleInputChange}
                     required
                     disabled={!!buyerDetails}
-                    className={`w-full px-4 py-3 border rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 ${
+                    className={`w-full px-4 py-3 border rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 ${
                       buyerDetails 
                         ? 'bg-white/5 border-green-500/30 cursor-not-allowed' 
                         : 'bg-white/10 border-white/20'
@@ -501,7 +501,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                   value={formData.amount}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
                   placeholder="£450,000"
                 />
               </div>
@@ -517,7 +517,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                   value={formData.fundingType}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
                 >
                   <option value="Cash" className="bg-gray-800">Cash</option>
                   <option value="Mortgage" className="bg-gray-800">Mortgage</option>
@@ -533,7 +533,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                     name="chain"
                     checked={formData.chain}
                     onChange={handleInputChange}
-                    className="w-4 h-4 text-orange-500 bg-white/10 border-white/20 rounded focus:ring-orange-500/50"
+                    className="w-4 h-4 text-purple-500 bg-white/10 border-white/20 rounded focus:ring-purple-500/50"
                   />
                   <label className="ml-3 text-white/70">
                     I have a property to sell (chain)
@@ -546,7 +546,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                     name="aipPresent"
                     checked={formData.aipPresent}
                     onChange={handleInputChange}
-                    className="w-4 h-4 text-orange-500 bg-white/10 border-white/20 rounded focus:ring-orange-500/50"
+                    className="w-4 h-4 text-purple-500 bg-white/10 border-white/20 rounded focus:ring-purple-500/50"
                   />
                   <label className="ml-3 text-white/70">
                     I have an Agreement in Principle (AIP)
@@ -564,7 +564,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                   value={formData.notes}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 resize-none"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 resize-none"
                   placeholder="Any additional information about your offer..."
                 />
               </div>
@@ -581,7 +581,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full px-6 py-4 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
+                  className="w-full px-6 py-4 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>

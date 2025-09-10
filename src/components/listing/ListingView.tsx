@@ -109,7 +109,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
       case 'countered':
         return 'text-blue-400 bg-blue-500/20';
       case 'pending verification':
-        return 'text-orange-400 bg-orange-500/20';
+        return 'text-purple-400 bg-purple-500/20';
       case 'accepted':
         return 'text-green-500 bg-green-500/30';
       case 'declined':
@@ -360,7 +360,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <Home className="w-6 h-6 text-orange-400" />
+              <Home className="w-6 h-6 text-purple-400" />
               <h1 className="text-2xl font-bold text-white font-dm-sans">
                 {listing.address}
               </h1>
@@ -391,7 +391,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                   <>
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium"
+                      className="flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors font-medium"
                     >
                       <Edit3 className="w-4 h-4" />
                       Edit Listing
@@ -410,7 +410,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
               <span>Listed: {listing.listedPrice}</span>
             </div>
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-orange-400" />
+              <TrendingUp className="w-4 h-4 text-purple-400" />
               <span>Highest Offer: {highestOffer > 0 ? `£${highestOffer.toLocaleString()}` : 'None yet'}</span>
             </div>
             <div className="flex items-center gap-2">
@@ -420,7 +420,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
             <div className="flex items-center gap-2">
               <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
                 listing.status === 'live' ? 'bg-green-500/20 text-green-400' :
-                listing.status === 'under-offer' ? 'bg-orange-500/20 text-orange-400' :
+                listing.status === 'under-offer' ? 'bg-purple-500/20 text-purple-400' :
                 listing.status === 'sold' ? 'bg-blue-500/20 text-blue-400' :
                 'bg-gray-500/20 text-gray-400'
               }`}>
@@ -453,7 +453,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                   onClick={() => setActiveTab('details')}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                     activeTab === 'details'
-                      ? 'bg-orange-500 text-white shadow-lg'
+                      ? 'bg-purple-500 text-white shadow-lg'
                       : 'text-white/70 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -463,7 +463,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                   onClick={() => setActiveTab('offers')}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                     activeTab === 'offers'
-                      ? 'bg-orange-500 text-white shadow-lg'
+                      ? 'bg-purple-500 text-white shadow-lg'
                       : 'text-white/70 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -495,7 +495,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                           type="text"
                           value={editedListing.address}
                           onChange={(e) => setEditedListing({...editedListing, address: e.target.value})}
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                       ) : (
                         <p className="text-white">{listing.address}</p>
@@ -511,7 +511,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                           type="text"
                           value={editedListing.listedPrice}
                           onChange={(e) => setEditedListing({...editedListing, listedPrice: e.target.value})}
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
                           placeholder="£500,000"
                         />
                       ) : (
@@ -528,7 +528,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                           type="text"
                           value={editedListing.sellerName}
                           onChange={(e) => setEditedListing({...editedListing, sellerName: e.target.value})}
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                       ) : (
                         <p className="text-white">{listing.sellerName}</p>
@@ -544,7 +544,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                           type="email"
                           value={editedListing.sellerEmail}
                           onChange={(e) => setEditedListing({...editedListing, sellerEmail: e.target.value})}
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
                           placeholder="seller@example.com"
                         />
                       ) : (
@@ -560,7 +560,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                         <select
                           value={editedListing.status}
                           onChange={(e) => setEditedListing({...editedListing, status: e.target.value})}
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                         >
                           <option value="draft" className="bg-gray-800">Draft</option>
                           <option value="live" className="bg-gray-800">Live</option>
@@ -571,7 +571,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                       ) : (
                         <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
                           listing.status === 'live' ? 'bg-green-500/20 text-green-400' :
-                          listing.status === 'under-offer' ? 'bg-orange-500/20 text-orange-400' :
+                          listing.status === 'under-offer' ? 'bg-purple-500/20 text-purple-400' :
                           listing.status === 'sold' ? 'bg-blue-500/20 text-blue-400' :
                           'bg-gray-500/20 text-gray-400'
                         }`}>
@@ -590,10 +590,10 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                             type="file"
                             accept="image/*"
                             onChange={handleImageUpload}
-                            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-orange-500 file:text-white file:cursor-pointer hover:file:bg-orange-600"
+                            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-purple-500 file:text-white file:cursor-pointer hover:file:bg-purple-600"
                           />
                           {imageUploading && (
-                            <p className="text-orange-400 text-sm">Uploading image...</p>
+                            <p className="text-purple-400 text-sm">Uploading image...</p>
                           )}
                         </div>
                       ) : (
@@ -612,7 +612,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                       <label className="block text-sm font-medium text-white/70 mb-2">
                         Top Offer
                       </label>
-                      <p className="text-orange-400 font-semibold text-lg">
+                      <p className="text-purple-400 font-semibold text-lg">
                         {highestOffer > 0 ? `£${highestOffer.toLocaleString()}` : 'None yet'}
                       </p>
                     </div>
@@ -693,7 +693,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                               <div className="flex items-center gap-2">
                                 <div className={`w-2 h-2 rounded-full ${
                                   offer.fundingType === 'Cash' ? 'bg-green-500' : 
-                                  offer.fundingType === 'Mortgage' ? 'bg-blue-500' : 'bg-orange-500'
+                                  offer.fundingType === 'Mortgage' ? 'bg-blue-500' : 'bg-purple-500'
                                 }`}></div>
                                 <span>{offer.fundingType}</span>
                               </div>
@@ -706,7 +706,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                             
                             <div className="flex items-center gap-4 text-sm">
                               {offer.chain && (
-                                <div className="flex items-center gap-1 text-orange-400">
+                                <div className="flex items-center gap-1 text-purple-400">
                                   <AlertCircle className="w-4 h-4" />
                                   <span>Chain</span>
                                 </div>
@@ -824,7 +824,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                 {/* Quick Actions */}
                 <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-4">
                   <div className="flex items-center gap-3 mb-2">
-                    <Copy className="w-5 h-5 text-orange-400" />
+                    <Copy className="w-5 h-5 text-purple-400" />
                     <h4 className="font-medium text-white">Quick Actions</h4>
                   </div>
                   <div className="space-y-2">
@@ -941,14 +941,14 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                   value={newBuyerName}
                   onChange={(e) => setNewBuyerName(e.target.value)}
                   placeholder="Buyer Name"
-                  className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <input
                   type="email"
                   value={newBuyerEmail}
                   onChange={(e) => setNewBuyerEmail(e.target.value)}
                   placeholder="buyer@example.com"
-                  className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
               <button
@@ -966,7 +966,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
               <h4 className="font-medium text-white mb-3">Active Buyer Codes</h4>
               {loadingBuyerCodes ? (
                 <div className="text-center py-8">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
                   <p className="text-white/70 mt-2">Loading...</p>
                 </div>
               ) : buyerCodes.length === 0 ? (
@@ -978,7 +978,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="flex items-center gap-3 mb-1">
-                            <span className="font-mono text-orange-400 font-medium">
+                            <span className="font-mono text-purple-400 font-medium">
                               {buyerCode.code}
                             </span>
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${

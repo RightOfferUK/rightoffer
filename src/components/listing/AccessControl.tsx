@@ -84,7 +84,7 @@ const AccessControl: React.FC<AccessControlProps> = ({
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <Home className="w-8 h-8 text-orange-400" />
+              <Home className="w-8 h-8 text-purple-400" />
               <h1 className="text-2xl font-bold text-white font-dm-sans">
                 Property Access
               </h1>
@@ -157,7 +157,7 @@ const AccessControl: React.FC<AccessControlProps> = ({
                     type="text"
                     value={enteredCode}
                     onChange={(e) => setEnteredCode(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
+                    className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
                     placeholder={accessType === 'seller' ? 'Enter your seller code' : 'Enter your buyer code'}
                     required
                   />
@@ -190,7 +190,7 @@ const AccessControl: React.FC<AccessControlProps> = ({
                 <button
                   type="submit"
                   disabled={validatingBuyerCode}
-                  className="flex-1 px-4 py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-3 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
                 >
                   {validatingBuyerCode && accessType === 'buyer' ? (
                     <>

@@ -74,7 +74,7 @@ const UserMenu = () => {
               whileTap={{ scale: 0.98 }}
             >
               {/* User Avatar */}
-              <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
                 <span className="text-white text-sm font-bold font-dm-sans">
                   {userInitials}
                 </span>

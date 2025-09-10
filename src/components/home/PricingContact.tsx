@@ -142,7 +142,7 @@ const PricingContact = () => {
                       value={formData.name}
                       onChange={handleInputChange}
                       placeholder="Your name"
-                      className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 font-dm-sans backdrop-blur-sm focus:outline-none focus:border-orange-500/50 focus:bg-white/20 transition-all duration-300"
+                      className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 font-dm-sans backdrop-blur-sm focus:outline-none focus:border-purple-500/50 focus:bg-white/20 transition-all duration-300"
                       required
                     />
                   </div>
@@ -155,7 +155,7 @@ const PricingContact = () => {
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder="Your email"
-                      className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 font-dm-sans backdrop-blur-sm focus:outline-none focus:border-orange-500/50 focus:bg-white/20 transition-all duration-300"
+                      className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 font-dm-sans backdrop-blur-sm focus:outline-none focus:border-purple-500/50 focus:bg-white/20 transition-all duration-300"
                       required
                     />
                   </div>
@@ -167,7 +167,7 @@ const PricingContact = () => {
                       value={formData.message}
                       onChange={handleInputChange}
                       placeholder="Your message"
-                      className="w-full h-full min-h-[120px] pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 font-dm-sans backdrop-blur-sm focus:outline-none focus:border-orange-500/50 focus:bg-white/20 transition-all duration-300 resize-none"
+                      className="w-full h-full min-h-[120px] pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 font-dm-sans backdrop-blur-sm focus:outline-none focus:border-purple-500/50 focus:bg-white/20 transition-all duration-300 resize-none"
                       required
                     />
                   </div>

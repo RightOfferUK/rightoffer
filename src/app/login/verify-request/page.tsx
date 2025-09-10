@@ -61,7 +61,7 @@ export default function VerifyRequestPage() {
             </Link>
 
             <motion.div
-              className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-6"
+              className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -88,7 +88,7 @@ export default function VerifyRequestPage() {
               
               <Link 
                 href="/login"
-                className="inline-block text-orange-500 hover:text-orange-400 font-dm-sans text-sm transition-colors"
+                className="inline-block text-purple-500 hover:text-purple-400 font-dm-sans text-sm transition-colors"
               >
                 Try a different email address
               </Link>

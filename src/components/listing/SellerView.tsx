@@ -66,7 +66,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
       case 'countered':
         return 'text-blue-400 bg-blue-500/20';
       case 'pending verification':
-        return 'text-orange-400 bg-orange-500/20';
+        return 'text-purple-400 bg-purple-500/20';
       case 'accepted':
         return 'text-green-500 bg-green-500/30';
       case 'declined':
@@ -96,7 +96,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
       <div className="bg-navy-gradient border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center gap-3 mb-4">
-            <Home className="w-6 h-6 text-orange-400" />
+            <Home className="w-6 h-6 text-purple-400" />
             <h1 className="text-2xl font-bold text-white font-dm-sans">
               Your Property
             </h1>
@@ -113,7 +113,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
               <span>Listed: {listing.listedPrice}</span>
             </div>
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-orange-400" />
+              <TrendingUp className="w-4 h-4 text-purple-400" />
               <span>Highest Offer: {highestOffer > 0 ? `£${highestOffer.toLocaleString()}` : 'None yet'}</span>
             </div>
             <div className="flex items-center gap-2">
@@ -123,7 +123,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
             <div className="flex items-center gap-2">
               <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
                 listing.status === 'live' ? 'bg-green-500/20 text-green-400' :
-                listing.status === 'under-offer' ? 'bg-orange-500/20 text-orange-400' :
+                listing.status === 'under-offer' ? 'bg-purple-500/20 text-purple-400' :
                 listing.status === 'sold' ? 'bg-blue-500/20 text-blue-400' :
                 'bg-gray-500/20 text-gray-400'
               }`}>
@@ -210,7 +210,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                             <div className="flex items-center gap-2">
                               <div className={`w-2 h-2 rounded-full ${
                                 offer.fundingType === 'Cash' ? 'bg-green-500' : 
-                                offer.fundingType === 'Mortgage' ? 'bg-blue-500' : 'bg-orange-500'
+                                offer.fundingType === 'Mortgage' ? 'bg-blue-500' : 'bg-purple-500'
                               }`}></div>
                               <span>{offer.fundingType}</span>
                             </div>
@@ -223,7 +223,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                           
                           <div className="flex items-center gap-4 text-sm">
                             {offer.chain && (
-                              <div className="flex items-center gap-1 text-orange-400">
+                              <div className="flex items-center gap-1 text-purple-400">
                                 <AlertCircle className="w-4 h-4" />
                                 <span>Has chain</span>
                               </div>
@@ -268,8 +268,8 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                   <p className="text-white text-xl font-bold">{listing.listedPrice}</p>
                 </div>
                 
-                <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg">
-                  <h4 className="text-orange-300 font-semibold mb-2">Highest Offer</h4>
+                <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                  <h4 className="text-purple-300 font-semibold mb-2">Highest Offer</h4>
                   <p className="text-white text-xl font-bold">
                     {highestOffer > 0 ? `£${highestOffer.toLocaleString()}` : 'None yet'}
                   </p>
@@ -284,7 +284,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                   <h4 className="text-purple-300 font-semibold mb-2">Status</h4>
                   <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
                     listing.status === 'live' ? 'bg-green-500/20 text-green-400' :
-                    listing.status === 'under-offer' ? 'bg-orange-500/20 text-orange-400' :
+                    listing.status === 'under-offer' ? 'bg-purple-500/20 text-purple-400' :
                     listing.status === 'sold' ? 'bg-blue-500/20 text-blue-400' :
                     'bg-gray-500/20 text-gray-400'
                   }`}>

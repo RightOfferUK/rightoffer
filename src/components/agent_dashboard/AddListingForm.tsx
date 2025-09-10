@@ -162,7 +162,7 @@ const AddListingForm = () => {
             value={formData.address}
             onChange={handleInputChange}
             required
-            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
+            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
             placeholder="123 Oak Street, London, SW1A 1AA"
           />
         </div>
@@ -178,7 +178,7 @@ const AddListingForm = () => {
             value={formData.sellerName}
             onChange={handleInputChange}
             required
-            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
+            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
             placeholder="John Smith"
           />
         </div>
@@ -194,7 +194,7 @@ const AddListingForm = () => {
             value={formData.sellerEmail}
             onChange={handleInputChange}
             required
-            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
+            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
             placeholder="john@example.com"
           />
         </div>
@@ -210,7 +210,7 @@ const AddListingForm = () => {
             value={formData.listedPrice}
             onChange={handleInputChange}
             required
-            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
+            className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
             placeholder="£450,000"
           />
         </div>
@@ -255,7 +255,7 @@ const AddListingForm = () => {
         <button
           type="submit"
           disabled={isSubmitting || isUploading}
-          className="w-full px-4 py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
+          className="w-full px-4 py-3 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
         >
           {isSubmitting || isUploading ? (
             <>
