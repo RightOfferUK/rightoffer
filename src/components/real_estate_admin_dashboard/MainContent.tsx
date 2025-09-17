@@ -2,6 +2,7 @@
 
 import React from 'react';
 import AgentsTable from './AgentsTable';
+import ListingUsageAlert from './ListingUsageAlert';
 
 const MainContent = () => {
   return (
@@ -11,6 +12,8 @@ const MainContent = () => {
         <p className="text-white/70 mt-1">Manage and track all your company agents</p>
       </div>
 
+      <ListingUsageAlert />
+      
       <AgentsTable />
     </div>
   );

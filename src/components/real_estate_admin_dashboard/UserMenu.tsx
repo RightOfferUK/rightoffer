@@ -51,7 +51,15 @@ export default function UserMenu() {
             <div className="w-32">
               <div className="w-full bg-white/10 rounded-full h-2">
                 <div
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all"
+                  className={`h-2 rounded-full transition-all ${
+                    session.user.maxListings && session.user.usedListings && 
+                    session.user.usedListings >= session.user.maxListings
+                      ? 'bg-gradient-to-r from-red-500 to-red-600'
+                      : session.user.maxListings && session.user.usedListings && 
+                        (session.user.usedListings / session.user.maxListings) >= 0.8
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600'
+                      : 'bg-gradient-to-r from-blue-500 to-blue-600'
+                  }`}
                   style={{
                     width: `${session.user.maxListings && session.user.maxListings > 0 
                       ? ((session.user.usedListings || 0) / session.user.maxListings) * 100 

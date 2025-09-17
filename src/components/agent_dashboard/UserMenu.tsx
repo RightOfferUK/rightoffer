@@ -75,15 +75,6 @@ const UserMenu = () => {
         <div className="flex items-center space-x-4">
 
 
-          {/* Payments */}
-          <motion.button
-            className="flex items-center space-x-2 px-3 py-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <CreditCard className="w-5 h-5" />
-            <span className="font-dm-sans text-sm font-medium">Payments</span>
-          </motion.button>
 
           {/* User Dropdown */}
           <div className="relative z-[101]">
