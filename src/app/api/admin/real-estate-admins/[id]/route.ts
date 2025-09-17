@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import User from '@/models/User';
+import mongoose from 'mongoose';
 
 export async function PATCH(
   request: NextRequest,
@@ -21,7 +22,7 @@ export async function PATCH(
 
     // Parse request body
     const body = await request.json();
-    const { isActive, maxListings, companyName, name, email } = body;
+    const { maxListings, companyName, name, email } = body;
 
     // Find the real estate admin
     const admin = await User.findById(id);
@@ -30,8 +31,7 @@ export async function PATCH(
     }
 
     // Update fields
-    const updateData: any = {};
-    if (typeof isActive === 'boolean') updateData.isActive = isActive;
+    const updateData: Record<string, string | number> = {};
     if (maxListings !== undefined) updateData.maxListings = parseInt(maxListings);
     if (companyName !== undefined) updateData.companyName = companyName;
     if (name !== undefined) updateData.name = name;
@@ -91,23 +91,42 @@ export async function DELETE(
       return NextResponse.json({ error: 'Real estate admin not found' }, { status: 404 });
     }
 
-    // Check if they have any agents
-    const agentCount = await User.countDocuments({ 
-      realEstateAdminId: id,
+    // Get all agents under this real estate admin
+    const agents = await User.find({ 
+      realEstateAdminId: new mongoose.Types.ObjectId(id),
       role: 'agent' 
     });
 
-    if (agentCount > 0) {
-      return NextResponse.json({ 
-        error: 'Cannot delete real estate admin with active agents. Please reassign or remove agents first.' 
-      }, { status: 409 });
+    // Get all listings created by these agents
+    const agentIds = agents.map(agent => agent._id);
+    const Listing = (await import('@/models/Listing')).default;
+    const listings = await Listing.find({ agentId: { $in: agentIds } });
+
+    // Get all buyer codes for these listings
+    const BuyerCode = (await import('@/models/BuyerCode')).default;
+    const listingIds = listings.map(listing => listing._id);
+    const buyerCodes = await BuyerCode.find({ listingId: { $in: listingIds } });
+
+    // Note: Offer model doesn't exist yet, so we'll skip offer deletion for now
+    // This can be added later when the Offer model is created
+    
+    if (buyerCodes.length > 0) {
+      await BuyerCode.deleteMany({ listingId: { $in: listingIds } });
+    }
+    
+    if (listings.length > 0) {
+      await Listing.deleteMany({ agentId: { $in: agentIds } });
+    }
+    
+    if (agents.length > 0) {
+      await User.deleteMany({ realEstateAdminId: new mongoose.Types.ObjectId(id), role: 'agent' });
     }
 
-    // Delete the admin
+    // Finally, delete the real estate admin
     await User.findByIdAndDelete(id);
 
     return NextResponse.json({ 
-      message: 'Real estate admin deleted successfully'
+      message: `Real estate admin deleted successfully. Removed ${agents.length} agents, ${listings.length} listings, and ${buyerCodes.length} buyer codes.`
     });
 
   } catch (error) {

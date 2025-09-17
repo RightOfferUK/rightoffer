@@ -30,8 +30,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return false;
       }
       
-      if (!existingUser.isActive) {
-        // Don't allow inactive users to sign in
+      // Only check isActive for agents
+      if (existingUser.role === 'agent' && !existingUser.isActive) {
+        // Don't allow inactive agents to sign in
         return false;
       }
       

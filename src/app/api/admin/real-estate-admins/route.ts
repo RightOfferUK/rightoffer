@@ -37,7 +37,6 @@ export async function GET(request: NextRequest) {
           companyName: 1,
           maxListings: 1,
           usedListings: 1,
-          isActive: 1,
           createdAt: 1,
           agentCount: 1
         }
@@ -96,7 +95,6 @@ export async function POST(request: NextRequest) {
       companyName,
       maxListings: parseInt(maxListings),
       usedListings: 0,
-      isActive: true,
       createdBy: session.user.id,
     });
 
@@ -111,7 +109,6 @@ export async function POST(request: NextRequest) {
         companyName: newAdmin.companyName,
         maxListings: newAdmin.maxListings,
         usedListings: newAdmin.usedListings,
-        isActive: newAdmin.isActive,
         createdAt: newAdmin.createdAt,
       }
     });

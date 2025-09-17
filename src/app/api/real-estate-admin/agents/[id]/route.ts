@@ -90,7 +90,7 @@ export async function DELETE(
     // Check if they have any active listings
     const { default: Listing } = await import('@/models/Listing');
     const listingCount = await Listing.countDocuments({ 
-      agentId: id 
+      agentId: new mongoose.Types.ObjectId(id)
     });
 
     if (listingCount > 0) {

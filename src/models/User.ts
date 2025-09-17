@@ -49,7 +49,9 @@ const UserSchema = new Schema<IUser>({
   },
   isActive: {
     type: Boolean,
-    default: true
+    default: function() {
+      return this.role === 'agent';
+    }
   },
   
   // Real estate admin specific fields
@@ -86,7 +88,7 @@ const UserSchema = new Schema<IUser>({
         if (this.role !== 'agent') return true;
         
         const admin = await mongoose.models.User.findById(value);
-        return admin && admin.role === 'real_estate_admin' && admin.isActive;
+        return admin && admin.role === 'real_estate_admin';
       },
       message: 'Invalid real estate admin reference'
     }
@@ -102,7 +104,6 @@ const UserSchema = new Schema<IUser>({
 });
 
 // Indexes for better query performance
-UserSchema.index({ email: 1 });
 UserSchema.index({ role: 1, isActive: 1 });
 UserSchema.index({ realEstateAdminId: 1 }); // For agents under a real estate admin
 UserSchema.index({ createdBy: 1 }); // For tracking who created users
@@ -136,8 +137,13 @@ UserSchema.pre('save', function(next) {
 UserSchema.statics.canCreateListing = async function(userId: string): Promise<{ canCreate: boolean; reason?: string }> {
   const user = await this.findById(userId);
   
-  if (!user || !user.isActive) {
-    return { canCreate: false, reason: 'User not found or inactive' };
+  if (!user) {
+    return { canCreate: false, reason: 'User not found' };
+  }
+  
+  // Only check isActive for agents
+  if (user.role === 'agent' && !user.isActive) {
+    return { canCreate: false, reason: 'Agent account is inactive' };
   }
   
   if (user.role === 'admin') {
@@ -147,8 +153,8 @@ UserSchema.statics.canCreateListing = async function(userId: string): Promise<{ 
   if (user.role === 'agent') {
     // Check if their real estate admin has available listings
     const admin = await this.findById(user.realEstateAdminId);
-    if (!admin || !admin.isActive) {
-      return { canCreate: false, reason: 'Real estate admin not found or inactive' };
+    if (!admin) {
+      return { canCreate: false, reason: 'Real estate admin not found' };
     }
     
     if (admin.usedListings >= admin.maxListings) {
@@ -185,7 +191,7 @@ UserSchema.statics.incrementListingCount = async function(userId: string): Promi
     );
     
     // Update the real estate admin's total
-    await this.updateRealEstateAdminUsedListings(user.realEstateAdminId);
+    await (this as IUserModel).updateRealEstateAdminUsedListings(user.realEstateAdminId);
   } else if (user.role === 'real_estate_admin') {
     // Increment their own count
     await this.findByIdAndUpdate(
@@ -212,7 +218,7 @@ UserSchema.statics.decrementListingCount = async function(userId: string): Promi
       { $set: { usedListings: Math.max(0, currentUsedListings - 1) } }
     );
     // Update the real estate admin's total
-    await this.updateRealEstateAdminUsedListings(user.realEstateAdminId);
+    await (this as IUserModel).updateRealEstateAdminUsedListings(user.realEstateAdminId);
   } else if (user.role === 'real_estate_admin') {
     // Decrement their own count
     const currentUsedListings = user.usedListings || 0;
@@ -231,7 +237,7 @@ UserSchema.statics.updateRealEstateAdminUsedListings = async function(realEstate
     role: 'agent' 
   });
   
-  const totalUsedListings = agents.reduce((sum, agent) => sum + (agent.usedListings || 0), 0);
+  const totalUsedListings = agents.reduce((sum: number, agent: any) => sum + (agent.usedListings || 0), 0);
   
   await this.findByIdAndUpdate(
     realEstateAdminId,

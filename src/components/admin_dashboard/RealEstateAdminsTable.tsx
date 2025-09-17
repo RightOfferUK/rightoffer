@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
-import { Building2, Users, TrendingUp, Edit3, Trash2, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Building2, Users, Edit3, Trash2, Loader2 } from 'lucide-react';
 
 interface RealEstateAdmin {
   _id: string;
@@ -12,7 +12,6 @@ interface RealEstateAdmin {
   companyName: string;
   maxListings: number;
   usedListings: number;
-  isActive: boolean;
   createdAt: string;
   agentCount?: number;
 }
@@ -29,7 +28,6 @@ export default function RealEstateAdminsTable() {
     admin: null 
   });
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAdmins();
@@ -61,28 +59,6 @@ export default function RealEstateAdminsTable() {
     }
   };
 
-  const toggleAdminStatus = async (adminId: string, currentStatus: boolean) => {
-    setActionLoading(adminId);
-    try {
-      const response = await fetch(`/api/admin/real-estate-admins/${adminId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: !currentStatus }),
-      });
-
-      if (response.ok) {
-        await fetchAdmins(); // Refresh the list
-      } else {
-        const errorData = await response.json();
-        alert(errorData.error || 'Failed to update company status');
-      }
-    } catch (error) {
-      console.error('Error updating admin status:', error);
-      alert('Network error. Please try again.');
-    } finally {
-      setActionLoading(null);
-    }
-  };
 
   const handleDeleteAdmin = async (admin: RealEstateAdmin) => {
     setDeleting(admin._id);
@@ -155,9 +131,6 @@ export default function RealEstateAdminsTable() {
                   Agents
                 </th>
                 <th className="text-left py-4 px-6 text-white/70 font-dm-sans text-sm font-medium">
-                  Status
-                </th>
-                <th className="text-left py-4 px-6 text-white/70 font-dm-sans text-sm font-medium">
                   Actions
                 </th>
               </tr>
@@ -225,33 +198,7 @@ export default function RealEstateAdminsTable() {
                     </div>
                   </td>
                   <td className="py-4 px-6">
-                    <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium font-dm-sans ${
-                        admin.isActive
-                          ? 'bg-green-500/20 text-green-400'
-                          : 'bg-red-500/20 text-red-400'
-                      }`}
-                    >
-                      {admin.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
                     <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => toggleAdminStatus(admin._id, admin.isActive)}
-                        disabled={actionLoading === admin._id}
-                        className="text-white/60 hover:text-blue-400 transition-colors disabled:opacity-50"
-                        title={admin.isActive ? 'Deactivate' : 'Activate'}
-                      >
-                        {actionLoading === admin._id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : admin.isActive ? (
-                          <EyeOff className="w-4 h-4" />
-                        ) : (
-                          <Eye className="w-4 h-4" />
-                        )}
-                      </button>
-                      
                       <button
                         onClick={() => setQuickEdit({ show: true, admin })}
                         className="text-white/60 hover:text-blue-400 transition-colors"
@@ -331,12 +278,20 @@ const DeleteConfirmationPopup: React.FC<{
 
         <div className="mb-6">
           <p className="text-white/80 mb-2">
-            Are you sure you want to delete this company?
+            Are you sure you want to delete this real estate company?
           </p>
+          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg mb-3">
+            <p className="text-red-300 text-sm font-medium mb-1">⚠️ Warning: This will permanently delete:</p>
+            <ul className="text-red-200 text-sm space-y-1 ml-4">
+              <li>• All agents under this company</li>
+              <li>• All listings created by these agents</li>
+              <li>• All buyer codes associated with these listings</li>
+            </ul>
+          </div>
           <div className="p-3 bg-white/5 rounded-lg">
             <p className="text-white font-medium">{admin.companyName}</p>
             <p className="text-white/60 text-sm">
-              Contact: {admin.name || admin.email} • {admin.agentCount || 0} agents
+              Contact: {admin.name || admin.email} • {admin.agentCount || 0} agents • {admin.usedListings || 0} listings
             </p>
           </div>
         </div>

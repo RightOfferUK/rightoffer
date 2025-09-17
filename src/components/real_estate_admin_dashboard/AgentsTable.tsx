@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -48,7 +48,7 @@ const AgentsTable = () => {
   const filters: FilterType[] = ['All', 'Active', 'Inactive'];
 
   // Fetch agents from API
-  const fetchAgents = useCallback(async () => {
+  const fetchAgents = async () => {
     try {
       setLoading(true);
       setError(null);
@@ -75,31 +75,17 @@ const AgentsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [activeFilter, searchTerm]);
+  };
 
-  // Fetch data on component mount and when filters change
+  // Fetch data on component mount
   useEffect(() => {
     fetchAgents();
-  }, [fetchAgents]);
+  }, []);
 
-  // Auto-refresh every 30 seconds
+  // Fetch data when filters change
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetchAgents();
-    }, 30000); // Refresh every 30 seconds
-
-    return () => clearInterval(interval);
-  }, [fetchAgents]);
-
-  // Listen for custom refresh events (e.g., after listing creation)
-  useEffect(() => {
-    const handleRefresh = () => {
-      fetchAgents();
-    };
-
-    window.addEventListener('refreshListings', handleRefresh);
-    return () => window.removeEventListener('refreshListings', handleRefresh);
-  }, [fetchAgents]);
+    fetchAgents();
+  }, [activeFilter, searchTerm]);
 
   // Listen for custom refresh events (e.g., after agent creation)
   useEffect(() => {
@@ -109,7 +95,7 @@ const AgentsTable = () => {
 
     window.addEventListener('refreshAgentData', handleRefresh);
     return () => window.removeEventListener('refreshAgentData', handleRefresh);
-  }, [fetchAgents]);
+  }, []);
 
   const toggleAgentStatus = async (agentId: string, currentStatus: boolean) => {
     setActionLoading(agentId);

@@ -4,13 +4,15 @@ import React, { useState, useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Mail, ArrowLeft } from 'lucide-react';
+import { Mail, ArrowLeft, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string>('');
+  const [userStatus, setUserStatus] = useState<'active' | 'inactive' | 'not_found' | null>(null);
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -48,15 +50,43 @@ export default function LoginPage() {
     if (!email) return;
 
     setIsLoading(true);
+    setError('');
+    setUserStatus(null);
+
     try {
-      await signIn('resend', { 
-        email, 
-        redirect: false,
-        callbackUrl: '/dashboard' 
+      // First, check user status
+      const statusResponse = await fetch('/api/auth/check-user-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       });
-      setIsSubmitted(true);
+
+      const statusData = await statusResponse.json();
+
+      if (statusData.status === 'inactive') {
+        setUserStatus('inactive');
+        setError(statusData.message);
+        return;
+      }
+
+      if (statusData.status === 'not_found') {
+        setUserStatus('not_found');
+        setError(statusData.message);
+        return;
+      }
+
+      // If user is active, proceed with sign in
+      if (statusData.status === 'active') {
+        await signIn('resend', { 
+          email, 
+          redirect: false,
+          callbackUrl: '/dashboard' 
+        });
+        setIsSubmitted(true);
+      }
     } catch (error) {
       console.error('Sign in error:', error);
+      setError('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -133,6 +163,35 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Error Alert */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`p-4 rounded-lg border flex items-start gap-3 ${
+                  userStatus === 'inactive' 
+                    ? 'bg-amber-500/20 border-amber-500/30' 
+                    : 'bg-red-500/20 border-red-500/30'
+                }`}
+              >
+                <AlertTriangle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+                  userStatus === 'inactive' ? 'text-amber-400' : 'text-red-400'
+                }`} />
+                <div>
+                  <h3 className={`font-semibold font-dm-sans mb-1 ${
+                    userStatus === 'inactive' ? 'text-amber-300' : 'text-red-300'
+                  }`}>
+                    {userStatus === 'inactive' ? 'Account Inactive' : 'Sign In Error'}
+                  </h3>
+                  <p className={`text-sm ${
+                    userStatus === 'inactive' ? 'text-amber-200/80' : 'text-red-200/80'
+                  }`}>
+                    {error}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium font-dm-sans text-white mb-2">
                 Email address
@@ -141,7 +200,13 @@ export default function LoginPage() {
                 type="email"
                 id="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) {
+                    setError('');
+                    setUserStatus(null);
+                  }
+                }}
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 font-dm-sans focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                 placeholder="Enter your email"
                 required
