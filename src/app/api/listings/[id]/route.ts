@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
+import mongoose from 'mongoose';
 
 export async function PUT(
   request: NextRequest,
@@ -26,7 +27,7 @@ export async function PUT(
     }
 
     // Check if the current user is the agent who owns this listing
-    if (listing.agentId !== session.user.id) {
+    if (listing.agentId.toString() !== session.user.id) {
       return NextResponse.json({ error: 'Forbidden: You can only edit your own listings' }, { status: 403 });
     }
 

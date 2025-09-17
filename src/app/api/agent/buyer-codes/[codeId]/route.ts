@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import BuyerCode from '@/models/BuyerCode';
+import mongoose from 'mongoose';
 import Listing from '@/models/Listing';
 
 // PATCH - Update buyer code (name)
@@ -28,7 +29,7 @@ export async function PATCH(
     }
 
     // Check if the current user is the agent who owns this buyer code
-    if (buyerCode.agentId !== session.user.id) {
+    if (buyerCode.agentId.toString() !== session.user.id) {
       return NextResponse.json({ error: 'Forbidden: You can only edit your own buyer codes' }, { status: 403 });
     }
 
@@ -91,7 +92,7 @@ export async function DELETE(
     }
 
     // Check if the current user is the agent who owns this buyer code
-    if (buyerCode.agentId !== session.user.id) {
+    if (buyerCode.agentId.toString() !== session.user.id) {
       return NextResponse.json({ error: 'Forbidden: You can only deactivate your own buyer codes' }, { status: 403 });
     }
 

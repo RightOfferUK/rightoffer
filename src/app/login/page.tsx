@@ -169,7 +169,7 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center">
             <p className="text-white/50 font-dm-sans text-sm">
-              Don't have an account? No worries! We'll create one for you when you sign in.
+              Only authorized users can access this system. Contact your administrator if you need access.
             </p>
           </div>
         </div>

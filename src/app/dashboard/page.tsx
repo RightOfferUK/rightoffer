@@ -1,6 +1,26 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { UserMenu, KPIStrip, MainContent, RightSidebar } from "@/components/agent_dashboard";
+
+// Admin Dashboard Components
+import { 
+  UserMenu as AdminUserMenu, 
+  MainContent as AdminMainContent, 
+  RightSidebar as AdminRightSidebar 
+} from "@/components/admin_dashboard";
+
+// Real Estate Admin Dashboard Components
+import { 
+  UserMenu as REAdminUserMenu, 
+  MainContent as REAdminMainContent, 
+  RightSidebar as REAdminRightSidebar 
+} from "@/components/real_estate_admin_dashboard";
+
+// Agent Dashboard Components
+import { 
+  UserMenu as AgentUserMenu, 
+  MainContent as AgentMainContent, 
+  RightSidebar as AgentRightSidebar 
+} from "@/components/agent_dashboard";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -9,24 +29,48 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  // Render appropriate dashboard components based on user role
+  const renderDashboard = () => {
+    switch (session.user.role) {
+      case 'admin':
+        return (
+          <>
+            <AdminUserMenu />
+            <div className="flex">
+              <AdminMainContent />
+              <AdminRightSidebar />
+            </div>
+          </>
+        );
+      
+      case 'real_estate_admin':
+        return (
+          <>
+            <REAdminUserMenu />
+            <div className="flex">
+              <REAdminMainContent />
+              <REAdminRightSidebar />
+            </div>
+          </>
+        );
+      
+      case 'agent':
+      default:
+        return (
+          <>
+            <AgentUserMenu />
+            <div className="flex">
+              <AgentMainContent />
+              <AgentRightSidebar />
+            </div>
+          </>
+        );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-navy-gradient">
-      {/* User Menu */}
-      <UserMenu />
-      
-      {/* KPI Strip */}
-      <KPIStrip />
-      
-      {/* Main Dashboard Content */}
-      <div className="flex">
-        {/* Left Column - Main Content (2/3 width) */}
-        <MainContent />
-
-        {/* Right Column - Tasks/Actions (1/3 width) */}
-        <RightSidebar />
-      </div>
-      
-      
+      {renderDashboard()}
     </div>
   );
 }

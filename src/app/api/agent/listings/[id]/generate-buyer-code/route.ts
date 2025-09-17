@@ -4,6 +4,7 @@ import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
 import BuyerCode from '@/models/BuyerCode';
 import { sendBuyerCodeEmail } from '@/lib/resend';
+import mongoose from 'mongoose';
 
 // Helper function to generate buyer code
 function generateBuyerCode(): string {
@@ -38,7 +39,7 @@ export async function POST(
     }
 
     // Check if the current user is the agent who owns this listing
-    if (listing.agentId !== session.user.id) {
+    if (listing.agentId.toString() !== session.user.id) {
       return NextResponse.json({ error: 'Forbidden: You can only manage your own listings' }, { status: 403 });
     }
 
@@ -97,7 +98,7 @@ export async function POST(
         listingId: id,
         buyerName: name.trim(),
         buyerEmail: email.trim().toLowerCase(),
-        agentId: session.user.id,
+        agentId: new mongoose.Types.ObjectId(session.user.id),
         isActive: true,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
       });

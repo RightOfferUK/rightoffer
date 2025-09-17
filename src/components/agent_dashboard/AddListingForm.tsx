@@ -105,8 +105,9 @@ const AddListingForm = () => {
         setImagePreview('');
         setSuccess('Listing created successfully! Seller code has been sent to the seller\'s email.');
         
-        // Dispatch event to refresh listings table
+        // Dispatch events to refresh both listings table and agents table
         window.dispatchEvent(new CustomEvent('refreshListings'));
+        window.dispatchEvent(new CustomEvent('refreshAgentData'));
         
         // Clear success message after 5 seconds
         setTimeout(() => setSuccess(''), 5000);

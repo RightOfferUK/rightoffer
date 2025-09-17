@@ -4,6 +4,7 @@ import { cachedMongooseConnection } from '@/lib/db';
 import BuyerCode from '@/models/BuyerCode';
 import Listing from '@/models/Listing';
 import { sendBuyerCodeEmail } from '@/lib/resend';
+import mongoose from 'mongoose';
 
 // POST - Resend buyer code email
 export async function POST(
@@ -29,7 +30,7 @@ export async function POST(
     }
 
     // Check if the current user is the agent who owns this buyer code
-    if (buyerCode.agentId !== session.user.id) {
+    if (buyerCode.agentId.toString() !== session.user.id) {
       return NextResponse.json({ error: 'Forbidden: You can only resend your own buyer codes' }, { status: 403 });
     }
 

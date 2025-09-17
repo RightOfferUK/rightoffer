@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
 import BuyerCode from '@/models/BuyerCode';
+import mongoose from 'mongoose';
 
 // GET - Get all buyer codes for a listing
 export async function GET(
@@ -28,7 +29,7 @@ export async function GET(
     }
 
     // Check if the current user is the agent who owns this listing
-    if (listing.agentId !== session.user.id) {
+    if (listing.agentId.toString() !== session.user.id) {
       return NextResponse.json({ error: 'Forbidden: You can only view your own listing buyer codes' }, { status: 403 });
     }
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
+import mongoose from 'mongoose';
 
 // DELETE - Delete a listing
 export async function DELETE(
@@ -27,12 +28,16 @@ export async function DELETE(
     }
 
     // Check if the current user is the agent who owns this listing
-    if (listing.agentId !== session.user.id) {
+    if (listing.agentId.toString() !== session.user.id) {
       return NextResponse.json({ error: 'Forbidden: You can only delete your own listings' }, { status: 403 });
     }
 
     // Delete the listing
     await Listing.findByIdAndDelete(id);
+
+    // Decrement the listing count for the user
+    const User = (await import('@/models/User')).default;
+    await User.decrementListingCount(session.user.id);
 
     return NextResponse.json({ 
       message: 'Listing deleted successfully'
@@ -70,7 +75,7 @@ export async function PATCH(
     }
 
     // Check if the current user is the agent who owns this listing
-    if (listing.agentId !== session.user.id) {
+    if (listing.agentId.toString() !== session.user.id) {
       return NextResponse.json({ error: 'Forbidden: You can only edit your own listings' }, { status: 403 });
     }
 

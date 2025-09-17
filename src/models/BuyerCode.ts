@@ -38,9 +38,9 @@ const BuyerCodeSchema = new Schema<IBuyerCode>({
     trim: true
   },
   agentId: {
-    type: String,
-    required: true,
-    trim: true
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
   isActive: {
     type: Boolean,

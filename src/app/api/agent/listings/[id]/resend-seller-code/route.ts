@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
 import { sendSellerCodeEmail } from '@/lib/resend';
+import mongoose from 'mongoose';
 
 export async function POST(
   request: NextRequest,
@@ -27,7 +28,7 @@ export async function POST(
     }
 
     // Check if the current user is the agent who owns this listing
-    if (listing.agentId !== session.user.id) {
+    if (listing.agentId.toString() !== session.user.id) {
       return NextResponse.json({ error: 'Forbidden: You can only manage your own listings' }, { status: 403 });
     }
 

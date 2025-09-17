@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
+import mongoose from 'mongoose';
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
 
     // Build query
-    const query: Record<string, unknown> = { agentId: session.user.id };
+    const query: Record<string, unknown> = { agentId: new mongoose.Types.ObjectId(session.user.id) };
     
     if (status && status !== 'All') {
       if (status === 'With offers') {

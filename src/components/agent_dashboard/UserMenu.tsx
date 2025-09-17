@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession, signOut } from 'next-auth/react';
 import { 
@@ -16,10 +16,28 @@ import {
 const UserMenu = () => {
   const { data: session } = useSession();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [companyName, setCompanyName] = useState<string>('');
 
-  // Mock agency data - in real app this would come from user profile/database
-  const agencyName = "Premier Real Estate Group";
   const userInitials = session?.user?.email?.charAt(0).toUpperCase() || "U";
+
+  useEffect(() => {
+    // Fetch company name if user is an agent
+    const fetchCompanyName = async () => {
+      if (session?.user?.role === 'agent' && session?.user?.realEstateAdminId) {
+        try {
+          const response = await fetch(`/api/agent/company-info`);
+          if (response.ok) {
+            const data = await response.json();
+            setCompanyName(data.companyName);
+          }
+        } catch (error) {
+          console.error('Error fetching company info:', error);
+        }
+      }
+    };
+
+    fetchCompanyName();
+  }, [session]);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -42,13 +60,15 @@ const UserMenu = () => {
           {/* Divider */}
           <div className="h-6 w-px bg-white/20"></div>
           
-          {/* Agency Name */}
-          <div className="flex items-center space-x-2">
-            <Building2 className="w-5 h-5 text-white/70" />
-            <span className="text-lg font-semibold font-dm-sans text-white/90">
-              {agencyName}
-            </span>
-          </div>
+          {/* Company Name */}
+          {companyName && (
+            <div className="flex items-center space-x-2">
+              <Building2 className="w-5 h-5 text-white/70" />
+              <span className="text-lg font-semibold font-dm-sans text-white/90">
+                {companyName}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Right Side - Actions and User Menu */}
