@@ -45,18 +45,22 @@ export async function POST(
 
     // Parse the request body
     const body = await request.json();
-    const { name, email } = body;
+    const { buyerName, buyerEmail, name, email } = body;
+    
+    // Support both field name formats for backwards compatibility
+    const buyerNameValue = buyerName || name;
+    const buyerEmailValue = buyerEmail || email;
 
     // Validate required fields
-    if (!name || !email) {
+    if (!buyerNameValue || !buyerEmailValue) {
       return NextResponse.json({ 
-        error: 'Missing required fields: name, email' 
+        error: 'Missing required fields: buyerName, buyerEmail' 
       }, { status: 400 });
     }
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(buyerEmailValue)) {
       return NextResponse.json({ 
         error: 'Invalid email format' 
       }, { status: 400 });
@@ -65,7 +69,7 @@ export async function POST(
     // Check if buyer already has an active code for this listing
     const existingCode = await BuyerCode.findOne({
       listingId: id,
-      buyerEmail: email.trim().toLowerCase(),
+      buyerEmail: buyerEmailValue.trim().toLowerCase(),
       isActive: true,
       expiresAt: { $gt: new Date() }
     });
@@ -76,8 +80,8 @@ export async function POST(
     if (existingCode) {
       // Use existing code and update buyer name if different
       buyerCode = existingCode.code;
-      if (existingCode.buyerName !== name.trim()) {
-        existingCode.buyerName = name.trim();
+      if (existingCode.buyerName !== buyerNameValue.trim()) {
+        existingCode.buyerName = buyerNameValue.trim();
         await existingCode.save();
       }
       savedBuyerCode = existingCode;
@@ -96,8 +100,8 @@ export async function POST(
       savedBuyerCode = await BuyerCode.create({
         code: buyerCode,
         listingId: id,
-        buyerName: name.trim(),
-        buyerEmail: email.trim().toLowerCase(),
+        buyerName: buyerNameValue.trim(),
+        buyerEmail: buyerEmailValue.trim().toLowerCase(),
         agentId: new mongoose.Types.ObjectId(session.user.id),
         isActive: true,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
@@ -107,8 +111,8 @@ export async function POST(
     // Send buyer code via email
     try {
       const emailResult = await sendBuyerCodeEmail(
-        name.trim(),
-        email.trim().toLowerCase(),
+        buyerNameValue.trim(),
+        buyerEmailValue.trim().toLowerCase(),
         buyerCode,
         listing.address,
         listing.listedPrice,
@@ -123,7 +127,7 @@ export async function POST(
       savedBuyerCode.lastEmailSent = new Date();
       await savedBuyerCode.save();
 
-      console.log(`Buyer code email sent successfully to: ${email}`);
+      console.log(`Buyer code email sent successfully to: ${buyerEmailValue}`);
     } catch (emailError) {
       console.error('Failed to send buyer code email:', emailError);
       return NextResponse.json({ 
@@ -134,8 +138,8 @@ export async function POST(
     return NextResponse.json({ 
       message: 'Buyer code generated and sent successfully',
       buyerCode,
-      buyerEmail: email,
-      buyerName: name
+      buyerEmail: buyerEmailValue,
+      buyerName: buyerNameValue
     });
 
   } catch (error) {

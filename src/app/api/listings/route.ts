@@ -17,10 +17,10 @@ export async function POST(request: NextRequest) {
     await cachedMongooseConnection;
 
     // Import User model for listing limits
-    const User = (await import('@/models/User')).default;
+    const { default: User } = await import('@/models/User');
 
     // Check if user can create listings
-    const canCreate = await User.canCreateListing(session.user.id);
+    const canCreate = await (User as any).canCreateListing(session.user.id);
     if (!canCreate.canCreate) {
       return NextResponse.json(
         { error: canCreate.reason || 'Cannot create listing' }, 
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     await listing.save();
 
     // Increment the listing count for the user/company
-    await User.incrementListingCount(session.user.id);
+    await (User as any).incrementListingCount(session.user.id);
 
     // Return listing data (without seller code for agent)
     const listingResponse = {
@@ -122,13 +122,13 @@ export async function GET(request: NextRequest) {
         // Admin can see all listings
         listings = await Listing.find({})
           .select('-sellerCode')
-          .sort({ createdAt: -1 });
+          .sort({ createdAt: -1 })
+          .lean();
         break;
       
       case 'real_estate_admin':
         // Real estate admin can see listings from their agents
-        const User = (await import('@/models/User')).default;
-        const mongoose = (await import('mongoose')).default;
+        const { default: User } = await import('@/models/User');
         const agents = await User.find({ 
           realEstateAdminId: new mongoose.Types.ObjectId(session.user.id),
           role: 'agent' 
@@ -137,7 +137,8 @@ export async function GET(request: NextRequest) {
         
         listings = await Listing.find({ agentId: { $in: agentIds } })
           .select('-sellerCode')
-          .sort({ createdAt: -1 });
+          .sort({ createdAt: -1 })
+          .lean();
         break;
       
       case 'agent':
@@ -145,11 +146,28 @@ export async function GET(request: NextRequest) {
         // Agent can only see their own listings
         listings = await Listing.find({ agentId: new mongoose.Types.ObjectId(session.user.id) })
           .select('-sellerCode')
-          .sort({ createdAt: -1 });
+          .sort({ createdAt: -1 })
+          .lean();
         break;
     }
 
-    return NextResponse.json({ listings });
+    // Serialize listings for client components
+    const serializedListings = listings.map((listing: any) => ({
+      ...listing,
+      _id: listing._id.toString(),
+      agentId: listing.agentId.toString(),
+      createdAt: new Date(listing.createdAt).toISOString(),
+      updatedAt: new Date(listing.updatedAt).toISOString(),
+      offers: listing.offers?.map((offer: any) => ({
+        ...offer,
+        _id: offer._id?.toString(),
+        submittedAt: offer.submittedAt ? new Date(offer.submittedAt).toISOString() : undefined,
+        statusUpdatedAt: offer.statusUpdatedAt ? new Date(offer.statusUpdatedAt).toISOString() : undefined
+      })) || [],
+      __v: undefined
+    }));
+
+    return NextResponse.json({ listings: serializedListings });
 
   } catch (error) {
     console.error('Error fetching listings:', error);

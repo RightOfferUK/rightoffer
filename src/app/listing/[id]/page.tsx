@@ -14,10 +14,11 @@ interface RawListing {
   mainPhoto: string;
   sellerCode: string;
   status: string;
-  agentId: string;
+  agentId: any; // MongoDB ObjectId
   offers: any[];
   createdAt: Date;
   updatedAt: Date;
+  __v?: number; // Mongoose version field
 }
 
 interface ListingPageProps {
@@ -48,18 +49,23 @@ export default async function ListingPage({ params }: ListingPageProps) {
     const listing = rawListing as RawListing;
 
     // Check if current user is the agent who owns this listing
-    const canEdit = session?.user?.id === listing.agentId;
+    const canEdit = session?.user?.id === listing.agentId.toString();
 
     // Convert MongoDB ObjectId to string for client components
     const listingData = {
       ...listing,
       _id: listing._id.toString(),
-      agentId: listing.agentId, // Include for edit permission check
+      agentId: listing.agentId.toString(), // Convert ObjectId to string
       createdAt: listing.createdAt.toISOString(),
+      updatedAt: listing.updatedAt.toISOString(),
       offers: listing.offers.map((offer: any) => ({
         ...offer,
-        _id: offer._id?.toString()
-      }))
+        _id: offer._id?.toString(),
+        submittedAt: offer.submittedAt ? new Date(offer.submittedAt).toISOString() : undefined,
+        statusUpdatedAt: offer.statusUpdatedAt ? new Date(offer.statusUpdatedAt).toISOString() : undefined
+      })),
+      // Remove Mongoose internal fields
+      __v: undefined
     };
 
     return <ListingPageClient listing={listingData} canEdit={canEdit} />;
