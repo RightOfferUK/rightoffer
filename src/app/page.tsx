@@ -5,6 +5,7 @@ import ForAgents from '@/components/home/ForAgents';
 import ForSellers from '@/components/home/ForSellers';
 import PricingContact from '@/components/home/PricingContact';
 import Footer from '@/components/layout/Footer';
+import DisclaimerPopup from '@/components/layout/DisclaimerPopup';
 
 export default function Home() {
   return (
@@ -18,6 +19,7 @@ export default function Home() {
         <PricingContact />
         <Footer />
       </div>
+      <DisclaimerPopup />
     </div>
   );
 }

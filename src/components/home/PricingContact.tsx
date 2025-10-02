@@ -42,71 +42,45 @@ const PricingContact = () => {
             
             <div className="relative backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl h-full flex flex-col">
               <motion.div
-                className="text-center flex-1 flex flex-col"
+                className="text-center flex-1 flex flex-col justify-center"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
                 viewport={{ once: true }}
               >
-                {/* Header */}
-                <div className="mb-6">
-                  <h3 className="text-2xl font-bold font-dm-sans text-white mb-2">Simple Pricing</h3>
-                  <p className="text-white/70 font-dm-sans text-sm">Transparent pricing, no hidden costs</p>
-                </div>
-
                 {/* Price */}
                 <div className="mb-8">
-                  <div className="flex items-baseline justify-center gap-2">
-                    <span className="text-6xl font-black font-dm-sans text-purple-500">£25</span>
-                    <span className="text-white/60 font-dm-sans text-lg">per listing</span>
+                  <div className="flex items-baseline justify-center gap-2 mb-4">
+                    <span className="text-7xl font-black font-dm-sans text-purple-500">£75</span>
+                    <span className="text-white/60 font-dm-sans text-xl">per listing</span>
                   </div>
-                  <p className="text-white/80 font-dm-sans text-sm mt-2">One-time payment • No monthly fees</p>
+                  <p className="text-white/80 font-dm-sans text-base">Minimum 15 listings</p>
                 </div>
                 
-                {/* Features */}
-                <div className="space-y-4 mb-8">
-                  <div className="flex items-center gap-3 text-white/90">
+                {/* Key Features */}
+                <div className="space-y-3 mb-8">
+                  <div className="flex items-center justify-center gap-3 text-white/90">
                     <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                    <span className="font-dm-sans text-sm">Real-time offer transparency</span>
+                    <span className="font-dm-sans text-base">Real-time offers</span>
                   </div>
-                  <div className="flex items-center gap-3 text-white/90">
+                  <div className="flex items-center justify-center gap-3 text-white/90">
                     <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                    <span className="font-dm-sans text-sm">Unique seller codes included</span>
+                    <span className="font-dm-sans text-base">Unlimited submissions</span>
                   </div>
-                  <div className="flex items-center gap-3 text-white/90">
+                  <div className="flex items-center justify-center gap-3 text-white/90">
                     <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                    <span className="font-dm-sans text-sm">Unlimited buyer submissions</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-white/90">
-                    <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                    <span className="font-dm-sans text-sm">24/7 dashboard access</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-white/90">
-                    <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                    <span className="font-dm-sans text-sm">Email notifications</span>
-                  </div>
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                    <div className="text-2xl font-bold text-purple-500 font-dm-sans">500+</div>
-                    <div className="text-white/70 text-xs font-dm-sans">Properties Listed</div>
-                  </div>
-                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                    <div className="text-2xl font-bold text-purple-500 font-dm-sans">98%</div>
-                    <div className="text-white/70 text-xs font-dm-sans">Satisfaction Rate</div>
+                    <span className="font-dm-sans text-base">Dashboard access</span>
                   </div>
                 </div>
 
                 {/* CTA */}
                 <motion.button
-                  className="btn-primary-gradient w-full px-6 py-3 rounded-xl font-dm-sans font-semibold text-base mt-auto"
+                  className="btn-primary-gradient w-full px-8 py-4 rounded-xl font-dm-sans font-semibold text-lg"
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2 }}
                 >
-                  Start Listing Today
+                  Get Started
                 </motion.button>
               </motion.div>
             </div>
