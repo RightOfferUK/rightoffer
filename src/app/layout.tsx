@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
-import SessionProvider from "@/components/providers/SessionProvider";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -29,9 +28,7 @@ export default function RootLayout({
       <body
         className={`${dmSans.variable} font-dm-sans antialiased bg-white text-gray-800`}
       >
-        <SessionProvider>
           {children}
-        </SessionProvider>
       </body>
     </html>
   );

@@ -74,33 +74,11 @@ const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.2 }}
           >
-            <motion.button 
-              className="btn-primary-gradient px-8 py-4 rounded-md font-dm-sans font-semibold text-base flex items-center justify-center group"
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-            >
-              Start listing houses
-              <motion.svg 
-                className="ml-2 w-5 h-5" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-                whileHover={{ x: 4 }}
-                transition={{ duration: 0.2 }}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </motion.svg>
+            <motion.button className="btn-primary-gradient px-8 py-4 rounded-md font-dm-sans font-semibold text-base flex items-center justify-center group">
+            Coming Soon
             </motion.button>
             
-            <motion.button 
-              className="btn-outline-primary px-8 py-4 rounded-md font-dm-sans font-semibold text-base"
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-            >
-              How it works
-            </motion.button>
+
           </motion.div>
         </div>
 
@@ -177,73 +155,7 @@ const Hero = () => {
           })}
         </motion.div>
 
-        {/* Partnership Section */}
-        <motion.div 
-          className="mt-16 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.8 }}
-        >
-          <motion.p 
-            className="text-sm text-gray-500 mb-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 2.0 }}
-          >
-            <span className="text-purple-600 font-medium">Mortgage brokers</span> and <span className="text-purple-600 font-medium">conveyancers/solicitors</span> - want to advertise here? <span className="text-purple-600 font-medium">Contact us</span>.
-          </motion.p>
-
-          {/* Mortgage Brokers */}
-          <motion.div 
-            className="mb-6"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 2.1 }}
-          >
-            <h3 className="text-sm font-medium text-gray-600 mb-3">Mortgage Brokers</h3>
-            <div className="flex flex-wrap justify-center items-center gap-4">
-              {[1, 2, 3, 4, 5].map((index) => (
-                <motion.div
-                  key={`broker-${index}`}
-                  className="group cursor-pointer"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  <div className="w-20 h-12 bg-gray-50 rounded flex items-center justify-center border border-gray-200 group-hover:border-purple-300 group-hover:bg-purple-50 transition-all duration-200">
-                    <span className="text-gray-400 text-xs group-hover:text-purple-600 transition-colors duration-200">
-                      {index}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Conveyancers/Solicitors */}
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 2.2 }}
-          >
-            <h3 className="text-sm font-medium text-gray-600 mb-3">Conveyancers & Solicitors</h3>
-            <div className="flex flex-wrap justify-center items-center gap-4">
-              {[1, 2, 3, 4, 5].map((index) => (
-                <motion.div
-                  key={`solicitor-${index}`}
-                  className="group cursor-pointer"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  <div className="w-20 h-12 bg-gray-50 rounded flex items-center justify-center border border-gray-200 group-hover:border-purple-300 group-hover:bg-purple-50 transition-all duration-200">
-                    <span className="text-gray-400 text-xs group-hover:text-purple-600 transition-colors duration-200">
-                      {index}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </motion.div>
+       
       </div>
     </section>
   );
