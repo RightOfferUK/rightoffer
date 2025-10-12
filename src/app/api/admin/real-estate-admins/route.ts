@@ -3,7 +3,7 @@ import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import User from '@/models/User';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Check authentication and admin role
     const session = await auth();

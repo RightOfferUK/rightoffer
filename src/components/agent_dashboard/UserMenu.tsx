@@ -5,11 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSession, signOut } from 'next-auth/react';
 import { 
   Settings, 
-  CreditCard, 
-  User, 
   LogOut, 
   ChevronDown,
-  Bell,
   Building2
 } from 'lucide-react';
 

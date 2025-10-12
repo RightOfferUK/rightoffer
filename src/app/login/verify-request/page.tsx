@@ -75,15 +75,15 @@ export default function VerifyRequestPage() {
             
             <p className="text-white/70 font-dm-sans mb-6">
               {email ? (
-                <>We've sent a magic link to <strong className="text-white">{email}</strong>. Click the link in the email to sign in.</>
+                <>We&apos;ve sent a magic link to <strong className="text-white">{email}</strong>. Click the link in the email to sign in.</>
               ) : (
-                <>We've sent you a magic link. Click the link in the email to sign in.</>
+                <>We&apos;ve sent you a magic link. Click the link in the email to sign in.</>
               )}
             </p>
             
             <div className="space-y-4">
               <p className="text-white/50 font-dm-sans text-sm">
-                Didn't receive the email? Check your spam folder or try again.
+                Didn&apos;t receive the email? Check your spam folder or try again.
               </p>
               
               <Link 

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Eye, Clock, Shield, BarChart3 } from 'lucide-react';
+import { Eye, Clock, Shield, BarChart3 } from 'lucide-react';
 
 const ForSellers = () => {
   const benefits = [

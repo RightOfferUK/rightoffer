@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { uploadImage } from '@/lib/supabase';
 import { useRealTimeOffers } from '@/hooks/useRealTimeOffers';
 import { 
@@ -438,7 +439,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
             {/* Property Image */}
             {listing.mainPhoto && (
               <div className="mb-8">
-                <img
+                <Image
                   src={listing.mainPhoto}
                   alt={listing.address}
                   className="w-full h-64 md:h-96 object-cover rounded-lg shadow-lg"

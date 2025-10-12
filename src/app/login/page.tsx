@@ -117,7 +117,7 @@ export default function LoginPage() {
               </h1>
               
               <p className="text-white/70 font-dm-sans mb-6">
-                We've sent a magic link to <strong className="text-white">{email}</strong>. 
+                We&apos;ve sent a magic link to <strong className="text-white">{email}</strong>. 
                 Click the link in the email to sign in.
               </p>
               

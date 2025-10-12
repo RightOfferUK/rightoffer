@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Send, User, Mail, MessageSquare, Building2, Eye, Shield, Clock, Star } from 'lucide-react';
+import { CheckCircle2, Send, User, Mail, MessageSquare } from 'lucide-react';
 
 const PricingContact = () => {
   const [formData, setFormData] = useState({

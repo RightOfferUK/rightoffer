@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Building2, Users, TrendingUp, Shield } from 'lucide-react';
+import { Building2, Users, TrendingUp, Shield } from 'lucide-react';
 
 const ForAgents = () => {
   const benefits = [

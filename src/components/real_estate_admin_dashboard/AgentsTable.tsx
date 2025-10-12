@@ -48,7 +48,7 @@ const AgentsTable = () => {
   const filters: FilterType[] = ['All', 'Active', 'Inactive'];
 
   // Fetch agents from API
-  const fetchAgents = async () => {
+  const fetchAgents = React.useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -75,17 +75,17 @@ const AgentsTable = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeFilter, searchTerm]);
 
   // Fetch data on component mount
   useEffect(() => {
     fetchAgents();
-  }, []);
+  }, [fetchAgents]);
 
-  // Fetch data when filters change
+  // Fetch data when filters/search change (handled via fetchAgents memoization)
   useEffect(() => {
     fetchAgents();
-  }, [activeFilter, searchTerm]);
+  }, [fetchAgents]);
 
   // Listen for custom refresh events (e.g., after agent creation)
   useEffect(() => {
@@ -95,7 +95,7 @@ const AgentsTable = () => {
 
     window.addEventListener('refreshAgentData', handleRefresh);
     return () => window.removeEventListener('refreshAgentData', handleRefresh);
-  }, []);
+  }, [fetchAgents]);
 
   const toggleAgentStatus = async (agentId: string, currentStatus: boolean) => {
     setActionLoading(agentId);
@@ -497,8 +497,9 @@ const QuickEditModal: React.FC<{
       
       setSuccess('Agent updated successfully!');
       setTimeout(() => onSuccess(), 1000);
-    } catch (err: any) {
-      setError(err.message || 'Failed to update agent. Please try again.');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update agent. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

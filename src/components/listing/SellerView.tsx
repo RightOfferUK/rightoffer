@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useRealTimeOffers } from '@/hooks/useRealTimeOffers';
 import { 
@@ -141,10 +142,13 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
             {/* Property Image */}
             {listing.mainPhoto && (
               <div className="mb-8">
-                <img
+                <Image
                   src={listing.mainPhoto}
                   alt={listing.address}
+                  width={800}
+                  height={400}
                   className="w-full h-64 md:h-96 object-cover rounded-lg shadow-lg"
+                  priority
                 />
               </div>
             )}
@@ -244,7 +248,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                       
                       {offer.notes && (
                         <div className="mt-4 p-3 bg-white/5 rounded-lg">
-                          <h4 className="text-white/80 font-medium text-sm mb-2">Buyer's Message:</h4>
+                          <h4 className="text-white/80 font-medium text-sm mb-2">Buyer&apos;s Message:</h4>
                           <p className="text-white/80 text-sm">{offer.notes}</p>
                         </div>
                       )}

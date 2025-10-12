@@ -237,7 +237,7 @@ UserSchema.statics.updateRealEstateAdminUsedListings = async function(realEstate
     role: 'agent' 
   });
   
-  const totalUsedListings = agents.reduce((sum: number, agent: any) => sum + (agent.usedListings || 0), 0);
+  const totalUsedListings = agents.reduce((sum: number, agent: IUser) => sum + (agent.usedListings || 0), 0);
   
   await this.findByIdAndUpdate(
     realEstateAdminId,

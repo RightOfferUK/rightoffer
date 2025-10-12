@@ -99,7 +99,7 @@ const HowItWorks = () => {
             viewport={{ once: true }}
           >
             Three simple steps to revolutionize how real estate deals are made. 
-            No more hidden agendas, no more wondering if you're getting the best deal.
+            No more hidden agendas, no more wondering if you&apos;re getting the best deal.
           </motion.p>
         </motion.div>
 

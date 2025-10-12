@@ -20,10 +20,6 @@ const ListingUsageAlert = () => {
     return null;
   }
 
-  // Calculate usage percentage
-  const usagePercentage = (usedListings / maxListings) * 100;
-  const remainingListings = maxListings - usedListings;
-
   // Only show alert if all listings are used up
   if (usedListings < maxListings) {
     return null;
