@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import User from '@/models/User';
 import mongoose from 'mongoose';
+import { sendWelcomeEmail } from '@/lib/resend';
 
 export async function GET(request: NextRequest) {
   try {
@@ -131,8 +132,26 @@ export async function POST(request: NextRequest) {
 
     await newAgent.save();
 
+    // Get the real estate admin's company name for the welcome email
+    const realEstateAdmin = await User.findById(session.user.id);
+    const companyName = realEstateAdmin?.companyName;
+
+    // Send welcome email to the new agent
+    try {
+      await sendWelcomeEmail(
+        newAgent.name || newAgent.email,
+        newAgent.email,
+        'agent',
+        companyName
+      );
+      console.log('Welcome email sent successfully to:', newAgent.email);
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError);
+      // Don't fail the agent creation if email fails
+    }
+
     return NextResponse.json({ 
-      message: 'Agent created successfully',
+      message: 'Agent created successfully. Welcome email has been sent.',
       agent: {
         _id: newAgent._id,
         email: newAgent.email,

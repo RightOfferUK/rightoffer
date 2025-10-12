@@ -3,6 +3,7 @@ import { MongoDBAdapter } from "@auth/mongodb-adapter"
 import Resend from "next-auth/providers/resend"
 import client, { cachedMongooseConnection } from "./lib/db"
 import User from "./models/User"
+import { sendMagicLinkEmail } from "./lib/resend"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: MongoDBAdapter(client),
@@ -10,6 +11,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Resend({
       apiKey: process.env.AUTH_RESEND_KEY,
       from: process.env.EMAIL_FROM || "rightoffer@cromostudios.com",
+      sendVerificationRequest: async ({ identifier: email, url, provider }) => {
+        try {
+          const host = new URL(url).host;
+          await sendMagicLinkEmail(email, url, host);
+          console.log('Magic link email sent successfully to:', email);
+        } catch (error) {
+          console.error('Failed to send magic link email:', error);
+          throw error;
+        }
+      },
     }),
   ],
   pages: {

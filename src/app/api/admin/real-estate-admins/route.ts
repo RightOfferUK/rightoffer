@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import User from '@/models/User';
+import { sendWelcomeEmail } from '@/lib/resend';
 
 export async function GET() {
   try {
@@ -100,8 +101,22 @@ export async function POST(request: NextRequest) {
 
     await newAdmin.save();
 
+    // Send welcome email to the new real estate admin
+    try {
+      await sendWelcomeEmail(
+        newAdmin.name || newAdmin.email,
+        newAdmin.email,
+        'real_estate_admin',
+        newAdmin.companyName
+      );
+      console.log('Welcome email sent successfully to:', newAdmin.email);
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError);
+      // Don't fail the admin creation if email fails
+    }
+
     return NextResponse.json({ 
-      message: 'Real estate admin created successfully',
+      message: 'Real estate admin created successfully. Welcome email has been sent.',
       admin: {
         _id: newAdmin._id,
         email: newAdmin.email,
