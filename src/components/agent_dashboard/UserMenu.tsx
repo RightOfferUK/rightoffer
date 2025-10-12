@@ -6,7 +6,6 @@ import { useSession, signOut } from 'next-auth/react';
 import { 
   Settings, 
   LogOut, 
-  Building2,
   User,
   Home
 } from 'lucide-react';

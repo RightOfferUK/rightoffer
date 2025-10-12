@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
-import { formatPrice } from '@/lib/priceUtils';
 import mongoose from 'mongoose';
 
 // Type for raw listing from MongoDB

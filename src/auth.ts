@@ -11,7 +11,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Resend({
       apiKey: process.env.AUTH_RESEND_KEY,
       from: process.env.EMAIL_FROM || "rightoffer@cromostudios.com",
-      sendVerificationRequest: async ({ identifier: email, url, provider }) => {
+      sendVerificationRequest: async ({ identifier: email, url }) => {
         try {
           const host = new URL(url).host;
           await sendMagicLinkEmail(email, url, host);

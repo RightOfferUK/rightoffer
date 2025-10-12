@@ -11,7 +11,6 @@ export function generateMagicLinkEmail({
   url,
   host,
   email,
-  baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
 }: MagicLinkEmailProps) {
   const base = createBaseTemplate({
     title: 'Sign in to RightOffer',

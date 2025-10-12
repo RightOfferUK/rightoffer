@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Upload, Image as ImageIcon, Loader2, Check, AlertCircle } from 'lucide-react';
 import { uploadImage } from '@/lib/supabase';
-import { formatPriceInput, parsePrice, isValidPrice } from '@/lib/priceUtils';
+import { formatPriceInput, parsePrice } from '@/lib/priceUtils';
 
 interface ListingFormData {
   address: string;
