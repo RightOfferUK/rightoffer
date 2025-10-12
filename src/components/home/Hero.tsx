@@ -79,6 +79,9 @@ const Hero = () => {
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.2 }}
+              onClick={() => {
+                window.location.href = '#pricing-contact';
+              }}
             >
               Start listing houses
               <motion.svg 
@@ -98,6 +101,12 @@ const Hero = () => {
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.2 }}
+              onClick={() => {
+                const element = document.querySelector('#how-it-works');
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
             >
               How it works
             </motion.button>

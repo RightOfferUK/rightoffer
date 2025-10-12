@@ -50,17 +50,30 @@ const Navbar = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
           >
             <div className="ml-10 flex items-baseline space-x-8">
-              {['How it works', 'For Agents', 'For Sellers', 'Pricing', 'Contact'].map((item, index) => (
+              {[
+                { name: 'How it works', href: '#how-it-works' },
+                { name: 'For Agents', href: '#for-agents' },
+                { name: 'For Sellers', href: '#for-sellers' },
+                { name: 'Pricing', href: '#pricing-contact' },
+                { name: 'Contact', href: '#pricing-contact' }
+              ].map((item, index) => (
                 <motion.a
-                  key={item}
-                  href={`#${item.toLowerCase().replace(' ', '-')}`}
+                  key={item.name}
+                  href={item.href}
                   className="text-gray-600 hover:text-purple-600 px-3 py-2 text-sm font-medium font-dm-sans transition-colors"
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
                   whileHover={{ y: -2 }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const element = document.querySelector(item.href);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
                 >
-                  {item}
+                  {item.name}
                 </motion.a>
               ))}
             </div>
@@ -73,14 +86,15 @@ const Navbar = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
           >
-            <motion.a
-              href="#seller-buyer-codes"
-              className="text-gray-600 hover:text-purple-600 px-3 py-2 text-sm font-medium font-dm-sans transition-colors"
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.2 }}
-            >
-              Seller code or buyer code?
-            </motion.a>
+            <Link href="/listing">
+              <motion.button
+                className="text-gray-600 hover:text-purple-600 px-3 py-2 text-sm font-medium font-dm-sans transition-colors"
+                whileHover={{ y: -2 }}
+                transition={{ duration: 0.2 }}
+              >
+                Seller code or buyer code?
+              </motion.button>
+            </Link>
             {session ? (
               <Link href="/dashboard">
                 <motion.button 
@@ -137,27 +151,43 @@ const Navbar = () => {
                 animate={{ y: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 }}
               >
-                {['How it works', 'For Agents', 'For Sellers', 'Pricing', 'Contact'].map((item, index) => (
+                {[
+                  { name: 'How it works', href: '#how-it-works' },
+                  { name: 'For Agents', href: '#for-agents' },
+                  { name: 'For Sellers', href: '#for-sellers' },
+                  { name: 'Pricing', href: '#pricing-contact' },
+                  { name: 'Contact', href: '#pricing-contact' }
+                ].map((item, index) => (
                   <motion.a
-                    key={item}
-                    href={`#${item.toLowerCase().replace(' ', '-')}`}
+                    key={item.name}
+                    href={item.href}
                     className="text-gray-600 hover:text-purple-600 block px-3 py-2 text-base font-medium font-dm-sans transition-colors"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: 0.2 + index * 0.1 }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const element = document.querySelector(item.href);
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                      }
+                      setIsMenuOpen(false);
+                    }}
                   >
-                    {item}
+                    {item.name}
                   </motion.a>
                 ))}
-                <motion.a
-                  href="#seller-buyer-codes"
-                  className="text-gray-600 hover:text-purple-600 block px-3 py-2 text-base font-medium font-dm-sans transition-colors border-t border-gray-200 mt-4 pt-4"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: 0.7 }}
-                >
-                  Seller code or buyer code?
-                </motion.a>
+                <Link href="/listing">
+                  <motion.button
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-gray-600 hover:text-purple-600 block px-3 py-2 text-base font-medium font-dm-sans transition-colors border-t border-gray-200 mt-4 pt-4 w-full text-left"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: 0.7 }}
+                  >
+                    Seller code or buyer code?
+                  </motion.button>
+                </Link>
                 {session ? (
                   <Link href="/dashboard">
                     <motion.button 

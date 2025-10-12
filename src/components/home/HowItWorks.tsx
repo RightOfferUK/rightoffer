@@ -241,6 +241,12 @@ const HowItWorks = () => {
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ duration: 0.2 }}
+                onClick={() => {
+                  const element = document.querySelector('#pricing-contact');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
               >
                 Get Started
               </motion.button>

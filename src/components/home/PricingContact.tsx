@@ -79,6 +79,9 @@ const PricingContact = () => {
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2 }}
+                  onClick={() => {
+                    window.location.href = '#pricing-contact';
+                  }}
                 >
                   Get Started
                 </motion.button>

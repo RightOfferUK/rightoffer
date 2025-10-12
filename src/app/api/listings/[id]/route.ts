@@ -2,6 +2,46 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
+import mongoose from 'mongoose';
+
+// Type for the minimal listing data we need
+interface MinimalListing {
+  _id: mongoose.Types.ObjectId;
+  address: string;
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    // Connect to MongoDB
+    await cachedMongooseConnection;
+
+    const { id } = await params;
+
+    // Find listing by ID (minimal data for existence check)
+    const listing = await Listing.findById(id)
+      .select('_id address')
+      .lean() as MinimalListing | null;
+
+    if (!listing) {
+      return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ 
+      exists: true,
+      id: listing._id.toString(),
+      address: listing.address
+    });
+
+  } catch (error) {
+    console.error('Error checking listing:', error);
+    return NextResponse.json({ 
+      error: 'Internal server error' 
+    }, { status: 500 });
+  }
+}
 
 export async function PUT(
   request: NextRequest,
