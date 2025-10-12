@@ -5,13 +5,14 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Upload, Image as ImageIcon, Loader2, Check, AlertCircle } from 'lucide-react';
 import { uploadImage } from '@/lib/supabase';
+import { formatPriceInput, parsePrice, isValidPrice } from '@/lib/priceUtils';
 
 interface ListingFormData {
   address: string;
   sellerName: string;
   sellerEmail: string;
-  listedPrice: string;
-  mainPhoto?: string;
+  listedPrice: number;
+  mainPhoto: string;
 }
 
 const AddListingForm = () => {
@@ -19,9 +20,11 @@ const AddListingForm = () => {
     address: '',
     sellerName: '',
     sellerEmail: '',
-    listedPrice: '',
+    listedPrice: 0,
     mainPhoto: ''
   });
+  
+  const [priceInput, setPriceInput] = useState<string>(''); // For display formatting
   
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -32,10 +35,21 @@ const AddListingForm = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    if (name === 'listedPrice') {
+      // Handle price input separately for formatting
+      const formatted = formatPriceInput(value);
+      setPriceInput(formatted);
+      setFormData(prev => ({
+        ...prev,
+        listedPrice: parsePrice(formatted)
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,15 +80,27 @@ const AddListingForm = () => {
     setSuccess('');
 
     try {
+      // Validate that a photo is selected
+      if (!imageFile) {
+        setError('Property photo is required');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Validate price
+      if (!formData.listedPrice || formData.listedPrice <= 0) {
+        setError('Please enter a valid price');
+        setIsSubmitting(false);
+        return;
+      }
+
       let photoUrl = '';
       
-      // Upload image if selected
-      if (imageFile) {
-        setIsUploading(true);
-        const uploadResult = await uploadImage(imageFile, 'listings');
-        photoUrl = uploadResult.publicUrl;
-        setIsUploading(false);
-      }
+      // Upload image
+      setIsUploading(true);
+      const uploadResult = await uploadImage(imageFile, 'listings');
+      photoUrl = uploadResult.publicUrl;
+      setIsUploading(false);
 
       // Submit form data
       const listingData = {
@@ -98,9 +124,10 @@ const AddListingForm = () => {
           address: '',
           sellerName: '',
           sellerEmail: '',
-          listedPrice: '',
+          listedPrice: 0,
           mainPhoto: ''
         });
+        setPriceInput('');
         setImageFile(null);
         setImagePreview('');
         setSuccess('Listing created successfully! Seller code has been sent to the seller\'s email.');
@@ -208,18 +235,18 @@ const AddListingForm = () => {
           <input
             type="text"
             name="listedPrice"
-            value={formData.listedPrice}
+            value={priceInput}
             onChange={handleInputChange}
             required
             className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
-            placeholder="£450,000"
+            placeholder="450,000"
           />
         </div>
 
         {/* Photo Upload */}
         <div>
           <label className="block text-sm font-medium text-white/70 mb-2">
-            Property Photo (Optional)
+            Property Photo *
           </label>
           <div className="space-y-3">
             <input
@@ -231,7 +258,9 @@ const AddListingForm = () => {
             />
             <label
               htmlFor="photo-upload"
-              className="relative flex items-center justify-center w-full h-32 border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-white/30 transition-colors bg-white/5 overflow-hidden"
+              className={`relative flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors bg-white/5 overflow-hidden ${
+                !imageFile ? 'border-white/20 hover:border-white/30' : 'border-green-500/50 hover:border-green-500/70'
+              }`}
             >
               {imagePreview ? (
                 <Image
@@ -244,8 +273,8 @@ const AddListingForm = () => {
               ) : (
                 <div className="text-center">
                   <ImageIcon className="w-8 h-8 text-white/40 mx-auto mb-2" />
-                  <p className="text-white/60 text-sm">Click to upload photo</p>
-                  <p className="text-white/40 text-xs">Max 2MB</p>
+                  <p className="text-white/60 text-sm">Click to upload photo *</p>
+                  <p className="text-white/40 text-xs">Required • Max 2MB</p>
                 </div>
               )}
             </label>
@@ -255,7 +284,7 @@ const AddListingForm = () => {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={isSubmitting || isUploading}
+          disabled={isSubmitting || isUploading || !imageFile}
           className="w-full px-4 py-3 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
         >
           {isSubmitting || isUploading ? (

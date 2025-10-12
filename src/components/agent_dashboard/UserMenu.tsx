@@ -1,21 +1,20 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useSession, signOut } from 'next-auth/react';
 import { 
   Settings, 
   LogOut, 
-  ChevronDown,
-  Building2
+  Building2,
+  User,
+  Home
 } from 'lucide-react';
+import Link from 'next/link';
 
 const UserMenu = () => {
   const { data: session } = useSession();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [companyName, setCompanyName] = useState<string>('');
-
-  const userInitials = session?.user?.email?.charAt(0).toUpperCase() || "U";
 
   useEffect(() => {
     // Fetch company name if user is an agent
@@ -36,107 +35,74 @@ const UserMenu = () => {
     fetchCompanyName();
   }, [session]);
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: '/' });
   };
 
-  const handleSignOut = async () => {
-    await signOut({ redirectTo: "/" });
-  };
+  if (!session?.user) {
+    return null;
+  }
 
   return (
-    <div className="backdrop-blur-xl bg-white/5 border-b border-white/10 px-6 py-4 relative z-50">
-      <div className="flex items-center justify-between">
-        {/* Left Side - Logo and Agency Name */}
-        <div className="flex items-center space-x-4">
-          {/* Logo */}
+    <div className="bg-white/5 backdrop-blur-xl border-b border-white/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center py-4">
+          {/* Logo/Brand */}
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold font-dm-sans text-white">rightoffer</h1>
+            <Link href="/" className="flex items-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mr-3">
+                <Home className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold font-dm-sans text-white">
+                  {companyName || 'RightOffer'}
+                </h1>
+                <p className="text-xs text-purple-400 font-dm-sans">
+                  Agent Dashboard
+                </p>
+              </div>
+            </Link>
           </div>
-          
-          {/* Divider */}
-          <div className="h-6 w-px bg-white/20"></div>
-          
-          {/* Company Name */}
-          {companyName && (
-            <div className="flex items-center space-x-2">
-              <Building2 className="w-5 h-5 text-white/70" />
-              <span className="text-lg font-semibold font-dm-sans text-white/90">
-                {companyName}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Right Side - Actions and User Menu */}
-        <div className="flex items-center space-x-4">
 
 
-
-          {/* User Dropdown */}
-          <div className="relative z-[101]">
-            <motion.button
-              onClick={toggleDropdown}
-              className="flex items-center space-x-3 px-3 py-2 hover:bg-white/10 rounded-lg transition-colors"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {/* User Avatar */}
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-bold font-dm-sans">
-                  {userInitials}
-                </span>
-              </div>
-              
-              {/* User Info */}
-              <div className="text-left">
-                <div className="text-sm font-medium font-dm-sans text-white">
-                  {session?.user?.email?.split('@')[0] || 'User'}
-                </div>
-                <div className="text-xs text-white/60 font-dm-sans">
+          {/* User Info and Actions */}
+          <div className="flex items-center space-x-4">
+            {/* User Info */}
+            <div className="flex items-center space-x-3">
+              <div className="text-right">
+                <p className="text-white font-dm-sans font-medium">
+                  {session.user.name || session.user.email}
+                </p>
+                <p className="text-xs text-white/60 font-dm-sans capitalize">
                   Agent
-                </div>
+                </p>
               </div>
-              
-              {/* Dropdown Arrow */}
-              <motion.div
-                animate={{ rotate: isDropdownOpen ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
+                <User className="w-5 h-5 text-white" />
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center space-x-2">
+              <motion.button
+                className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                title="Settings"
               >
-                <ChevronDown className="w-4 h-4 text-white/70" />
-              </motion.div>
-            </motion.button>
+                <Settings className="w-5 h-5" />
+              </motion.button>
 
-            {/* Dropdown Menu */}
-            <AnimatePresence>
-              {isDropdownOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-2 w-48 backdrop-blur-xl bg-slate-800/90 rounded-lg shadow-2xl border border-white/30 overflow-hidden z-[9999]"
-                >
-
-                  <motion.button
-                    className="w-full flex items-center space-x-3 px-4 py-3 text-sm text-white hover:bg-white/20 transition-colors first:rounded-t-lg"
-                  >
-                    <Settings className="w-4 h-4" />
-                    <span className="font-dm-sans font-medium">Account Settings</span>
-                  </motion.button>
-                  
-                  <div className="border-t border-white/30"></div>
-                  
-                  <motion.button
-                    onClick={handleSignOut}
-                    className="w-full flex items-center space-x-3 px-4 py-3 text-sm text-red-300 hover:bg-red-500/30 hover:text-red-200 transition-colors last:rounded-b-lg"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span className="font-dm-sans font-medium">Sign Out</span>
-                  </motion.button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+              <motion.button
+                onClick={handleSignOut}
+                className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                title="Sign Out"
+              >
+                <LogOut className="w-5 h-5" />
+              </motion.button>
+            </div>
           </div>
         </div>
       </div>

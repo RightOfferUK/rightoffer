@@ -2,53 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
+import { parsePrice } from '@/lib/priceUtils';
 
-// DELETE - Delete a listing
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    // Check authentication
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Connect to MongoDB
-    await cachedMongooseConnection;
-
-    const { id } = await params;
-
-    // Get the listing to check ownership
-    const listing = await Listing.findById(id);
-    if (!listing) {
-      return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
-    }
-
-    // Check if the current user is the agent who owns this listing
-    if (listing.agentId.toString() !== session.user.id) {
-      return NextResponse.json({ error: 'Forbidden: You can only delete your own listings' }, { status: 403 });
-    }
-
-    // Delete the listing
-    await Listing.findByIdAndDelete(id);
-
-    // Decrement the listing count for the user
-    const User = (await import('@/models/User')).default;
-    await (User as unknown as { decrementListingCount: (userId: string) => Promise<void> }).decrementListingCount(session.user.id);
-
-    return NextResponse.json({ 
-      message: 'Listing deleted successfully'
-    });
-
-  } catch (error) {
-    console.error('Error deleting listing:', error);
-    return NextResponse.json({ 
-      error: 'Internal server error' 
-    }, { status: 500 });
-  }
-}
 
 // PATCH - Update listing details
 export async function PATCH(
@@ -82,10 +37,13 @@ export async function PATCH(
     const body = await request.json();
     const { address, listedPrice } = body;
 
+    // Convert price to number if it's a string
+    const priceNumber = typeof listedPrice === 'string' ? parsePrice(listedPrice) : listedPrice;
+
     // Validate required fields
-    if (!address || !listedPrice) {
+    if (!address || !priceNumber || priceNumber <= 0) {
       return NextResponse.json({ 
-        error: 'Missing required fields: address, listedPrice' 
+        error: 'Missing required fields: address, listedPrice (must be > 0)' 
       }, { status: 400 });
     }
 
@@ -94,7 +52,7 @@ export async function PATCH(
       id,
       {
         address: address.trim(),
-        listedPrice: listedPrice.trim(),
+        listedPrice: priceNumber,
         updatedAt: new Date()
       },
       { new: true, runValidators: true }

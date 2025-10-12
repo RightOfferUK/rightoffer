@@ -64,7 +64,7 @@ export async function PATCH(
 
     // If offer is accepted, update listing status
     if (status === 'accepted') {
-      listing.status = 'under-offer';
+      listing.status = 'sold';
     }
 
     await listing.save();

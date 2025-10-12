@@ -11,7 +11,7 @@ interface Offer {
   id: string;
   buyerName: string;
   buyerEmail: string;
-  amount: string;
+  amount: number;
   status: 'submitted' | 'verified' | 'countered' | 'pending verification' | 'accepted' | 'declined';
   fundingType: 'Cash' | 'Mortgage' | 'Chain';
   chain: boolean;
@@ -25,7 +25,7 @@ interface ListingData {
   address: string;
   sellerName: string;
   sellerEmail: string;
-  listedPrice: string;
+  listedPrice: string | number; // Support both for backwards compatibility
   mainPhoto: string;
   sellerCode: string;
   status: string;
@@ -63,7 +63,7 @@ const ListingPageClient: React.FC<ListingPageClientProps> = ({ listing, canEdit 
   const handleOfferSubmit = async (offerData: {
     buyerName: string;
     buyerEmail: string;
-    amount: string;
+    amount: number;
     fundingType: 'Cash' | 'Mortgage' | 'Chain';
     chain: boolean;
     aipPresent: boolean;

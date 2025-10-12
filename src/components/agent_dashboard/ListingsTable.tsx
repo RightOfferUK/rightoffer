@@ -10,15 +10,16 @@ import {
   Loader2,
   ExternalLink,
   RefreshCw,
-  Trash2,
   Edit3,
   Mail,
-  UserPlus
+  UserPlus,
+  Trash2
 } from 'lucide-react';
 import Link from 'next/link';
+import { formatPrice, formatPriceInput, parsePrice } from '@/lib/priceUtils';
 
-type FilterType = 'All' | 'Live' | 'STC' | 'Draft' | 'With offers' | 'Needs docs';
-type StatusType = 'Live' | 'STC' | 'Draft' | 'Under Review';
+type FilterType = 'All' | 'Live' | 'With offers' | 'Archive' | 'Sold';
+type StatusType = 'Live' | 'Archive' | 'Sold';
 
 interface Listing {
   _id: string;
@@ -26,10 +27,9 @@ interface Listing {
   status: StatusType;
   offers: number;
   topOffer: string;
-  lastActivity: string;
   owner: string;
   sellerCode: string;
-  listedPrice: string;
+  listedPrice: number | string; // Support both for backwards compatibility
   createdAt: string;
 }
 
@@ -39,17 +39,12 @@ const ListingsTable = () => {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; listing: Listing | null }>({ 
-    show: false, 
-    listing: null 
-  });
   const [quickEdit, setQuickEdit] = useState<{ show: boolean; listing: Listing | null }>({ 
     show: false, 
     listing: null 
   });
-  const [deleting, setDeleting] = useState<string | null>(null);
 
-  const filters: FilterType[] = ['All', 'Live', 'STC', 'Draft', 'With offers', 'Needs docs'];
+  const filters: FilterType[] = ['All', 'Live', 'With offers', 'Archive', 'Sold'];
 
   // Fetch listings from API
   const fetchListings = useCallback(async () => {
@@ -101,51 +96,15 @@ const ListingsTable = () => {
     return () => window.removeEventListener('refreshListings', handleRefresh);
   }, [fetchListings]);
 
-  // Delete listing
-  const handleDeleteListing = async (listing: Listing) => {
-    setDeleting(listing._id);
-    try {
-      const response = await fetch(`/api/agent/listings/${listing._id}`, {
-        method: 'DELETE',
-      });
 
-      if (!response.ok) {
-        throw new Error('Failed to delete listing');
-      }
-
-      // Remove from local state
-      setListings(prev => prev.filter(l => l._id !== listing._id));
-      setDeleteConfirm({ show: false, listing: null });
-    } catch (err) {
-      console.error('Error deleting listing:', err);
-      setError('Failed to delete listing. Please try again.');
-    } finally {
-      setDeleting(null);
-    }
-  };
-
-  // Format relative time
-  const formatRelativeTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-    if (diffInSeconds < 60) return 'Just now';
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
-    return `${Math.floor(diffInSeconds / 604800)} weeks ago`;
-  };
 
   const getStatusColor = (status: StatusType) => {
     switch (status) {
       case 'Live':
         return 'text-green-400 bg-green-500/20';
-      case 'STC':
-        return 'text-purple-400 bg-purple-500/20';
-      case 'Draft':
+      case 'Archive':
         return 'text-gray-400 bg-gray-500/20';
-      case 'Under Review':
+      case 'Sold':
         return 'text-blue-400 bg-blue-500/20';
       default:
         return 'text-gray-400 bg-gray-500/20';
@@ -157,15 +116,6 @@ const ListingsTable = () => {
 
   return (
     <>
-      {/* Delete Confirmation Popup */}
-      <DeleteConfirmationPopup
-        show={deleteConfirm.show}
-        listing={deleteConfirm.listing}
-        deleting={deleting}
-        onCancel={() => setDeleteConfirm({ show: false, listing: null })}
-        onConfirm={handleDeleteListing}
-      />
-
       {/* Quick Edit Modal */}
       <QuickEditModal
         show={quickEdit.show}
@@ -270,9 +220,6 @@ const ListingsTable = () => {
                   Seller
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
-                  Last Activity
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -297,7 +244,7 @@ const ListingsTable = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-white/80 font-medium">
-                    {listing.listedPrice}
+                    {formatPrice(listing.listedPrice)}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2 text-sm text-white/80">
@@ -313,9 +260,6 @@ const ListingsTable = () => {
                       <User className="w-4 h-4" />
                       {listing.owner}
                     </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-white/60">
-                    {formatRelativeTime(listing.lastActivity)}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
@@ -334,14 +278,6 @@ const ListingsTable = () => {
                         title="Quick edit"
                       >
                         <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={() => setDeleteConfirm({ show: true, listing })}
-                        disabled={deleting === listing._id}
-                        className="text-white/60 hover:text-red-400 transition-colors disabled:opacity-50"
-                        title="Delete listing"
-                      >
-                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
@@ -378,78 +314,6 @@ const ListingsTable = () => {
   );
 };
 
-// Delete Confirmation Popup Component
-const DeleteConfirmationPopup: React.FC<{
-  show: boolean;
-  listing: Listing | null;
-  deleting: string | null;
-  onCancel: () => void;
-  onConfirm: (listing: Listing) => void;
-}> = ({ show, listing, deleting, onCancel, onConfirm }) => {
-  if (!show || !listing) return null;
-
-  return createPortal(
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-slate-800/95 backdrop-blur-xl border border-white/20 rounded-lg p-6 max-w-md w-full"
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center">
-            <Trash2 className="w-6 h-6 text-red-400" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-white font-dm-sans">
-              Delete Listing
-            </h3>
-            <p className="text-white/60 text-sm">This action cannot be undone</p>
-          </div>
-        </div>
-
-        <div className="mb-6">
-          <p className="text-white/80 mb-2">
-            Are you sure you want to delete this listing?
-          </p>
-          <div className="p-3 bg-white/5 rounded-lg">
-            <p className="text-white font-medium">{listing.address}</p>
-            <p className="text-white/60 text-sm">
-              Seller: {listing.owner} • {listing.offers} offers
-            </p>
-          </div>
-        </div>
-
-        <div className="flex gap-3">
-          <button
-            onClick={onCancel}
-            disabled={deleting === listing._id}
-            className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 disabled:bg-white/5 text-white border border-white/20 rounded-lg transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => onConfirm(listing)}
-            disabled={deleting === listing._id}
-            className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 disabled:bg-red-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
-          >
-            {deleting === listing._id ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Deleting...
-              </>
-            ) : (
-              <>
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </>
-            )}
-          </button>
-        </div>
-      </motion.div>
-    </div>,
-    document.body
-  );
-};
 
 // Quick Edit Modal Component
 const QuickEditModal: React.FC<{
@@ -460,7 +324,8 @@ const QuickEditModal: React.FC<{
 }> = ({ show, listing, onCancel, onSuccess }) => {
   const [activeTab, setActiveTab] = useState<'edit' | 'seller' | 'buyer'>('edit');
   const [loading, setLoading] = useState(false);
-  const [editData, setEditData] = useState({ address: '', listedPrice: '' });
+  const [editData, setEditData] = useState({ address: '', listedPrice: 0 });
+  const [editPriceInput, setEditPriceInput] = useState('');
   const [buyerData, setBuyerData] = useState({ name: '', email: '' });
   const [buyerCodes, setBuyerCodes] = useState<{
     _id: string;
@@ -501,7 +366,11 @@ const QuickEditModal: React.FC<{
   // Reset state when modal opens/closes
   useEffect(() => {
     if (show && listing) {
-      setEditData({ address: listing.address, listedPrice: listing.listedPrice });
+      const priceNumber = typeof listing.listedPrice === 'number' 
+        ? listing.listedPrice 
+        : parsePrice(listing.listedPrice.toString());
+      setEditData({ address: listing.address, listedPrice: priceNumber });
+      setEditPriceInput(priceNumber.toLocaleString('en-GB'));
       setBuyerData({ name: '', email: '' });
       setBuyerCodes([]);
       setEditingBuyerCode(null);
@@ -737,13 +606,17 @@ const QuickEditModal: React.FC<{
                 <label className="block text-sm font-medium text-white/70 mb-2">
                   Listed Price
                 </label>
-                <input
-                  type="text"
-                  value={editData.listedPrice}
-                  onChange={(e) => setEditData({ ...editData, listedPrice: e.target.value })}
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                  placeholder="£450,000"
-                />
+                  <input
+                    type="text"
+                    value={editPriceInput}
+                    onChange={(e) => {
+                      const formatted = formatPriceInput(e.target.value);
+                      setEditPriceInput(formatted);
+                      setEditData({ ...editData, listedPrice: parsePrice(formatted) });
+                    }}
+                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                    placeholder="450,000"
+                  />
               </div>
               <button
                 onClick={handleEditSave}

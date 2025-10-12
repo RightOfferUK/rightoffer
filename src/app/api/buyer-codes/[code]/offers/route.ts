@@ -8,20 +8,20 @@ import mongoose from 'mongoose';
 interface RawListing {
   _id: mongoose.Types.ObjectId;
   address: string;
-  listedPrice: string;
+  listedPrice: string | number;
   sellerName: string;
   mainPhoto?: string;
   offers: Array<{
     id: string;
     buyerEmail: string;
-    amount: string;
+    amount: number;
     status: string;
     fundingType: string;
     chain: boolean;
     aipPresent: boolean;
     submittedAt: Date;
     notes?: string;
-    counterOffer?: string;
+    counterOffer?: number;
     agentNotes?: string;
   }>;
 }
@@ -54,17 +54,17 @@ export async function GET(
       id: string;
       listingId: string;
       listingAddress: string;
-      listedPrice: string;
+      listedPrice: string | number;
       sellerName: string;
       mainPhoto: string;
-      amount: string;
+      amount: number;
       status: string;
       fundingType: string;
       chain: boolean;
       aipPresent: boolean;
       submittedAt: string;
       notes?: string;
-      counterOffer?: string;
+      counterOffer?: number;
       agentNotes?: string;
     }> = [];
 
@@ -75,14 +75,14 @@ export async function GET(
 
       listingOffers.forEach((offer: { 
         id: string;
-        amount: string;
+        amount: number;
         status: string;
         fundingType: string;
         chain: boolean;
         aipPresent: boolean;
         submittedAt: Date;
         notes?: string;
-        counterOffer?: string;
+        counterOffer?: number;
         agentNotes?: string;
       }) => {
         buyerOffers.push({

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { formatPrice, formatPriceInput, parsePrice } from '@/lib/priceUtils';
 import { 
   PoundSterling, 
   User, 
@@ -30,7 +31,7 @@ interface BuyerOfferFormProps {
   listing: {
     _id: string;
     address: string;
-    listedPrice: string;
+    listedPrice: string | number;
     sellerName: string;
     mainPhoto: string;
   };
@@ -41,7 +42,7 @@ interface BuyerOfferFormProps {
 interface OfferFormData {
   buyerName: string;
   buyerEmail: string;
-  amount: string;
+  amount: number;
   fundingType: 'Cash' | 'Mortgage' | 'Chain';
   chain: boolean;
   aipPresent: boolean;
@@ -52,17 +53,17 @@ interface BuyerOffer {
   id: string;
   listingId: string;
   listingAddress: string;
-  listedPrice: string;
+  listedPrice: string | number;
   sellerName: string;
   mainPhoto: string;
-  amount: string;
+  amount: number;
   status: 'submitted' | 'verified' | 'countered' | 'pending verification' | 'accepted' | 'declined';
   fundingType: 'Cash' | 'Mortgage' | 'Chain';
   chain: boolean;
   aipPresent: boolean;
   submittedAt: string;
   notes?: string;
-  counterOffer?: string;
+  counterOffer?: number;
   agentNotes?: string;
 }
 
@@ -70,12 +71,14 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
   const [formData, setFormData] = useState<OfferFormData>({
     buyerName: buyerDetails?.buyerName || '',
     buyerEmail: buyerDetails?.buyerEmail || '',
-    amount: '',
+    amount: 0,
     fundingType: 'Mortgage',
     chain: false,
     aipPresent: false,
     notes: ''
   });
+
+  const [amountInput, setAmountInput] = useState('');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -155,6 +158,14 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
         ...prev,
         [name]: checked
       }));
+    } else if (name === 'amount') {
+      const formatted = formatPriceInput(value);
+      setAmountInput(formatted);
+      const numericValue = parsePrice(formatted);
+      setFormData(prev => ({
+        ...prev,
+        amount: numericValue
+      }));
     } else {
       setFormData(prev => ({
         ...prev,
@@ -175,12 +186,13 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
       setFormData({
         buyerName: buyerDetails?.buyerName || '',
         buyerEmail: buyerDetails?.buyerEmail || '',
-        amount: '',
+        amount: 0,
         fundingType: 'Mortgage',
         chain: false,
         aipPresent: false,
         notes: ''
       });
+      setAmountInput('');
       // Refresh offer history after successful submission
       if (buyerDetails) {
         fetchOffers();
@@ -278,8 +290,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                     {listing.address}
                   </h3>
                   <div className="flex items-center gap-2 text-green-400 text-xl font-bold">
-                    <PoundSterling className="w-5 h-5" />
-                    <span>{listing.listedPrice}</span>
+                    <span>{formatPrice(listing.listedPrice)}</span>
                   </div>
                   <p className="text-white/70 text-sm mt-1">Listed Price</p>
                 </div>
@@ -355,7 +366,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                               <div className="flex items-center gap-1">
                                 <PoundSterling className="w-3 h-3 text-green-400" />
                                 <span className="text-green-400 font-semibold text-sm">
-                                  {offer.amount}
+                                  {formatPrice(offer.amount)}
                                 </span>
                               </div>
                               <div className="flex items-center gap-1">
@@ -498,7 +509,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                 <input
                   type="text"
                   name="amount"
-                  value={formData.amount}
+                  value={amountInput}
                   onChange={handleInputChange}
                   required
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"

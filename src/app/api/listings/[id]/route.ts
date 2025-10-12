@@ -89,7 +89,7 @@ export async function PUT(
     }
 
     // Validate status
-    const validStatuses = ['draft', 'live', 'under-offer', 'sold', 'withdrawn'];
+    const validStatuses = ['live', 'archive', 'sold'];
     if (status && !validStatuses.includes(status)) {
       return NextResponse.json({ 
         error: 'Invalid status. Must be one of: ' + validStatuses.join(', ')

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { uploadImage } from '@/lib/supabase';
 import { useRealTimeOffers } from '@/hooks/useRealTimeOffers';
+import { formatPrice, formatPriceInput, parsePrice } from '@/lib/priceUtils';
 import { 
   Home, 
   PoundSterling, 
@@ -16,7 +17,6 @@ import {
   Edit3,
   Save,
   X,
-  Trash2,
   Mail,
   UserPlus,
   Copy,
@@ -31,14 +31,14 @@ interface Offer {
   id: string;
   buyerName: string;
   buyerEmail: string;
-  amount: string;
+  amount: number;
   status: 'submitted' | 'verified' | 'countered' | 'pending verification' | 'accepted' | 'declined';
   fundingType: 'Cash' | 'Mortgage' | 'Chain';
   chain: boolean;
   aipPresent: boolean;
   submittedAt: string;
   notes?: string;
-  counterOffer?: string;
+  counterOffer?: number;
   agentNotes?: string;
   statusUpdatedAt?: string;
   updatedBy?: string;
@@ -49,7 +49,7 @@ interface ListingData {
   address: string;
   sellerName: string;
   sellerEmail: string;
-  listedPrice: string;
+  listedPrice: number | string; // Support both for backwards compatibility
   mainPhoto: string;
   sellerCode: string;
   status: string;
@@ -67,6 +67,11 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
   const [activeTab, setActiveTab] = useState<'details' | 'offers'>('details');
   const [isEditing, setIsEditing] = useState(false);
   const [editedListing, setEditedListing] = useState<ListingData>(listing);
+  const [editPriceInput, setEditPriceInput] = useState(
+    typeof listing.listedPrice === 'number' 
+      ? listing.listedPrice.toLocaleString('en-GB')
+      : parsePrice(listing.listedPrice.toString()).toLocaleString('en-GB')
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
   
@@ -81,8 +86,6 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
   } = useRealTimeOffers(listing._id, activeTab === 'offers');
   
   // Admin functionality state
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [sendingSellerCode, setSendingSellerCode] = useState(false);
   const [showBuyerCodeModal, setShowBuyerCodeModal] = useState(false);
   const [buyerCodes, setBuyerCodes] = useState<BuyerCode[]>([]);
@@ -183,29 +186,6 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
     }
   };
 
-  // Admin functionality
-  const handleDeleteListing = async () => {
-    setDeleting(true);
-    try {
-      const response = await fetch(`/api/agent/listings/${listing._id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        // Redirect to dashboard after successful deletion
-        window.location.href = '/dashboard';
-      } else {
-        console.error('Failed to delete listing');
-        alert('Failed to delete listing. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error deleting listing:', error);
-      alert('Error deleting listing. Please try again.');
-    } finally {
-      setDeleting(false);
-      setShowDeleteConfirm(false);
-    }
-  };
 
   const handleResendSellerCode = async () => {
     setSendingSellerCode(true);
@@ -333,10 +313,15 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
   };
 
   const handleCounterOffer = (offerId: string) => {
-    const counterAmount = prompt('Enter your counter offer amount (e.g., £450,000):');
-    if (counterAmount) {
-      const notes = prompt('Add any notes for the buyer (optional):');
-      handleOfferStatusUpdate(offerId, 'countered', counterAmount, notes ?? undefined);
+    const counterAmountStr = prompt('Enter your counter offer amount (e.g., £450,000):');
+    if (counterAmountStr) {
+      const counterAmount = parsePrice(counterAmountStr);
+      if (counterAmount > 0) {
+        const notes = prompt('Add any notes for the buyer (optional):');
+        handleOfferStatusUpdate(offerId, 'countered', counterAmount.toString(), notes ?? undefined);
+      } else {
+        alert('Please enter a valid offer amount.');
+      }
     }
   };
 
@@ -348,9 +333,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
 
   const displayHighestOffer = highestOffer > 0 ? highestOffer : (
     listing.offers.length > 0 
-      ? Math.max(...listing.offers.map(offer => 
-          parseInt(offer.amount.replace(/[£,]/g, ''))
-        ))
+      ? Math.max(...listing.offers.map(offer => offer.amount))
       : 0
   );
 
@@ -408,7 +391,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
           <div className="flex flex-wrap gap-6 text-sm text-white/70">
             <div className="flex items-center gap-2">
               <PoundSterling className="w-4 h-4 text-green-400" />
-              <span>Listed: {listing.listedPrice}</span>
+              <span>Listed: {formatPrice(listing.listedPrice)}</span>
             </div>
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-purple-400" />
@@ -421,7 +404,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
             <div className="flex items-center gap-2">
               <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
                 listing.status === 'live' ? 'bg-green-500/20 text-green-400' :
-                listing.status === 'under-offer' ? 'bg-purple-500/20 text-purple-400' :
+                listing.status === 'archive' ? 'bg-gray-500/20 text-gray-400' :
                 listing.status === 'sold' ? 'bg-blue-500/20 text-blue-400' :
                 'bg-gray-500/20 text-gray-400'
               }`}>
@@ -510,13 +493,17 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                       {isEditing ? (
                         <input
                           type="text"
-                          value={editedListing.listedPrice}
-                          onChange={(e) => setEditedListing({...editedListing, listedPrice: e.target.value})}
+                          value={editPriceInput}
+                          onChange={(e) => {
+                            const formatted = formatPriceInput(e.target.value);
+                            setEditPriceInput(formatted);
+                            setEditedListing({...editedListing, listedPrice: parsePrice(formatted)});
+                          }}
                           className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          placeholder="£500,000"
+                          placeholder="500,000"
                         />
                       ) : (
-                        <p className="text-green-400 font-semibold text-lg">{listing.listedPrice}</p>
+                        <p className="text-green-400 font-semibold text-lg">{formatPrice(listing.listedPrice)}</p>
                       )}
                     </div>
                     
@@ -563,16 +550,14 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                           onChange={(e) => setEditedListing({...editedListing, status: e.target.value})}
                           className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                         >
-                          <option value="draft" className="bg-gray-800">Draft</option>
                           <option value="live" className="bg-gray-800">Live</option>
-                          <option value="under-offer" className="bg-gray-800">Under Offer</option>
+                          <option value="archive" className="bg-gray-800">Archive</option>
                           <option value="sold" className="bg-gray-800">Sold</option>
-                          <option value="withdrawn" className="bg-gray-800">Withdrawn</option>
                         </select>
                       ) : (
                         <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
                           listing.status === 'live' ? 'bg-green-500/20 text-green-400' :
-                          listing.status === 'under-offer' ? 'bg-purple-500/20 text-purple-400' :
+                          listing.status === 'archive' ? 'bg-gray-500/20 text-gray-400' :
                           listing.status === 'sold' ? 'bg-blue-500/20 text-blue-400' :
                           'bg-gray-500/20 text-gray-400'
                         }`}>
@@ -687,7 +672,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                               <div className="flex items-center gap-2">
                                 <PoundSterling className="w-4 h-4 text-green-400" />
                                 <span className="text-green-400 font-semibold text-lg">
-                                  {offer.amount}
+                                  {formatPrice(offer.amount)}
                                 </span>
                               </div>
                               
@@ -846,74 +831,12 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                   </div>
                 </div>
 
-                {/* Danger Zone */}
-                <div className="backdrop-blur-xl bg-red-500/10 border border-red-500/20 rounded-lg p-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Trash2 className="w-5 h-5 text-red-400" />
-                    <h4 className="font-medium text-white">Danger Zone</h4>
-                  </div>
-                  <p className="text-white/70 text-sm mb-3">
-                    Permanently delete this listing and all associated data
-                  </p>
-                  <button
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
-                  >
-                    Delete Listing
-                  </button>
-                </div>
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-lg p-6 max-w-md mx-4"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-red-500/20 rounded-full">
-                <Trash2 className="w-6 h-6 text-red-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-white">Delete Listing</h3>
-            </div>
-            <p className="text-white/80 mb-6">
-              Are you sure you want to delete this listing? This action cannot be undone and will remove all associated offers and buyer codes.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                disabled={deleting}
-                className="px-4 py-2 text-white/70 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteListing}
-                disabled={deleting}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 disabled:bg-red-500/50 text-white rounded-lg transition-colors flex items-center gap-2"
-              >
-                {deleting ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Deleting...
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="w-4 h-4" />
-                    Delete Listing
-                  </>
-                )}
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
 
       {/* Buyer Code Modal */}
       {showBuyerCodeModal && (

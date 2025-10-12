@@ -11,7 +11,7 @@ interface RawOffer {
   id?: string;
   buyerName?: string;
   buyerEmail?: string;
-  amount?: string;
+  amount?: number;
   status?: string;
   fundingType?: string;
   chain?: boolean;
@@ -86,7 +86,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
         id: string;
         buyerName: string;
         buyerEmail: string;
-        amount: string;
+        amount: number;
         status: 'submitted' | 'verified' | 'countered' | 'pending verification' | 'accepted' | 'declined';
         fundingType: 'Cash' | 'Mortgage' | 'Chain';
         chain: boolean;

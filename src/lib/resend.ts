@@ -74,14 +74,19 @@ export async function sendBuyerCodeEmail(
   buyerEmail: string,
   buyerCode: string,
   propertyAddress: string,
-  listedPrice: string,
+  listedPrice: string | number,
   listingId: string
 ) {
+  // Format price for email display
+  const formattedPrice = typeof listedPrice === 'number' 
+    ? `£${listedPrice.toLocaleString('en-GB')}`
+    : listedPrice;
+    
   const emailContent = generateBuyerCodeEmail({
     buyerName,
     buyerCode,
     propertyAddress,
-    listedPrice,
+    listedPrice: formattedPrice,
     listingId
   });
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
+import { formatPrice } from '@/lib/priceUtils';
 import mongoose from 'mongoose';
 
 // Type for raw listing from MongoDB
@@ -10,9 +11,9 @@ interface RawListing {
   address: string;
   sellerName: string;
   sellerEmail: string;
-  listedPrice: string;
+  listedPrice: number;
   status: string;
-  offers?: Array<{ amount: string; [key: string]: unknown }>;
+  offers?: Array<{ amount: number; [key: string]: unknown }>;
   createdAt: Date;
   updatedAt: Date;
   sellerCode: string;
@@ -40,8 +41,6 @@ export async function GET(request: NextRequest) {
     if (status && status !== 'All') {
       if (status === 'With offers') {
         query['offers.0'] = { $exists: true }; // Has at least one offer
-      } else if (status === 'STC') {
-        query.status = 'under-offer'; // Map STC to under-offer
       } else {
         query.status = status.toLowerCase();
       }
@@ -66,22 +65,18 @@ export async function GET(request: NextRequest) {
     const transformedListings = listings.map((listing: RawListing) => {
       const offersCount = listing.offers?.length || 0;
       const topOffer = offersCount > 0 
-        ? Math.max(...(listing.offers || []).map((offer: { amount: string }) => 
-            parseInt(offer.amount.replace(/[£,]/g, ''))
-          ))
+        ? Math.max(...(listing.offers || []).map((offer: { amount: number }) => offer.amount))
         : 0;
 
       return {
         _id: listing._id.toString(),
         address: listing.address,
-        status: listing.status === 'under-offer' ? 'STC' : 
-                listing.status.charAt(0).toUpperCase() + listing.status.slice(1),
+        status: listing.status.charAt(0).toUpperCase() + listing.status.slice(1),
         offers: offersCount,
         topOffer: topOffer > 0 ? `£${topOffer.toLocaleString()}` : '-',
         owner: listing.sellerName,
         sellerCode: listing.sellerCode,
         listedPrice: listing.listedPrice,
-        lastActivity: new Date(listing.updatedAt).toISOString(),
         createdAt: new Date(listing.createdAt).toISOString()
       };
     });

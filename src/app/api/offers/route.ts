@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
 import { v4 as uuidv4 } from 'uuid';
+import { parsePrice } from '@/lib/priceUtils';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,9 +23,17 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate required fields
-    if (!listingId || !buyerName || !buyerEmail || !amount || !fundingType) {
+    if (!listingId || !buyerName || !buyerEmail || amount === undefined || amount === null || !fundingType) {
       return NextResponse.json({ 
         error: 'Missing required fields: listingId, buyerName, buyerEmail, amount, fundingType' 
+      }, { status: 400 });
+    }
+
+    // Validate and parse amount
+    const numericAmount = typeof amount === 'number' ? amount : parsePrice(amount.toString());
+    if (!numericAmount || numericAmount <= 0) {
+      return NextResponse.json({ 
+        error: 'Invalid offer amount. Must be a positive number.' 
       }, { status: 400 });
     }
 
@@ -47,7 +56,7 @@ export async function POST(request: NextRequest) {
       id: uuidv4(),
       buyerName: buyerName.trim(),
       buyerEmail: buyerEmail.trim().toLowerCase(),
-      amount: amount.trim(),
+      amount: numericAmount,
       status: 'submitted',
       fundingType,
       chain: Boolean(chain),

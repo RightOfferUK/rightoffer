@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useRealTimeOffers } from '@/hooks/useRealTimeOffers';
+import { formatPrice } from '@/lib/priceUtils';
 import { 
   Home, 
   PoundSterling, 
@@ -21,14 +22,14 @@ interface Offer {
   id: string;
   buyerName: string;
   buyerEmail: string;
-  amount: string;
+  amount: number;
   status: 'submitted' | 'verified' | 'countered' | 'pending verification' | 'accepted' | 'declined';
   fundingType: 'Cash' | 'Mortgage' | 'Chain';
   chain: boolean;
   aipPresent: boolean;
   submittedAt: string;
   notes?: string;
-  counterOffer?: string;
+  counterOffer?: number;
   agentNotes?: string;
   statusUpdatedAt?: string;
   updatedBy?: string;
@@ -39,7 +40,7 @@ interface SellerViewProps {
     _id: string;
     address: string;
     sellerName: string;
-    listedPrice: string;
+    listedPrice: number | string; // Support both for backwards compatibility
     mainPhoto: string;
     status: string;
     offers: Offer[];
@@ -85,9 +86,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
 
   const highestOffer = liveHighestOffer > 0 ? liveHighestOffer : (
     listing.offers.length > 0 
-      ? Math.max(...listing.offers.map(offer => 
-          parseInt(offer.amount.replace(/[£,]/g, ''))
-        ))
+      ? Math.max(...listing.offers.map(offer => offer.amount))
       : 0
   );
 
@@ -111,7 +110,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
           <div className="flex flex-wrap gap-6 text-sm text-white/70">
             <div className="flex items-center gap-2">
               <PoundSterling className="w-4 h-4 text-green-400" />
-              <span>Listed: {listing.listedPrice}</span>
+              <span>Listed: {formatPrice(listing.listedPrice)}</span>
             </div>
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-purple-400" />
@@ -124,7 +123,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
             <div className="flex items-center gap-2">
               <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
                 listing.status === 'live' ? 'bg-green-500/20 text-green-400' :
-                listing.status === 'under-offer' ? 'bg-purple-500/20 text-purple-400' :
+                listing.status === 'archive' ? 'bg-gray-500/20 text-gray-400' :
                 listing.status === 'sold' ? 'bg-blue-500/20 text-blue-400' :
                 'bg-gray-500/20 text-gray-400'
               }`}>
@@ -207,7 +206,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                             <div className="flex items-center gap-2">
                               <PoundSterling className="w-4 h-4 text-green-400" />
                               <span className="text-green-400 font-semibold text-xl">
-                                {offer.amount}
+                                {formatPrice(offer.amount)}
                               </span>
                             </div>
                             
@@ -269,7 +268,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
               <div className="space-y-4">
                 <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
                   <h4 className="text-green-300 font-semibold mb-2">Listed Price</h4>
-                  <p className="text-white text-xl font-bold">{listing.listedPrice}</p>
+                  <p className="text-white text-xl font-bold">{formatPrice(listing.listedPrice)}</p>
                 </div>
                 
                 <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg">
@@ -288,7 +287,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                   <h4 className="text-purple-300 font-semibold mb-2">Status</h4>
                   <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
                     listing.status === 'live' ? 'bg-green-500/20 text-green-400' :
-                    listing.status === 'under-offer' ? 'bg-purple-500/20 text-purple-400' :
+                    listing.status === 'archive' ? 'bg-gray-500/20 text-gray-400' :
                     listing.status === 'sold' ? 'bg-blue-500/20 text-blue-400' :
                     'bg-gray-500/20 text-gray-400'
                   }`}>

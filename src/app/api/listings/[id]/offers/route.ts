@@ -5,7 +5,7 @@ import Listing from '@/models/Listing';
 // Type for raw listing from MongoDB
 interface RawListing {
   offers: Array<{
-    amount: string;
+    amount: number;
     submittedAt: Date;
     [key: string]: unknown;
   }>;
@@ -42,9 +42,7 @@ export async function GET(
       offers: sortedOffers,
       totalOffers: sortedOffers.length,
       highestOffer: sortedOffers.length > 0 
-        ? Math.max(...sortedOffers.map(offer => 
-            parseInt(offer.amount.replace(/[£,]/g, ''))
-          ))
+        ? Math.max(...sortedOffers.map(offer => offer.amount))
         : 0
     });
 

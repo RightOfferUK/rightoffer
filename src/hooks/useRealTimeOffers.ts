@@ -7,14 +7,14 @@ interface Offer {
   id: string;
   buyerName: string;
   buyerEmail: string;
-  amount: string;
+  amount: number;
   status: 'submitted' | 'verified' | 'countered' | 'pending verification' | 'accepted' | 'declined';
   fundingType: 'Cash' | 'Mortgage' | 'Chain';
   chain: boolean;
   aipPresent: boolean;
   submittedAt: string;
   notes?: string;
-  counterOffer?: string;
+  counterOffer?: number;
   agentNotes?: string;
   statusUpdatedAt?: string;
   updatedBy?: string;
@@ -107,7 +107,7 @@ export const useRealTimeOffers = (listingId: string, enabled: boolean = true) =>
     setOffers(prev => [newOffer, ...prev]);
     setTotalOffers(prev => prev + 1);
     
-    const offerAmount = parseInt(newOffer.amount.replace(/[£,]/g, ''));
+    const offerAmount = newOffer.amount;
     if (offerAmount > highestOffer) {
       setHighestOffer(offerAmount);
     }

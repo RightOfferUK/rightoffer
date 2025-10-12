@@ -28,12 +28,13 @@ const ListingSchema = new mongoose.Schema({
     lowercase: true
   },
   listedPrice: {
-    type: String,
-    required: true
+    type: Number,
+    required: true,
+    min: 0
   },
   mainPhoto: {
     type: String,
-    default: ''
+    required: true
   },
   sellerCode: {
     type: String,
@@ -49,14 +50,18 @@ const ListingSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['draft', 'live', 'under-offer', 'sold', 'withdrawn'],
+    enum: ['live', 'archive', 'sold'],
     default: 'live'
   },
   offers: [{
     id: String,
     buyerName: String,
     buyerEmail: String,
-    amount: String,
+    amount: {
+      type: Number,
+      required: true,
+      min: 0
+    },
     status: {
       type: String,
       enum: ['submitted', 'verified', 'countered', 'pending verification', 'accepted', 'declined'],
@@ -73,7 +78,10 @@ const ListingSchema = new mongoose.Schema({
       default: Date.now
     },
     notes: String,
-    counterOffer: String,
+    counterOffer: {
+      type: Number,
+      min: 0
+    },
     agentNotes: String,
     statusUpdatedAt: Date,
     updatedBy: String

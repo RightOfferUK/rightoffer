@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
 import { sendSellerCodeEmail } from '@/lib/resend';
+import { parsePrice } from '@/lib/priceUtils';
 import mongoose from 'mongoose';
 
 // Type for raw offer from MongoDB
@@ -50,10 +51,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { address, sellerName, sellerEmail, listedPrice, mainPhoto } = body;
 
+    // Convert price to number if it's a string
+    const priceNumber = typeof listedPrice === 'string' ? parsePrice(listedPrice) : listedPrice;
+
     // Validate required fields
-    if (!address || !sellerName || !sellerEmail || !listedPrice) {
+    if (!address || !sellerName || !sellerEmail || !priceNumber || priceNumber <= 0 || !mainPhoto) {
       return NextResponse.json(
-        { error: 'Missing required fields' }, 
+        { error: 'Missing required fields: address, sellerName, sellerEmail, listedPrice (must be > 0), and mainPhoto are all required' }, 
         { status: 400 }
       );
     }
@@ -63,8 +67,8 @@ export async function POST(request: NextRequest) {
       address,
       sellerName,
       sellerEmail,
-      listedPrice,
-      mainPhoto: mainPhoto || '',
+      listedPrice: priceNumber,
+      mainPhoto: mainPhoto,
       agentId: new mongoose.Types.ObjectId(session.user.id),
       status: 'live'
     });
