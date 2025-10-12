@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
-import mongoose from 'mongoose';
 
 // DELETE - Delete a listing
 export async function DELETE(
@@ -37,7 +36,7 @@ export async function DELETE(
 
     // Decrement the listing count for the user
     const User = (await import('@/models/User')).default;
-    await User.decrementListingCount(session.user.id);
+    await (User as unknown as { decrementListingCount: (userId: string) => Promise<void> }).decrementListingCount(session.user.id);
 
     return NextResponse.json({ 
       message: 'Listing deleted successfully'

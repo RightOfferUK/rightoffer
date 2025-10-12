@@ -22,13 +22,21 @@ export async function sendEmail({
   from = process.env.EMAIL_FROM || 'rightoffer@cromostudios.com'
 }: SendEmailParams) {
   try {
-    const result = await resend.emails.send({
+    const emailOptions: Record<string, unknown> = {
       from,
       to,
       subject,
-      html,
-      text,
-    });
+    };
+
+    if (html !== undefined) {
+      emailOptions.html = html;
+    }
+    if (text !== undefined) {
+      emailOptions.text = text;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await resend.emails.send(emailOptions as any);
 
     console.log('Email sent successfully:', result);
     return { success: true, data: result };

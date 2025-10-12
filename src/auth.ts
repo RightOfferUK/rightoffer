@@ -18,7 +18,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/login/error",
   },
   callbacks: {
-    async signIn({ user, email }) {
+    async signIn({ user }) {
       // Ensure MongoDB connection
       await cachedMongooseConnection;
       
@@ -53,7 +53,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session;
     },
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user }) {
       // Ensure MongoDB connection
       await cachedMongooseConnection;
       

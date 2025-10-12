@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cachedMongooseConnection } from '@/lib/db';
 import BuyerCode from '@/models/BuyerCode';
-import Listing from '@/models/Listing';
 
 // GET - Validate buyer code and return buyer details
 export async function GET(

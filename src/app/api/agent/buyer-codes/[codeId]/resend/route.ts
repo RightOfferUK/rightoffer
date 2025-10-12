@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import BuyerCode from '@/models/BuyerCode';
-import Listing from '@/models/Listing';
 import { sendBuyerCodeEmail } from '@/lib/resend';
-import mongoose from 'mongoose';
 
 // POST - Resend buyer code email
 export async function POST(

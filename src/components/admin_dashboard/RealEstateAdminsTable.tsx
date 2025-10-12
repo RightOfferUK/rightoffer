@@ -378,8 +378,8 @@ const QuickEditModal: React.FC<{
       
       setSuccess('Company updated successfully!');
       setTimeout(() => onSuccess(), 1000);
-    } catch (err: any) {
-      setError(err.message || 'Failed to update company. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update company. Please try again.');
     } finally {
       setLoading(false);
     }

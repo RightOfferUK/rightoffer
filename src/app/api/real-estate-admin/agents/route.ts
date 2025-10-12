@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import User from '@/models/User';
-import Listing from '@/models/Listing';
 import mongoose from 'mongoose';
 
 export async function GET(request: NextRequest) {
@@ -22,7 +21,12 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
 
     // Build match criteria
-    const matchCriteria: any = {
+    const matchCriteria: {
+      realEstateAdminId: mongoose.Types.ObjectId;
+      role: string;
+      isActive?: boolean;
+      $or?: Array<{ email?: RegExp; name?: RegExp }>;
+    } = {
       realEstateAdminId: new mongoose.Types.ObjectId(session.user.id),
       role: 'agent'
     };

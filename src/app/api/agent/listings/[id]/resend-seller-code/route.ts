@@ -3,7 +3,6 @@ import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
 import { sendSellerCodeEmail } from '@/lib/resend';
-import mongoose from 'mongoose';
 
 export async function POST(
   request: NextRequest,

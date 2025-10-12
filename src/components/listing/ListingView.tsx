@@ -336,13 +336,13 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
     const counterAmount = prompt('Enter your counter offer amount (e.g., £450,000):');
     if (counterAmount) {
       const notes = prompt('Add any notes for the buyer (optional):');
-      handleOfferStatusUpdate(offerId, 'countered', counterAmount, notes);
+      handleOfferStatusUpdate(offerId, 'countered', counterAmount, notes ?? undefined);
     }
   };
 
   // Use real-time offers if available, otherwise fall back to listing offers
-  const displayOffers = liveOffers.length > 0 ? liveOffers : listing.offers;
-  const sortedOffers = [...displayOffers].sort((a, b) => 
+  const displayOffers: Offer[] = liveOffers.length > 0 ? liveOffers as Offer[] : listing.offers;
+  const sortedOffers: Offer[] = [...displayOffers].sort((a, b) => 
     new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
   );
 

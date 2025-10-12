@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
 
+// Type for raw listing from MongoDB
+interface RawListing {
+  offers: Array<{
+    amount: string;
+    submittedAt: Date;
+    [key: string]: unknown;
+  }>;
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -15,7 +24,7 @@ export async function GET(
     // Find the listing and get its offers
     const listing = await Listing.findById(id)
       .select('offers')
-      .lean();
+      .lean() as unknown as RawListing | null;
 
     if (!listing) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });

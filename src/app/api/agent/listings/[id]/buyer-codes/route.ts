@@ -3,7 +3,6 @@ import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
 import BuyerCode from '@/models/BuyerCode';
-import mongoose from 'mongoose';
 
 // GET - Get all buyer codes for a listing
 export async function GET(
@@ -34,7 +33,18 @@ export async function GET(
     }
 
     // Get all active buyer codes for this listing
-    const buyerCodes = await BuyerCode.findByListing(id, session.user.id);
+    const buyerCodes = await (BuyerCode as unknown as { findByListing: (listingId: string, agentId: string) => Promise<Array<{
+      _id: { toString: () => string };
+      code: string;
+      buyerName: string;
+      buyerEmail: string;
+      isActive: boolean;
+      isExpired: () => boolean;
+      isValid: () => boolean;
+      expiresAt: Date;
+      createdAt: Date;
+      lastEmailSent?: Date;
+    }>> }).findByListing(id, session.user.id);
 
     // Transform the data for the frontend
     const transformedCodes = buyerCodes.map(code => ({

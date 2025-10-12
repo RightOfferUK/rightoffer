@@ -36,7 +36,7 @@ export async function PATCH(
     }
 
     // Update fields
-    const updateData: any = {};
+    const updateData: { isActive?: boolean; name?: string } = {};
     if (typeof isActive === 'boolean') updateData.isActive = isActive;
     if (name !== undefined) updateData.name = name;
 

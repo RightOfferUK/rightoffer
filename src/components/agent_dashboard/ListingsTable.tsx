@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -52,7 +52,7 @@ const ListingsTable = () => {
   const filters: FilterType[] = ['All', 'Live', 'STC', 'Draft', 'With offers', 'Needs docs'];
 
   // Fetch listings from API
-  const fetchListings = async () => {
+  const fetchListings = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -79,17 +79,17 @@ const ListingsTable = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeFilter, searchTerm]);
 
   // Fetch data on component mount
   useEffect(() => {
     fetchListings();
-  }, []);
+  }, [fetchListings]);
 
   // Fetch data when filters change
   useEffect(() => {
     fetchListings();
-  }, [activeFilter, searchTerm]);
+  }, [fetchListings]);
 
   // Listen for custom refresh events (e.g., after listing creation)
   useEffect(() => {
@@ -99,7 +99,7 @@ const ListingsTable = () => {
 
     window.addEventListener('refreshListings', handleRefresh);
     return () => window.removeEventListener('refreshListings', handleRefresh);
-  }, []);
+  }, [fetchListings]);
 
   // Delete listing
   const handleDeleteListing = async (listing: Listing) => {
@@ -468,6 +468,7 @@ const QuickEditModal: React.FC<{
     buyerName: string;
     buyerEmail: string;
     isValid: boolean;
+    isExpired?: boolean;
     daysUntilExpiry: number;
     lastEmailSent?: string;
   }[]>([]);
@@ -478,7 +479,7 @@ const QuickEditModal: React.FC<{
   const [success, setSuccess] = useState<string | null>(null);
 
   // Fetch buyer codes for this listing
-  const fetchBuyerCodes = async () => {
+  const fetchBuyerCodes = useCallback(async () => {
     if (!listing) return;
     
     setLoadingBuyerCodes(true);
@@ -495,7 +496,7 @@ const QuickEditModal: React.FC<{
     } finally {
       setLoadingBuyerCodes(false);
     }
-  };
+  }, [listing]);
 
   // Reset state when modal opens/closes
   useEffect(() => {
@@ -510,7 +511,7 @@ const QuickEditModal: React.FC<{
       setActiveTab('edit');
       fetchBuyerCodes();
     }
-  }, [show, listing]);
+  }, [show, listing, fetchBuyerCodes]);
 
   if (!show || !listing) return null;
 

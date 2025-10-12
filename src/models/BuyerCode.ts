@@ -5,7 +5,7 @@ export interface IBuyerCode extends Document {
   listingId: mongoose.Types.ObjectId;
   buyerName: string;
   buyerEmail: string;
-  agentId: string;
+  agentId: mongoose.Types.ObjectId;
   isActive: boolean;
   expiresAt: Date;
   createdAt: Date;

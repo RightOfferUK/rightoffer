@@ -46,7 +46,7 @@ const AccessControl: React.FC<AccessControlProps> = ({
       } else {
         setError(data.error || 'Invalid or expired buyer code. Please check your code and try again.');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to validate buyer code. Please try again.');
     } finally {
       setValidatingBuyerCode(false);

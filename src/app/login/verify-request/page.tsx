@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
-export default function VerifyRequestPage() {
+function VerifyRequestContent() {
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
   const { data: session, status } = useSession();
@@ -97,5 +97,20 @@ export default function VerifyRequestPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function VerifyRequestPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-navy-gradient flex items-center justify-center px-4">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/70 font-dm-sans">Loading...</p>
+        </div>
+      </div>
+    }>
+      <VerifyRequestContent />
+    </Suspense>
   );
 }

@@ -5,6 +5,24 @@ import Listing from '@/models/Listing';
 import { sendSellerCodeEmail } from '@/lib/resend';
 import mongoose from 'mongoose';
 
+// Type for raw offer from MongoDB
+interface RawOffer {
+  _id?: mongoose.Types.ObjectId;
+  submittedAt?: Date;
+  statusUpdatedAt?: Date;
+  [key: string]: unknown;
+}
+
+// Type for raw listing from MongoDB
+interface RawListing {
+  _id: mongoose.Types.ObjectId;
+  agentId: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+  offers?: RawOffer[];
+  [key: string]: unknown;
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
@@ -20,7 +38,7 @@ export async function POST(request: NextRequest) {
     const { default: User } = await import('@/models/User');
 
     // Check if user can create listings
-    const canCreate = await (User as any).canCreateListing(session.user.id);
+    const canCreate = await (User as unknown as { canCreateListing: (userId: string) => Promise<{ canCreate: boolean; reason?: string }> }).canCreateListing(session.user.id);
     if (!canCreate.canCreate) {
       return NextResponse.json(
         { error: canCreate.reason || 'Cannot create listing' }, 
@@ -55,7 +73,7 @@ export async function POST(request: NextRequest) {
     await listing.save();
 
     // Increment the listing count for the user/company
-    await (User as any).incrementListingCount(session.user.id);
+    await (User as unknown as { incrementListingCount: (userId: string) => Promise<void> }).incrementListingCount(session.user.id);
 
     // Return listing data (without seller code for agent)
     const listingResponse = {
@@ -103,7 +121,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Check authentication
     const session = await auth();
@@ -152,13 +170,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Serialize listings for client components
-    const serializedListings = listings.map((listing: any) => ({
+    const serializedListings = (listings as unknown as RawListing[]).map((listing: RawListing) => ({
       ...listing,
       _id: listing._id.toString(),
       agentId: listing.agentId.toString(),
       createdAt: new Date(listing.createdAt).toISOString(),
       updatedAt: new Date(listing.updatedAt).toISOString(),
-      offers: listing.offers?.map((offer: any) => ({
+      offers: listing.offers?.map((offer: RawOffer) => ({
         ...offer,
         _id: offer._id?.toString(),
         submittedAt: offer.submittedAt ? new Date(offer.submittedAt).toISOString() : undefined,

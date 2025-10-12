@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import BuyerCode from '@/models/BuyerCode';
-import mongoose from 'mongoose';
-import Listing from '@/models/Listing';
+
 
 // PATCH - Update buyer code (name)
 export async function PATCH(

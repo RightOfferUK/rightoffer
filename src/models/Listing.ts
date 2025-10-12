@@ -94,15 +94,16 @@ const ListingSchema = new mongoose.Schema({
 ListingSchema.pre('save', async function(next) {
   if (this.isNew && !this.sellerCode) {
     // Generate a unique 8-character seller code
-    let code;
+    let code: string = generateSellerCode();
     let isUnique = false;
     
     while (!isUnique) {
-      code = generateSellerCode();
       // Check if this code already exists
       const existing = await mongoose.models.Listing?.findOne({ sellerCode: code });
       if (!existing) {
         isUnique = true;
+      } else {
+        code = generateSellerCode();
       }
     }
     

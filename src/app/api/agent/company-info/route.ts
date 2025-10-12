@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import User from '@/models/User';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Check authentication and agent role
     const session = await auth();
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      companyName: (agent.realEstateAdminId as any).companyName
+      companyName: (agent.realEstateAdminId as { companyName: string }).companyName
     });
 
   } catch (error) {

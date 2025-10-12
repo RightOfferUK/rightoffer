@@ -4,6 +4,20 @@ import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
 import mongoose from 'mongoose';
 
+// Type for raw listing from MongoDB
+interface RawListing {
+  _id: mongoose.Types.ObjectId;
+  address: string;
+  sellerName: string;
+  sellerEmail: string;
+  listedPrice: string;
+  status: string;
+  offers?: Array<{ amount: string; [key: string]: unknown }>;
+  createdAt: Date;
+  updatedAt: Date;
+  sellerCode: string;
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Check authentication
@@ -37,22 +51,22 @@ export async function GET(request: NextRequest) {
     let listings = await Listing.find(query)
       .select('address sellerName sellerEmail listedPrice status offers createdAt updatedAt sellerCode')
       .sort({ updatedAt: -1 })
-      .lean();
+      .lean() as unknown as RawListing[];
 
     // Apply search filter if provided
     if (search && search.trim()) {
       const searchTerm = search.toLowerCase();
-      listings = listings.filter(listing => 
+      listings = listings.filter((listing: RawListing) => 
         listing.address.toLowerCase().includes(searchTerm) ||
         listing.sellerName.toLowerCase().includes(searchTerm)
       );
     }
 
     // Transform data for frontend
-    const transformedListings = listings.map(listing => {
+    const transformedListings = listings.map((listing: RawListing) => {
       const offersCount = listing.offers?.length || 0;
       const topOffer = offersCount > 0 
-        ? Math.max(...listing.offers.map((offer: { amount: string }) => 
+        ? Math.max(...(listing.offers || []).map((offer: { amount: string }) => 
             parseInt(offer.amount.replace(/[£,]/g, ''))
           ))
         : 0;

@@ -14,6 +14,10 @@ interface Offer {
   aipPresent: boolean;
   submittedAt: string;
   notes?: string;
+  counterOffer?: string;
+  agentNotes?: string;
+  statusUpdatedAt?: string;
+  updatedBy?: string;
 }
 
 interface OffersData {

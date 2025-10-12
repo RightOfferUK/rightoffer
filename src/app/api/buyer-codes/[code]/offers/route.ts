@@ -2,6 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cachedMongooseConnection } from '@/lib/db';
 import BuyerCode from '@/models/BuyerCode';
 import Listing from '@/models/Listing';
+import mongoose from 'mongoose';
+
+// Type for raw listing from MongoDB
+interface RawListing {
+  _id: mongoose.Types.ObjectId;
+  address: string;
+  listedPrice: string;
+  sellerName: string;
+  mainPhoto?: string;
+  offers: Array<{
+    id: string;
+    buyerEmail: string;
+    amount: string;
+    status: string;
+    fundingType: string;
+    chain: boolean;
+    aipPresent: boolean;
+    submittedAt: Date;
+    notes?: string;
+    counterOffer?: string;
+    agentNotes?: string;
+  }>;
+}
 
 export async function GET(
   request: NextRequest,
@@ -25,7 +48,7 @@ export async function GET(
     }
 
     // Find all listings and filter offers by buyer email
-    const listings = await Listing.find({}).lean();
+    const listings = await Listing.find({}).lean() as unknown as RawListing[];
     
     const buyerOffers: Array<{
       id: string;
@@ -45,7 +68,7 @@ export async function GET(
       agentNotes?: string;
     }> = [];
 
-    listings.forEach(listing => {
+    listings.forEach((listing: RawListing) => {
       const listingOffers = listing.offers.filter((offer: { buyerEmail: string }) => 
         offer.buyerEmail.toLowerCase() === buyerCode.buyerEmail.toLowerCase()
       );

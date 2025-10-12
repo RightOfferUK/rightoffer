@@ -3,10 +3,28 @@ import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
 import ListingPageClient from '@/components/listing/ListingPageClient';
 import { auth } from '@/auth';
+import mongoose from 'mongoose';
+
+// Type for offers in the listing (from MongoDB)
+interface RawOffer {
+  _id?: mongoose.Types.ObjectId;
+  id?: string;
+  buyerName?: string;
+  buyerEmail?: string;
+  amount?: string;
+  status?: string;
+  fundingType?: string;
+  chain?: boolean;
+  aipPresent?: boolean;
+  submittedAt?: Date;
+  statusUpdatedAt?: Date;
+  notes?: string;
+  [key: string]: unknown;
+}
 
 // Type for the raw listing from MongoDB
 interface RawListing {
-  _id: any;
+  _id: mongoose.Types.ObjectId;
   address: string;
   sellerName: string;
   sellerEmail: string;
@@ -14,8 +32,8 @@ interface RawListing {
   mainPhoto: string;
   sellerCode: string;
   status: string;
-  agentId: any; // MongoDB ObjectId
-  offers: any[];
+  agentId: mongoose.Types.ObjectId;
+  offers: RawOffer[];
   createdAt: Date;
   updatedAt: Date;
   __v?: number; // Mongoose version field
@@ -58,12 +76,24 @@ export default async function ListingPage({ params }: ListingPageProps) {
       agentId: listing.agentId.toString(), // Convert ObjectId to string
       createdAt: listing.createdAt.toISOString(),
       updatedAt: listing.updatedAt.toISOString(),
-      offers: listing.offers.map((offer: any) => ({
+      offers: listing.offers.map((offer: RawOffer) => ({
         ...offer,
         _id: offer._id?.toString(),
         submittedAt: offer.submittedAt ? new Date(offer.submittedAt).toISOString() : undefined,
         statusUpdatedAt: offer.statusUpdatedAt ? new Date(offer.statusUpdatedAt).toISOString() : undefined
-      })),
+      })) as Array<{
+        _id?: string;
+        id: string;
+        buyerName: string;
+        buyerEmail: string;
+        amount: string;
+        status: 'submitted' | 'verified' | 'countered' | 'pending verification' | 'accepted' | 'declined';
+        fundingType: 'Cash' | 'Mortgage' | 'Chain';
+        chain: boolean;
+        aipPresent: boolean;
+        submittedAt: string;
+        notes?: string;
+      }>,
       // Remove Mongoose internal fields
       __v: undefined
     };
@@ -91,7 +121,7 @@ export async function generateMetadata({ params }: ListingPageProps) {
       };
     }
 
-    const listing = rawListing as any;
+    const listing = rawListing as unknown as { address: string; listedPrice: string; mainPhoto: string };
 
     return {
       title: `${listing.address} - £${listing.listedPrice} | RightOffer`,
@@ -102,7 +132,7 @@ export async function generateMetadata({ params }: ListingPageProps) {
         images: listing.mainPhoto ? [listing.mainPhoto] : [],
       },
     };
-  } catch (error) {
+  } catch {
     return {
       title: 'Property Listing | RightOffer',
     };
