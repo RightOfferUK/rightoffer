@@ -33,7 +33,13 @@ interface Listing {
   createdAt: string;
 }
 
-const ListingsTable = () => {
+interface ListingsTableProps {
+  agentId?: string; // Optional prop for admin use
+  agentName?: string; // Optional agent name for admin view
+  hideHeader?: boolean; // Optional prop to hide the header when used in admin context
+}
+
+const ListingsTable: React.FC<ListingsTableProps> = ({ agentId, agentName, hideHeader }) => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [listings, setListings] = useState<Listing[]>([]);
@@ -60,7 +66,11 @@ const ListingsTable = () => {
         params.append('search', searchTerm.trim());
       }
 
-      const response = await fetch(`/api/agent/listings?${params.toString()}`);
+      const apiUrl = agentId 
+        ? `/api/real-estate-admin/agents/${agentId}/listings?${params.toString()}`
+        : `/api/agent/listings?${params.toString()}`;
+      
+      const response = await fetch(apiUrl);
       
       if (!response.ok) {
         throw new Error('Failed to fetch listings');
@@ -74,7 +84,7 @@ const ListingsTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [activeFilter, searchTerm]);
+  }, [activeFilter, searchTerm, agentId]);
 
   // Fetch data on component mount
   useEffect(() => {
@@ -131,17 +141,21 @@ const ListingsTable = () => {
       <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg overflow-hidden">
       {/* Header */}
       <div className="px-6 py-4 border-b border-white/10">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-white font-dm-sans">Listings</h2>
-          <button
-            onClick={fetchListings}
-            disabled={loading}
-            className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 disabled:bg-white/5 text-white rounded-lg transition-colors"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
-        </div>
+        {!hideHeader && (
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-white font-dm-sans">
+              {agentName ? `${agentName}'s Listings` : 'Listings'}
+            </h2>
+            <button
+              onClick={fetchListings}
+              disabled={loading}
+              className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 disabled:bg-white/5 text-white rounded-lg transition-colors"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+          </div>
+        )}
 
         {/* Search and Quick Filters */}
         <div className="flex items-center justify-between gap-4">

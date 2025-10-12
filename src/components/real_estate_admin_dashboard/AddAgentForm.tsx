@@ -123,9 +123,7 @@ const AddAgentForm = () => {
               disabled={isSubmitting}
             />
           </div>
-          <p className="text-white/50 text-xs mt-1">
-            Agent can update this later in their profile
-          </p>
+
         </div>
 
         {/* Submit Button */}

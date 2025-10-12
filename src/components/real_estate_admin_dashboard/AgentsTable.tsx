@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { 
   User, 
   Search,
@@ -13,7 +14,8 @@ import {
   Mail,
   Calendar,
   Eye,
-  EyeOff
+  EyeOff,
+  ExternalLink
 } from 'lucide-react';
 
 type FilterType = 'All' | 'Active' | 'Inactive';
@@ -335,6 +337,14 @@ const AgentsTable = () => {
                           <Eye className="w-4 h-4" />
                         )}
                       </button>
+                      
+                      <Link
+                        href={`/dashboard/agent/${agent._id}`}
+                        className="text-white/60 hover:text-purple-400 transition-colors"
+                        title="Manage agent listings"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </Link>
                       
                       <button
                         onClick={() => setQuickEdit({ show: true, agent })}
