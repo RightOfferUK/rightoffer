@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
 import User from '@/models/User';
+import mongoose from 'mongoose';
 import { sendEmail } from '@/lib/resend';
 import { 
   generateOfferAcceptedEmail, 
@@ -59,9 +60,29 @@ export async function POST(
       return NextResponse.json({ error: 'Offer not found' }, { status: 404 });
     }
 
-    // Check authorization - must be the agent who owns the listing
-    if (listing.agentId.toString() !== session.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    // Check if the current user can manage offers for this listing
+    let canManageOffers = false;
+    
+    // User is the agent who owns this listing
+    if (listing.agentId.toString() === session.user.id) {
+      canManageOffers = true;
+    }
+    // User is a real estate admin who manages the agent who owns this listing
+    else if (session.user.role === 'real_estate_admin') {
+      const agent = await User.findOne({
+        _id: listing.agentId,
+        role: 'agent',
+        realEstateAdminId: new mongoose.Types.ObjectId(session.user.id)
+      });
+      canManageOffers = !!agent;
+    }
+    // User is a super admin
+    else if (session.user.role === 'admin') {
+      canManageOffers = true;
+    }
+    
+    if (!canManageOffers) {
+      return NextResponse.json({ error: 'Unauthorized: You can only manage offers for your own listings or listings from agents you manage' }, { status: 403 });
     }
 
     // Get agent details

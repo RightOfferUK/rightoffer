@@ -54,6 +54,9 @@ interface ListingViewProps {
 const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, userRole = 'public', session }) => {
   const [activeTab, setActiveTab] = useState<'details' | 'offers'>('details');
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Check if property is sold - if so, disable editing and buyer code generation
+  const isSold = listing.status === 'sold';
   const [editedListing, setEditedListing] = useState<ListingData>(listing);
   const [editPriceInput, setEditPriceInput] = useState(
     typeof listing.listedPrice === 'number' 
@@ -523,7 +526,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                     <>
                       <button
                         onClick={handleSave}
-                        disabled={isSaving}
+                        disabled={isSaving || isSold}
                         className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 text-white rounded-lg transition-colors font-medium"
                       >
                         <Save className="w-4 h-4" />
@@ -542,14 +545,27 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                     <>
                       <button
                         onClick={() => setIsEditing(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors font-medium"
+                        disabled={isSold}
+                        className={`flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors font-medium ${
+                          isSold 
+                            ? 'bg-gray-500/50 cursor-not-allowed' 
+                            : 'bg-purple-500 hover:bg-purple-600'
+                        }`}
+                        title={isSold ? 'Cannot edit sold properties' : 'Edit Listing'}
                       >
                         <Edit3 className="w-4 h-4" />
-                        Edit Listing
+                        {isSold ? 'Property Sold' : 'Edit Listing'}
                       </button>
                     </>
                   )}
                 </div>
+                
+                {isSold && (
+                  <p className="text-yellow-400 text-sm mt-2 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    This property has been sold and cannot be edited
+                  </p>
+                )}
                 
                 {/* Error and Success Messages */}
                 {saveError && (
@@ -670,7 +686,8 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                           type="text"
                           value={editedListing.address}
                           onChange={(e) => setEditedListing({...editedListing, address: e.target.value})}
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          disabled={isSold}
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       ) : (
                         <p className="text-white">{listing.address}</p>
@@ -690,7 +707,8 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                             setEditPriceInput(formatted);
                             setEditedListing({...editedListing, listedPrice: parsePrice(formatted)});
                           }}
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          disabled={isSold}
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                           placeholder="500,000"
                         />
                       ) : (
@@ -707,7 +725,8 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                           type="text"
                           value={editedListing.sellerName}
                           onChange={(e) => setEditedListing({...editedListing, sellerName: e.target.value})}
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          disabled={isSold}
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       ) : (
                         <p className="text-white">{listing.sellerName}</p>
@@ -723,7 +742,8 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                           type="email"
                           value={editedListing.sellerEmail}
                           onChange={(e) => setEditedListing({...editedListing, sellerEmail: e.target.value})}
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          disabled={isSold}
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                           placeholder="seller@example.com"
                         />
                       ) : (
@@ -739,7 +759,8 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                         <select
                           value={editedListing.status}
                           onChange={(e) => setEditedListing({...editedListing, status: e.target.value})}
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          disabled={isSold}
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <option value="live" className="bg-gray-800">Live</option>
                           <option value="archive" className="bg-gray-800">Archive</option>
@@ -911,7 +932,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                               <MessageSquare className="w-4 h-4 text-blue-400" />
                               <span className="text-blue-400 font-medium text-sm">Counter Offer</span>
                             </div>
-                            <p className="text-white font-semibold">{offer.counterOffer}</p>
+                            <p className="text-white font-semibold">{formatPrice(offer.counterOffer)}</p>
                             {offer.agentNotes && (
                               <p className="text-white/70 text-sm mt-1">{offer.agentNotes}</p>
                             )}
@@ -1008,17 +1029,29 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                     <h4 className="font-medium text-white">Buyer Management</h4>
                   </div>
                   <p className="text-white/70 text-sm mb-3">
-                    Generate and manage buyer access codes
+                    {isSold ? 'Buyer codes cannot be generated for sold properties' : 'Generate and manage buyer access codes'}
                   </p>
                   <button
                     onClick={() => {
                       setShowBuyerCodeModal(true);
                       fetchBuyerCodes();
                     }}
-                    className="w-full px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium"
+                    disabled={isSold}
+                    className={`w-full px-4 py-2 text-white rounded-lg transition-colors font-medium ${
+                      isSold 
+                        ? 'bg-gray-500/50 cursor-not-allowed' 
+                        : 'bg-green-500 hover:bg-green-600'
+                    }`}
+                    title={isSold ? 'Cannot generate buyer codes for sold properties' : 'Manage Buyer Codes'}
                   >
-                    Manage Buyer Codes
+                    {isSold ? 'Property Sold' : 'Manage Buyer Codes'}
                   </button>
+                  {isSold && (
+                    <p className="text-yellow-400 text-xs mt-2 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      Buyer codes disabled for sold properties
+                    </p>
+                  )}
                 </div>
 
                 {/* Quick Actions */}
@@ -1079,23 +1112,30 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                   value={newBuyerName}
                   onChange={(e) => setNewBuyerName(e.target.value)}
                   placeholder="Buyer Name"
-                  className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  disabled={isSold}
+                  className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <input
                   type="email"
                   value={newBuyerEmail}
                   onChange={(e) => setNewBuyerEmail(e.target.value)}
                   placeholder="buyer@example.com"
-                  className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  disabled={isSold}
+                  className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
               <button
                 onClick={handleGenerateBuyerCode}
-                disabled={generatingBuyerCode || !newBuyerName.trim() || !newBuyerEmail.trim()}
-                className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 text-white rounded-lg transition-colors"
+                disabled={generatingBuyerCode || !newBuyerName.trim() || !newBuyerEmail.trim() || isSold}
+                className={`flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors ${
+                  isSold 
+                    ? 'bg-gray-500/50 cursor-not-allowed' 
+                    : 'bg-green-500 hover:bg-green-600 disabled:bg-green-500/50'
+                }`}
+                title={isSold ? 'Cannot generate buyer codes for sold properties' : 'Generate & Send Code'}
               >
                 <UserPlus className="w-4 h-4" />
-                {generatingBuyerCode ? 'Generating...' : 'Generate & Send Code'}
+                {isSold ? 'Property Sold' : (generatingBuyerCode ? 'Generating...' : 'Generate & Send Code')}
               </button>
             </div>
 

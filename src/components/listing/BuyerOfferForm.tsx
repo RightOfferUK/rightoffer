@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { formatPrice, formatPriceInput, parsePrice } from '@/lib/priceUtils';
 import { useCustomAlert } from '@/components/ui/CustomAlert';
@@ -379,6 +379,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
+            className="flex flex-col"
           >
             <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6 top-8">
               <h2 className="text-xl font-semibold text-white mb-4 font-dm-sans">
@@ -424,7 +425,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
 
             {/* Offer History Section */}
             {buyerDetails && (
-              <div className="mt-6 backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6">
+              <div className="mt-6 backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6 flex-1 flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-white">Your Previous Offers</h3>
                   <button
@@ -461,8 +462,8 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                   </div>
                 ) : (
                   /* Offers List */
-                  <div className="space-y-4 max-h-64 overflow-y-auto">
-                    {offers.slice(0, 3).map((offer, index) => (
+                  <div className="space-y-4 flex-1 overflow-y-auto">
+                    {offers.map((offer, index) => (
                       <motion.div
                         key={offer.id}
                         initial={{ opacity: 0, y: 10 }}
@@ -523,7 +524,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                               <MessageSquare className="w-3 h-3 text-blue-400" />
                               <span className="text-blue-400 font-medium text-xs">Counter Offer</span>
                             </div>
-                            <p className="text-white text-sm font-semibold">£{offer.counterOffer.toLocaleString()}</p>
+                            <p className="text-white text-sm font-semibold">{formatPrice(offer.counterOffer)}</p>
                             {offer.agentNotes && (
                               <p className="text-white/70 text-xs mt-1">{offer.agentNotes}</p>
                             )}
@@ -566,14 +567,6 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                         </div>
                       </motion.div>
                     ))}
-                    
-                    {offers.length > 3 && (
-                      <div className="text-center pt-2">
-                        <p className="text-white/50 text-xs">
-                          Showing 3 of {offers.length} offers
-                        </p>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
@@ -793,98 +786,120 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
       </div>
 
       {/* Counter Offer Response Modal */}
-      {selectedOffer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">
-              Respond to Counter Offer
-            </h3>
-
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">
-                <strong>Your Original Offer:</strong> £{selectedOffer.amount.toLocaleString()}
-              </p>
-              <p className="text-sm text-gray-600 mb-2">
-                <strong>Counter Offer:</strong> £{selectedOffer.counterOffer?.toLocaleString()}
-              </p>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Your Response
-              </label>
-              <select
-                value={counterAction}
-                onChange={(e) => setCounterAction(e.target.value as 'accept' | 'reject' | 'counter')}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="accept">Accept Counter Offer</option>
-                <option value="reject">Reject Counter Offer</option>
-                <option value="counter">Make New Counter Offer</option>
-              </select>
-            </div>
-
-            {counterAction === 'counter' && (
-              <>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Your Counter Offer Amount (£)
-                  </label>
-                  <input
-                    type="number"
-                    value={counterAmount}
-                    onChange={(e) => setCounterAmount(e.target.value)}
-                    placeholder="Enter your counter offer amount"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+      <AnimatePresence>
+        {selectedOffer && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="backdrop-blur-2xl bg-white/20 border border-white/30 rounded-2xl p-8 w-full max-w-lg shadow-2xl"
+            >
+              <div className="flex flex-col items-center text-center mb-6">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center mb-4 shadow-lg">
+                  <MessageSquare className="w-8 h-8 text-white" />
                 </div>
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  Respond to Counter Offer
+                </h3>
+                <p className="text-white/80 text-sm">
+                  Review the counter offer and choose your response
+                </p>
+              </div>
 
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Counter Offer Notes (Optional)
-                  </label>
-                  <textarea
-                    value={counterNotes}
-                    onChange={(e) => setCounterNotes(e.target.value)}
-                    placeholder="Add any notes for the seller"
-                    rows={3}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+              {/* Offer Details */}
+              <div className="mb-6 p-4 bg-white/10 border border-white/20 rounded-xl">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-white/70 text-sm">Your Original Offer:</span>
+                  <span className="text-white font-semibold">{formatPrice(selectedOffer.amount)}</span>
                 </div>
-              </>
-            )}
+                <div className="flex justify-between items-center">
+                  <span className="text-blue-300 text-sm font-medium">Counter Offer:</span>
+                  <span className="text-blue-300 font-bold text-lg">{formatPrice(selectedOffer.counterOffer || 0)}</span>
+                </div>
+              </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setSelectedOffer(null);
-                  setCounterAmount('');
-                  setCounterNotes('');
-                  setCounterAction('accept');
-                }}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-                disabled={isResponding}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCounterOfferResponse}
-                disabled={isResponding}
-                className={`flex-1 px-4 py-2 rounded-md text-white ${
-                  counterAction === 'accept' ? 'bg-green-600 hover:bg-green-700' :
-                  counterAction === 'reject' ? 'bg-red-600 hover:bg-red-700' :
-                  'bg-blue-600 hover:bg-blue-700'
-                } disabled:opacity-50`}
-              >
-                {isResponding ? 'Processing...' : 
-                 counterAction === 'accept' ? 'Accept Counter Offer' :
-                 counterAction === 'reject' ? 'Reject Counter Offer' :
-                 'Send Counter Offer'}
-              </button>
-            </div>
+              {/* Response Selection */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-white/80 mb-3">
+                  Your Response
+                </label>
+                <select
+                  value={counterAction}
+                  onChange={(e) => setCounterAction(e.target.value as 'accept' | 'reject' | 'counter')}
+                  className="w-full px-4 py-3 bg-white/20 border border-white/40 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-200 backdrop-blur-sm"
+                >
+                  <option value="accept" className="bg-gray-800 text-white">Accept Counter Offer</option>
+                  <option value="reject" className="bg-gray-800 text-white">Reject Counter Offer</option>
+                  <option value="counter" className="bg-gray-800 text-white">Make New Counter Offer</option>
+                </select>
+              </div>
+
+              {/* Counter Offer Form */}
+              {counterAction === 'counter' && (
+                <div className="mb-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-white/80 mb-3">
+                      Your Counter Offer Amount
+                    </label>
+                    <input
+                      type="text"
+                      value={counterAmount}
+                      onChange={(e) => setCounterAmount(formatPriceInput(e.target.value))}
+                      placeholder="e.g., 450000"
+                      className="w-full px-4 py-3 bg-white/20 border border-white/40 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-200 backdrop-blur-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-white/80 mb-3">
+                      Counter Offer Notes (Optional)
+                    </label>
+                    <textarea
+                      value={counterNotes}
+                      onChange={(e) => setCounterNotes(e.target.value)}
+                      placeholder="Add any notes for the seller..."
+                      rows={3}
+                      className="w-full px-4 py-3 bg-white/20 border border-white/40 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-200 backdrop-blur-sm resize-none"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    setSelectedOffer(null);
+                    setCounterAmount('');
+                    setCounterNotes('');
+                    setCounterAction('accept');
+                  }}
+                  className="flex-1 px-6 py-3 border border-white/30 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 text-sm font-medium backdrop-blur-sm"
+                  disabled={isResponding}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCounterOfferResponse}
+                  disabled={isResponding}
+                  className={`flex-1 px-6 py-3 text-white rounded-xl transition-all duration-200 text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 ${
+                    counterAction === 'accept' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700' :
+                    counterAction === 'reject' ? 'bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700' :
+                    'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
+                  } disabled:opacity-50 disabled:transform-none`}
+                >
+                  {isResponding ? 'Processing...' : 
+                   counterAction === 'accept' ? 'Accept Counter Offer' :
+                   counterAction === 'reject' ? 'Reject Counter Offer' :
+                   'Send Counter Offer'}
+                </button>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };
