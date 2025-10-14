@@ -96,7 +96,7 @@ export async function PATCH(
       offer: listing.offers[offerIndex]
     });
 
-  } catch (error) {
+  } catch {
     return NextResponse.json({ 
       error: 'Internal server error' 
     }, { status: 500 });
@@ -163,7 +163,7 @@ export async function DELETE(
       message: 'Offer deleted successfully'
     });
 
-  } catch (error) {
+  } catch {
     return NextResponse.json({ 
       error: 'Internal server error' 
     }, { status: 500 });

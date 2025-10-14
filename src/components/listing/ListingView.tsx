@@ -150,7 +150,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
         const errorData = await response.json();
         setSaveError(errorData.error || 'Failed to update listing');
       }
-    } catch (error) {
+    } catch {
       setSaveError('Network error. Please try again.');
     } finally {
       setIsSaving(false);
@@ -184,7 +184,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
         ...editedListing,
         mainPhoto: uploadResult.publicUrl
       });
-    } catch (error) {
+    } catch {
       showAlert({
         title: 'Upload Error',
         message: 'Error uploading image. Please try again.',
@@ -217,7 +217,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
           type: 'error'
         });
       }
-    } catch (error) {
+    } catch {
       showAlert({
         title: 'Error',
         message: 'Error sending seller code. Please try again.',
@@ -237,7 +237,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
         setBuyerCodes(data.buyerCodes || []);
       } else {
       }
-    } catch (error) {
+    } catch {
     } finally {
       setLoadingBuyerCodes(false);
     }
@@ -291,7 +291,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
           type: 'error'
         });
       }
-    } catch (error) {
+    } catch {
       showAlert({
         title: 'Error',
         message: 'Error generating buyer code. Please try again.',
@@ -350,7 +350,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
         type: 'success',
         autoClose: true
       });
-    } catch (error) {
+    } catch {
       showAlert({
         title: 'Error',
         message: 'Failed to update offer status. Please try again.',
@@ -359,58 +359,6 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
     }
   };
 
-  // Handle offer actions (for agents/sellers) - new API
-  const handleOfferUpdate = async (offerId: string, action: string, data?: Record<string, unknown>) => {
-    try {
-      const response = await fetch(`/api/offers/${offerId}/action`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action,
-          ...data
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to update offer');
-      }
-
-      // Refresh offers after successful update
-      await refreshOffers();
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  // Handle buyer responses to counter offers
-  const handleOfferResponse = async (offerId: string, action: string, data?: Record<string, unknown>) => {
-    try {
-      const response = await fetch(`/api/offers/${offerId}/respond`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action,
-          buyerEmail: userRole === 'buyer' ? session?.user?.email : undefined,
-          ...data
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to respond to offer');
-      }
-
-      // Refresh offers after successful response
-      await refreshOffers();
-    } catch (error) {
-      throw error;
-    }
-  };
 
   // Handle offer withdrawal
   const handleWithdrawOffer = async (offerId: string, buyerEmail: string) => {
@@ -438,7 +386,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
         type: 'success',
         autoClose: true
       });
-    } catch (error) {
+    } catch {
       showAlert({
         title: 'Error',
         message: 'Failed to withdraw offer. Please try again.',

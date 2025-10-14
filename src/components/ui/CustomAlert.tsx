@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, AlertCircle, XCircle, Info, X } from 'lucide-react';
+import { CheckCircle, AlertCircle, XCircle, Info } from 'lucide-react';
 
 export type AlertType = 'success' | 'error' | 'warning' | 'info';
 
