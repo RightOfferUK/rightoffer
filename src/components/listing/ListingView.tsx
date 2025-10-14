@@ -1153,13 +1153,13 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
       {/* Counter Offer Modal */}
       <AnimatePresence>
         {showCounterModal.show && (
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-8 w-full max-w-md shadow-2xl"
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="backdrop-blur-2xl bg-white/20 border border-white/30 rounded-2xl p-8 w-full max-w-md shadow-2xl"
             >
             <h3 className="text-2xl font-bold text-white mb-6 text-center">Make Counter Offer</h3>
             <div className="space-y-6">
@@ -1172,7 +1172,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                   value={counterAmount}
                   onChange={(e) => setCounterAmount(e.target.value)}
                   placeholder="e.g., £450,000"
-                  className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all duration-200 backdrop-blur-sm"
+                  className="w-full px-4 py-3 bg-white/20 border border-white/40 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all duration-200 backdrop-blur-sm"
                 />
               </div>
               <div>
@@ -1184,7 +1184,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                   onChange={(e) => setCounterNotes(e.target.value)}
                   placeholder="Add any notes for the buyer..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all duration-200 backdrop-blur-sm resize-none"
+                  className="w-full px-4 py-3 bg-white/20 border border-white/40 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all duration-200 backdrop-blur-sm resize-none"
                 />
               </div>
               <div className="flex gap-4 pt-2">
