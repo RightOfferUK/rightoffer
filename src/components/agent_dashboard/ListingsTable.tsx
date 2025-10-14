@@ -37,9 +37,10 @@ interface ListingsTableProps {
   agentId?: string; // Optional prop for admin use
   agentName?: string; // Optional agent name for admin view
   hideHeader?: boolean; // Optional prop to hide the header when used in admin context
+  isAdminView?: boolean; // Optional prop to indicate admin is viewing (for different link behavior)
 }
 
-const ListingsTable: React.FC<ListingsTableProps> = ({ agentId, agentName, hideHeader }) => {
+const ListingsTable: React.FC<ListingsTableProps> = ({ agentId, agentName, hideHeader, isAdminView }) => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [listings, setListings] = useState<Listing[]>([]);
@@ -280,9 +281,9 @@ const ListingsTable: React.FC<ListingsTableProps> = ({ agentId, agentName, hideH
                       <Link
                         href={`/listing/${listing._id}`}
                         className="text-white/60 hover:text-white transition-colors"
-                        title="View listing"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        title={isAdminView ? "View and edit listing" : "View listing"}
+                        target={isAdminView ? "_self" : "_blank"}
+                        rel={isAdminView ? undefined : "noopener noreferrer"}
                       >
                         <ExternalLink className="w-4 h-4" />
                       </Link>

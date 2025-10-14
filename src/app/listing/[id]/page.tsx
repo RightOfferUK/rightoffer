@@ -66,8 +66,29 @@ export default async function ListingPage({ params }: ListingPageProps) {
     // Type assertion for the raw listing
     const listing = rawListing as RawListing;
 
-    // Check if current user is the agent who owns this listing
-    const canEdit = session?.user?.id === listing.agentId.toString();
+    // Check if current user can edit this listing
+    let canEdit = false;
+    
+    if (session?.user?.id) {
+      // User is the agent who owns this listing
+      if (session.user.id === listing.agentId.toString()) {
+        canEdit = true;
+      }
+      // User is a real estate admin who manages the agent who owns this listing
+      else if (session.user.role === 'real_estate_admin') {
+        const { default: User } = await import('@/models/User');
+        const agent = await User.findOne({
+          _id: listing.agentId,
+          role: 'agent',
+          realEstateAdminId: new mongoose.Types.ObjectId(session.user.id)
+        });
+        canEdit = !!agent;
+      }
+      // User is a super admin
+      else if (session.user.role === 'admin') {
+        canEdit = true;
+      }
+    }
 
     // Convert MongoDB ObjectId to string for client components
     const listingData = {

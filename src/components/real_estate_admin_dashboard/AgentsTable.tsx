@@ -138,7 +138,8 @@ const AgentsTable = () => {
       setDeleteConfirm({ show: false, agent: null });
     } catch (err) {
       console.error('Error deleting agent:', err);
-      alert('Failed to delete agent. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete agent. Please try again.';
+      alert(errorMessage);
     } finally {
       setDeleting(null);
     }
@@ -302,7 +303,7 @@ const AgentsTable = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                    {agent.usedListings || 0}
+                    {agent.listingCount || 0}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -355,10 +356,20 @@ const AgentsTable = () => {
                       </button>
                       
                       <button 
-                        onClick={() => setDeleteConfirm({ show: true, agent })}
-                        disabled={deleting === agent._id}
-                        className="text-white/60 hover:text-red-400 transition-colors disabled:opacity-50"
-                        title="Delete agent"
+                        onClick={() => {
+                          if (agent.listingCount && agent.listingCount > 0) {
+                            alert("Cannot delete agent with active listings. Please make them inactive instead.");
+                            return;
+                          }
+                          setDeleteConfirm({ show: true, agent });
+                        }}
+                        disabled={deleting === agent._id || (agent.listingCount ? agent.listingCount > 0 : false)}
+                        className="text-white/60 hover:text-red-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={
+                          agent.listingCount && agent.listingCount > 0 
+                            ? "Cannot delete agent with active listings. Make them inactive instead." 
+                            : "Delete agent"
+                        }
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -424,7 +435,7 @@ const DeleteConfirmationPopup: React.FC<{
           <div className="p-3 bg-white/5 rounded-lg">
             <p className="text-white font-medium">{agent.name || agent.email}</p>
             <p className="text-white/60 text-sm">
-              Email: {agent.email} • {agent.usedListings || 0} listings
+              Email: {agent.email} • {agent.listingCount || 0} active listings
             </p>
           </div>
         </div>
@@ -536,7 +547,7 @@ const QuickEditModal: React.FC<{
 
         <div className="mb-4">
           <p className="text-white/80 mb-2">{agent.name || agent.email}</p>
-          <p className="text-white/60 text-sm">Currently has {agent.usedListings || 0} listings</p>
+          <p className="text-white/60 text-sm">Currently has {agent.listingCount || 0} active listings</p>
         </div>
 
         {error && (

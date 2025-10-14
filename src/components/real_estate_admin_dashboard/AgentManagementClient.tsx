@@ -58,7 +58,7 @@ const AgentManagementClient: React.FC<AgentManagementClientProps> = ({ agent }) 
             <p className="text-white/70 mt-1">View and manage all listings for this agent</p>
           </div>
           
-          <ListingsTable agentId={agent._id} agentName={agent.name || agent.email} hideHeader={true} />
+          <ListingsTable agentId={agent._id} agentName={agent.name || agent.email} hideHeader={true} isAdminView={true} />
         </div>
 
         {/* Right Side - Agent Edit Form */}

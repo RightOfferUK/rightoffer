@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
 import BuyerCode from '@/models/BuyerCode';
+import mongoose from 'mongoose';
 
 // GET - Get all buyer codes for a listing
 export async function GET(
@@ -27,9 +28,30 @@ export async function GET(
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
 
-    // Check if the current user is the agent who owns this listing
-    if (listing.agentId.toString() !== session.user.id) {
-      return NextResponse.json({ error: 'Forbidden: You can only view your own listing buyer codes' }, { status: 403 });
+    // Check if the current user can access this listing's buyer codes
+    let canAccess = false;
+    
+    // User is the agent who owns this listing
+    if (listing.agentId.toString() === session.user.id) {
+      canAccess = true;
+    }
+    // User is a real estate admin who manages the agent who owns this listing
+    else if (session.user.role === 'real_estate_admin') {
+      const { default: User } = await import('@/models/User');
+      const agent = await User.findOne({
+        _id: listing.agentId,
+        role: 'agent',
+        realEstateAdminId: new mongoose.Types.ObjectId(session.user.id)
+      });
+      canAccess = !!agent;
+    }
+    // User is a super admin
+    else if (session.user.role === 'admin') {
+      canAccess = true;
+    }
+    
+    if (!canAccess) {
+      return NextResponse.json({ error: 'Forbidden: You can only view buyer codes for your own listings or listings from agents you manage' }, { status: 403 });
     }
 
     // Get all active buyer codes for this listing

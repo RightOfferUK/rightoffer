@@ -65,9 +65,30 @@ export async function PUT(
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
 
-    // Check if the current user is the agent who owns this listing
-    if (listing.agentId.toString() !== session.user.id) {
-      return NextResponse.json({ error: 'Forbidden: You can only edit your own listings' }, { status: 403 });
+    // Check if the current user can edit this listing
+    let canEdit = false;
+    
+    // User is the agent who owns this listing
+    if (listing.agentId.toString() === session.user.id) {
+      canEdit = true;
+    }
+    // User is a real estate admin who manages the agent who owns this listing
+    else if (session.user.role === 'real_estate_admin') {
+      const { default: User } = await import('@/models/User');
+      const agent = await User.findOne({
+        _id: listing.agentId,
+        role: 'agent',
+        realEstateAdminId: new mongoose.Types.ObjectId(session.user.id)
+      });
+      canEdit = !!agent;
+    }
+    // User is a super admin
+    else if (session.user.role === 'admin') {
+      canEdit = true;
+    }
+    
+    if (!canEdit) {
+      return NextResponse.json({ error: 'Forbidden: You can only edit your own listings or listings from agents you manage' }, { status: 403 });
     }
 
     // Parse the request body
@@ -82,11 +103,14 @@ export async function PUT(
     } = body;
 
     // Validate required fields
-    if (!address || !sellerName || !sellerEmail || !listedPrice) {
+    if (!address?.trim() || !sellerName?.trim() || !sellerEmail?.trim() || !listedPrice) {
       return NextResponse.json({ 
         error: 'Missing required fields: address, sellerName, sellerEmail, listedPrice' 
       }, { status: 400 });
     }
+
+    // Ensure mainPhoto has a default value if not provided
+    const photoUrl = mainPhoto?.trim() || listing.mainPhoto || '';
 
     // Validate status
     const validStatuses = ['live', 'archive', 'sold'];
@@ -103,8 +127,8 @@ export async function PUT(
         address: address.trim(),
         sellerName: sellerName.trim(),
         sellerEmail: sellerEmail.trim().toLowerCase(),
-        listedPrice: listedPrice.trim(),
-        mainPhoto: mainPhoto?.trim() || '',
+        listedPrice: typeof listedPrice === 'string' ? listedPrice.trim() : listedPrice.toString(),
+        mainPhoto: photoUrl,
         status: status || listing.status,
         updatedAt: new Date()
       },
@@ -132,6 +156,14 @@ export async function PUT(
 
   } catch (error) {
     console.error('Error updating listing:', error);
+    
+    // Handle validation errors specifically
+    if (error instanceof Error && error.name === 'ValidationError') {
+      return NextResponse.json({ 
+        error: 'Validation failed: ' + error.message 
+      }, { status: 400 });
+    }
+    
     return NextResponse.json({ 
       error: 'Internal server error' 
     }, { status: 500 });

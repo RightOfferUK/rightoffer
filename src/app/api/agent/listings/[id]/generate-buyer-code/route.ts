@@ -38,9 +38,30 @@ export async function POST(
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
 
-    // Check if the current user is the agent who owns this listing
-    if (listing.agentId.toString() !== session.user.id) {
-      return NextResponse.json({ error: 'Forbidden: You can only manage your own listings' }, { status: 403 });
+    // Check if the current user can manage this listing
+    let canManage = false;
+    
+    // User is the agent who owns this listing
+    if (listing.agentId.toString() === session.user.id) {
+      canManage = true;
+    }
+    // User is a real estate admin who manages the agent who owns this listing
+    else if (session.user.role === 'real_estate_admin') {
+      const { default: User } = await import('@/models/User');
+      const agent = await User.findOne({
+        _id: listing.agentId,
+        role: 'agent',
+        realEstateAdminId: new mongoose.Types.ObjectId(session.user.id)
+      });
+      canManage = !!agent;
+    }
+    // User is a super admin
+    else if (session.user.role === 'admin') {
+      canManage = true;
+    }
+    
+    if (!canManage) {
+      return NextResponse.json({ error: 'Forbidden: You can only manage your own listings or listings from agents you manage' }, { status: 403 });
     }
 
     // Parse the request body

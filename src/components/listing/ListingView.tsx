@@ -74,6 +74,8 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
   );
   const [isSaving, setIsSaving] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
   
   // Real-time offers hook
   const { 
@@ -125,6 +127,9 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
 
   const handleSave = async () => {
     setIsSaving(true);
+    setSaveError(null);
+    setSaveSuccess(null);
+    
     try {
       const response = await fetch(`/api/listings/${listing._id}`, {
         method: 'PUT',
@@ -142,14 +147,19 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
       });
 
       if (response.ok) {
+        setSaveSuccess('Listing updated successfully!');
         setIsEditing(false);
-        // Refresh the page to get updated data
-        window.location.reload();
+        // Refresh the page to get updated data after a short delay
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       } else {
-        console.error('Failed to update listing');
+        const errorData = await response.json();
+        setSaveError(errorData.error || 'Failed to update listing');
       }
     } catch (error) {
       console.error('Error updating listing:', error);
+      setSaveError('Network error. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -351,38 +361,61 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
             </div>
             
             {canEdit && (
-              <div className="flex items-center gap-2">
-                {isEditing ? (
-                  <>
-                    <button
-                      onClick={handleSave}
-                      disabled={isSaving}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 text-white rounded-lg transition-colors font-medium"
-                    >
-                      <Save className="w-4 h-4" />
-                      {isSaving ? 'Saving...' : 'Save'}
-                    </button>
-                    <button
-                      onClick={handleCancel}
-                      disabled={isSaving}
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-500/50 text-white rounded-lg transition-colors font-medium"
-                    >
-                      <X className="w-4 h-4" />
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => setIsEditing(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors font-medium"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                      Edit Listing
-                    </button>
-                    
-
-                  </>
+              <div>
+                <div className="flex items-center gap-2">
+                  {isEditing ? (
+                    <>
+                      <button
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 text-white rounded-lg transition-colors font-medium"
+                      >
+                        <Save className="w-4 h-4" />
+                        {isSaving ? 'Saving...' : 'Save'}
+                      </button>
+                      <button
+                        onClick={handleCancel}
+                        disabled={isSaving}
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-500/50 text-white rounded-lg transition-colors font-medium"
+                      >
+                        <X className="w-4 h-4" />
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors font-medium"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                        Edit Listing
+                      </button>
+                    </>
+                  )}
+                </div>
+                
+                {/* Error and Success Messages */}
+                {saveError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg flex items-center gap-2"
+                  >
+                    <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                    <p className="text-red-300 text-sm">{saveError}</p>
+                  </motion.div>
+                )}
+                
+                {saveSuccess && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg flex items-center gap-2"
+                  >
+                    <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
+                    <p className="text-green-300 text-sm">{saveSuccess}</p>
+                  </motion.div>
                 )}
               </div>
             )}
@@ -425,6 +458,8 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                 <Image
                   src={listing.mainPhoto}
                   alt={listing.address}
+                  width={800}
+                  height={400}
                   className="w-full h-64 md:h-96 object-cover rounded-lg shadow-lg"
                 />
               </div>
