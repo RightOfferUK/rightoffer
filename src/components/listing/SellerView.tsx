@@ -23,7 +23,7 @@ interface Offer {
   buyerName: string;
   buyerEmail: string;
   amount: number;
-  status: 'submitted' | 'verified' | 'countered' | 'pending verification' | 'accepted' | 'declined';
+  status: 'submitted' | 'accepted' | 'rejected' | 'countered' | 'withdrawn';
   fundingType: 'Cash' | 'Mortgage' | 'Chain';
   chain: boolean;
   aipPresent: boolean;
@@ -63,16 +63,14 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
     switch (status) {
       case 'submitted':
         return 'text-yellow-400 bg-yellow-500/20';
-      case 'verified':
-        return 'text-green-400 bg-green-500/20';
-      case 'countered':
-        return 'text-blue-400 bg-blue-500/20';
-      case 'pending verification':
-        return 'text-purple-400 bg-purple-500/20';
       case 'accepted':
         return 'text-green-500 bg-green-500/30';
-      case 'declined':
+      case 'rejected':
         return 'text-red-400 bg-red-500/20';
+      case 'countered':
+        return 'text-blue-400 bg-blue-500/20';
+      case 'withdrawn':
+        return 'text-gray-400 bg-gray-500/20';
       default:
         return 'text-gray-400 bg-gray-500/20';
     }
@@ -86,7 +84,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
 
   const highestOffer = liveHighestOffer > 0 ? liveHighestOffer : (
     listing.offers.length > 0 
-      ? Math.max(...listing.offers.map(offer => offer.amount))
+      ? Math.max(...listing.offers.filter(offer => offer.status !== 'withdrawn').map(offer => offer.amount))
       : 0
   );
 

@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { uploadImage } from '@/lib/supabase';
 import { useRealTimeOffers } from '@/hooks/useRealTimeOffers';
 import { formatPrice, formatPriceInput, parsePrice } from '@/lib/priceUtils';
+import { Offer } from '@/types/next-auth';
+import { useCustomAlert } from '@/components/ui/CustomAlert';
 import { 
   Home, 
   PoundSterling, 
@@ -26,23 +28,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 
-interface Offer {
-  _id?: string;
-  id: string;
-  buyerName: string;
-  buyerEmail: string;
-  amount: number;
-  status: 'submitted' | 'verified' | 'countered' | 'pending verification' | 'accepted' | 'declined';
-  fundingType: 'Cash' | 'Mortgage' | 'Chain';
-  chain: boolean;
-  aipPresent: boolean;
-  submittedAt: string;
-  notes?: string;
-  counterOffer?: number;
-  agentNotes?: string;
-  statusUpdatedAt?: string;
-  updatedBy?: string;
-}
+// Using Offer type from types/next-auth.d.ts
 
 interface ListingData {
   _id: string;
@@ -61,9 +47,11 @@ interface ListingData {
 interface ListingViewProps {
   listing: ListingData;
   canEdit?: boolean;
+  userRole?: 'agent' | 'seller' | 'buyer' | 'public';
+  session?: { user?: { id?: string; role?: string; [key: string]: unknown } };
 }
 
-const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) => {
+const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, userRole = 'public', session }) => {
   const [activeTab, setActiveTab] = useState<'details' | 'offers'>('details');
   const [isEditing, setIsEditing] = useState(false);
   const [editedListing, setEditedListing] = useState<ListingData>(listing);
@@ -89,6 +77,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
   
   // Admin functionality state
   const [sendingSellerCode, setSendingSellerCode] = useState(false);
+  const { showAlert, AlertComponent } = useCustomAlert();
   const [showBuyerCodeModal, setShowBuyerCodeModal] = useState(false);
   const [buyerCodes, setBuyerCodes] = useState<BuyerCode[]>([]);
 
@@ -105,21 +94,22 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
   const [newBuyerName, setNewBuyerName] = useState('');
   const [newBuyerEmail, setNewBuyerEmail] = useState('');
   const [generatingBuyerCode, setGeneratingBuyerCode] = useState(false);
+  const [showCounterModal, setShowCounterModal] = useState<{ show: boolean; offerId: string | null }>({ show: false, offerId: null });
+  const [counterAmount, setCounterAmount] = useState('');
+  const [counterNotes, setCounterNotes] = useState('');
 
   const getStatusColor = (status: Offer['status']) => {
     switch (status) {
       case 'submitted':
         return 'text-yellow-400 bg-yellow-500/20';
-      case 'verified':
-        return 'text-green-400 bg-green-500/20';
       case 'countered':
         return 'text-blue-400 bg-blue-500/20';
-      case 'pending verification':
-        return 'text-purple-400 bg-purple-500/20';
       case 'accepted':
         return 'text-green-500 bg-green-500/30';
-      case 'declined':
+      case 'rejected':
         return 'text-red-400 bg-red-500/20';
+      case 'withdrawn':
+        return 'text-gray-400 bg-gray-500/20';
       default:
         return 'text-gray-400 bg-gray-500/20';
     }
@@ -158,7 +148,6 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
         setSaveError(errorData.error || 'Failed to update listing');
       }
     } catch (error) {
-      console.error('Error updating listing:', error);
       setSaveError('Network error. Please try again.');
     } finally {
       setIsSaving(false);
@@ -177,7 +166,11 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
     // Check file size (2MB limit)
     const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
-      alert('File size must be less than 2MB. Please choose a smaller image.');
+      showAlert({
+        title: 'File Too Large',
+        message: 'File size must be less than 2MB. Please choose a smaller image.',
+        type: 'error'
+      });
       return;
     }
 
@@ -189,8 +182,11 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
         mainPhoto: uploadResult.publicUrl
       });
     } catch (error) {
-      console.error('Error uploading image:', error);
-      alert('Error uploading image. Please try again.');
+      showAlert({
+        title: 'Upload Error',
+        message: 'Error uploading image. Please try again.',
+        type: 'error'
+      });
     } finally {
       setImageUploading(false);
     }
@@ -205,14 +201,25 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
       });
 
       if (response.ok) {
-        alert('Seller code sent successfully!');
+        showAlert({
+          title: 'Success',
+          message: 'Seller code sent successfully!',
+          type: 'success',
+          autoClose: true
+        });
       } else {
-        console.error('Failed to send seller code');
-        alert('Failed to send seller code. Please try again.');
+        showAlert({
+          title: 'Error',
+          message: 'Failed to send seller code. Please try again.',
+          type: 'error'
+        });
       }
     } catch (error) {
-      console.error('Error sending seller code:', error);
-      alert('Error sending seller code. Please try again.');
+      showAlert({
+        title: 'Error',
+        message: 'Error sending seller code. Please try again.',
+        type: 'error'
+      });
     } finally {
       setSendingSellerCode(false);
     }
@@ -226,10 +233,8 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
         const data = await response.json();
         setBuyerCodes(data.buyerCodes || []);
       } else {
-        console.error('Failed to fetch buyer codes');
       }
     } catch (error) {
-      console.error('Error fetching buyer codes:', error);
     } finally {
       setLoadingBuyerCodes(false);
     }
@@ -244,7 +249,11 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
 
   const handleGenerateBuyerCode = async () => {
     if (!newBuyerName.trim() || !newBuyerEmail.trim()) {
-      alert('Please enter both buyer name and email');
+      showAlert({
+        title: 'Missing Information',
+        message: 'Please enter both buyer name and email',
+        type: 'warning'
+      });
       return;
     }
 
@@ -262,17 +271,29 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
       });
 
       if (response.ok) {
-        alert('Buyer code generated and sent successfully!');
+        showAlert({
+          title: 'Success',
+          message: 'Buyer code generated and sent successfully!',
+          type: 'success',
+          autoClose: true
+        });
         setNewBuyerName('');
         setNewBuyerEmail('');
         fetchBuyerCodes(); // Refresh the list
       } else {
         const errorData = await response.json();
-        alert(errorData.error || 'Failed to generate buyer code');
+        showAlert({
+          title: 'Error',
+          message: errorData.error || 'Failed to generate buyer code',
+          type: 'error'
+        });
       }
     } catch (error) {
-      console.error('Error generating buyer code:', error);
-      alert('Error generating buyer code. Please try again.');
+      showAlert({
+        title: 'Error',
+        message: 'Error generating buyer code. Please try again.',
+        type: 'error'
+      });
     } finally {
       setGeneratingBuyerCode(false);
     }
@@ -280,13 +301,23 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
 
   const copySellerCode = () => {
     navigator.clipboard.writeText(listing.sellerCode);
-    alert('Seller code copied to clipboard!');
+    showAlert({
+      title: 'Copied',
+      message: 'Seller code copied to clipboard!',
+      type: 'success',
+      autoClose: true
+    });
   };
 
   const copyListingUrl = () => {
     const url = `${window.location.origin}/listing/${listing._id}`;
     navigator.clipboard.writeText(url);
-    alert('Listing URL copied to clipboard!');
+    showAlert({
+      title: 'Copied',
+      message: 'Listing URL copied to clipboard!',
+      type: 'success',
+      autoClose: true
+    });
   };
 
   // Offer management functions
@@ -310,35 +341,152 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
 
       // Refresh offers to get updated data
       await refreshOffers();
-      alert(`Offer ${status} successfully!`);
+      showAlert({
+        title: 'Success',
+        message: `Offer ${status} successfully!`,
+        type: 'success',
+        autoClose: true
+      });
     } catch (error) {
-      console.error('Error updating offer status:', error);
-      alert('Failed to update offer status. Please try again.');
+      showAlert({
+        title: 'Error',
+        message: 'Failed to update offer status. Please try again.',
+        type: 'error'
+      });
+    }
+  };
+
+  // Handle offer actions (for agents/sellers) - new API
+  const handleOfferUpdate = async (offerId: string, action: string, data?: Record<string, unknown>) => {
+    try {
+      const response = await fetch(`/api/offers/${offerId}/action`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action,
+          ...data
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update offer');
+      }
+
+      // Refresh offers after successful update
+      await refreshOffers();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // Handle buyer responses to counter offers
+  const handleOfferResponse = async (offerId: string, action: string, data?: Record<string, unknown>) => {
+    try {
+      const response = await fetch(`/api/offers/${offerId}/respond`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action,
+          buyerEmail: userRole === 'buyer' ? session?.user?.email : undefined,
+          ...data
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to respond to offer');
+      }
+
+      // Refresh offers after successful response
+      await refreshOffers();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // Handle offer withdrawal
+  const handleWithdrawOffer = async (offerId: string, buyerEmail: string) => {
+    try {
+      const response = await fetch(`/api/offers/${offerId}/withdraw`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          buyerEmail
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to withdraw offer');
+      }
+
+      // Refresh offers after successful withdrawal
+      await refreshOffers();
+      showAlert({
+        title: 'Success',
+        message: 'Offer withdrawn successfully',
+        type: 'success',
+        autoClose: true
+      });
+    } catch (error) {
+      showAlert({
+        title: 'Error',
+        message: 'Failed to withdraw offer. Please try again.',
+        type: 'error'
+      });
     }
   };
 
   const handleAcceptOffer = (offerId: string) => {
-    if (confirm('Are you sure you want to accept this offer? This will mark the property as under offer.')) {
-      handleOfferStatusUpdate(offerId, 'accepted');
-    }
+    showAlert({
+      title: 'Confirm Action',
+      message: 'Are you sure you want to accept this offer? This will mark the property as under offer.',
+      type: 'warning',
+      showCancel: true,
+      confirmText: 'Accept',
+      cancelText: 'Cancel',
+      onConfirm: () => handleOfferStatusUpdate(offerId, 'accepted')
+    });
   };
 
   const handleDeclineOffer = (offerId: string) => {
-    if (confirm('Are you sure you want to decline this offer?')) {
-      handleOfferStatusUpdate(offerId, 'declined');
-    }
+    showAlert({
+      title: 'Confirm Action',
+      message: 'Are you sure you want to decline this offer?',
+      type: 'warning',
+      showCancel: true,
+      confirmText: 'Decline',
+      cancelText: 'Cancel',
+      onConfirm: () => handleOfferStatusUpdate(offerId, 'rejected')
+    });
   };
 
   const handleCounterOffer = (offerId: string) => {
-    const counterAmountStr = prompt('Enter your counter offer amount (e.g., £450,000):');
-    if (counterAmountStr) {
-      const counterAmount = parsePrice(counterAmountStr);
-      if (counterAmount > 0) {
-        const notes = prompt('Add any notes for the buyer (optional):');
-        handleOfferStatusUpdate(offerId, 'countered', counterAmount.toString(), notes ?? undefined);
-      } else {
-        alert('Please enter a valid offer amount.');
-      }
+    setShowCounterModal({ show: true, offerId });
+  };
+
+  const handleCounterSubmit = () => {
+    if (!showCounterModal.offerId) return;
+    
+    const counterAmountValue = parsePrice(counterAmount);
+    if (counterAmountValue > 0) {
+      handleOfferStatusUpdate(showCounterModal.offerId, 'countered', counterAmountValue.toString(), counterNotes || undefined);
+      setShowCounterModal({ show: false, offerId: null });
+      setCounterAmount('');
+      setCounterNotes('');
+    } else {
+      showAlert({
+        title: 'Invalid Amount',
+        message: 'Please enter a valid offer amount.',
+        type: 'warning'
+      });
     }
   };
 
@@ -350,12 +498,13 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
 
   const displayHighestOffer = highestOffer > 0 ? highestOffer : (
     listing.offers.length > 0 
-      ? Math.max(...listing.offers.map(offer => offer.amount))
+      ? Math.max(...listing.offers.filter(offer => offer.status !== 'withdrawn').map(offer => offer.amount))
       : 0
   );
 
   return (
     <div className="min-h-screen bg-navy-gradient">
+      <AlertComponent />
       {/* Header */}
       <div className="bg-navy-gradient border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -493,7 +642,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                       : 'text-white/70 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  Live Offers ({totalOffers || listing.offers.length})
+                  Live Offers ({totalOffers || listing.offers.filter(offer => offer.status !== 'withdrawn').length})
                 </button>
               </div>
             </div>
@@ -714,7 +863,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                               <div className="flex items-center gap-2">
                                 <PoundSterling className="w-4 h-4 text-green-400" />
                                 <span className="text-green-400 font-semibold text-lg">
-                                  {formatPrice(offer.amount)}
+                                  {offer.amount.toLocaleString()}
                                 </span>
                               </div>
                               
@@ -792,6 +941,29 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
                             >
                               <MessageSquare className="w-4 h-4" />
                               Counter
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Buyer Actions - Withdraw Button */}
+                        {userRole === 'buyer' && (offer.status === 'submitted' || offer.status === 'countered') && (
+                          <div className="mt-4 flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                showAlert({
+                                  title: 'Confirm Withdrawal',
+                                  message: 'Are you sure you want to withdraw this offer?',
+                                  type: 'warning',
+                                  showCancel: true,
+                                  confirmText: 'Withdraw',
+                                  cancelText: 'Cancel',
+                                  onConfirm: () => handleWithdrawOffer(offer.id, offer.buyerEmail)
+                                });
+                              }}
+                              className="flex items-center gap-2 px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors text-sm"
+                            >
+                              <XCircle className="w-4 h-4" />
+                              Withdraw Offer
                             </button>
                           </div>
                         )}
@@ -977,6 +1149,67 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
           </motion.div>
         </div>
       )}
+
+      {/* Counter Offer Modal */}
+      <AnimatePresence>
+        {showCounterModal.show && (
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-8 w-full max-w-md shadow-2xl"
+            >
+            <h3 className="text-2xl font-bold text-white mb-6 text-center">Make Counter Offer</h3>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-white/80 mb-3">
+                  Counter Offer Amount
+                </label>
+                <input
+                  type="text"
+                  value={counterAmount}
+                  onChange={(e) => setCounterAmount(e.target.value)}
+                  placeholder="e.g., £450,000"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all duration-200 backdrop-blur-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-white/80 mb-3">
+                  Notes (Optional)
+                </label>
+                <textarea
+                  value={counterNotes}
+                  onChange={(e) => setCounterNotes(e.target.value)}
+                  placeholder="Add any notes for the buyer..."
+                  rows={3}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all duration-200 backdrop-blur-sm resize-none"
+                />
+              </div>
+              <div className="flex gap-4 pt-2">
+                <button
+                  onClick={() => {
+                    setShowCounterModal({ show: false, offerId: null });
+                    setCounterAmount('');
+                    setCounterNotes('');
+                  }}
+                  className="flex-1 px-6 py-3 border border-white/30 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 text-sm font-medium backdrop-blur-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCounterSubmit}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-xl transition-all duration-200 text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
+                  Submit Counter Offer
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -8,7 +8,7 @@ interface Offer {
   buyerName: string;
   buyerEmail: string;
   amount: number;
-  status: 'submitted' | 'verified' | 'countered' | 'pending verification' | 'accepted' | 'declined';
+  status: 'submitted' | 'accepted' | 'rejected' | 'countered' | 'withdrawn';
   fundingType: 'Cash' | 'Mortgage' | 'Chain';
   chain: boolean;
   aipPresent: boolean;

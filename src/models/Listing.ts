@@ -64,7 +64,7 @@ const ListingSchema = new mongoose.Schema({
     },
     status: {
       type: String,
-      enum: ['submitted', 'verified', 'countered', 'pending verification', 'accepted', 'declined'],
+      enum: ['submitted', 'accepted', 'rejected', 'countered', 'withdrawn'],
       default: 'submitted'
     },
     fundingType: {
@@ -82,9 +82,31 @@ const ListingSchema = new mongoose.Schema({
       type: Number,
       min: 0
     },
+    counterOfferNotes: String,
     agentNotes: String,
     statusUpdatedAt: Date,
-    updatedBy: String
+    updatedBy: String,
+    respondedAt: Date,
+    // Track who made the counter offer (seller or agent)
+    counterOfferBy: {
+      type: String,
+      enum: ['seller', 'agent']
+    },
+    // Track offer history for audit trail
+    offerHistory: [{
+      action: {
+        type: String,
+        enum: ['submitted', 'accepted', 'rejected', 'countered', 'withdrawn']
+      },
+      amount: Number,
+      counterAmount: Number,
+      notes: String,
+      timestamp: {
+        type: Date,
+        default: Date.now
+      },
+      updatedBy: String
+    }]
   }],
   createdAt: {
     type: Date,
@@ -124,5 +146,81 @@ ListingSchema.pre('save', async function(next) {
 ListingSchema.index({ agentId: 1 });
 ListingSchema.index({ status: 1 });
 ListingSchema.index({ createdAt: -1 });
+ListingSchema.index({ 'offers.buyerEmail': 1, 'offers.status': 1 });
+
+// Method to check if buyer has pending offer
+ListingSchema.methods.hasPendingOffer = function(buyerEmail: string): boolean {
+  return this.offers.some((offer: { buyerEmail: string; status: string }) => 
+    offer.buyerEmail.toLowerCase() === buyerEmail.toLowerCase() && 
+    ['submitted', 'countered'].includes(offer.status)
+  );
+};
+
+// Method to find active offer by buyer
+ListingSchema.methods.findActiveOfferByBuyer = function(buyerEmail: string) {
+  return this.offers.find((offer: { buyerEmail: string; status: string }) => 
+    offer.buyerEmail.toLowerCase() === buyerEmail.toLowerCase() && 
+    ['submitted', 'countered'].includes(offer.status)
+  );
+};
+
+// Method to add offer history entry
+ListingSchema.methods.addOfferHistory = function(offerId: string, action: string, amount: number, counterAmount?: number, notes?: string, updatedBy?: string) {
+  const offer = this.offers.find((o: { id: string; [key: string]: unknown }) => o.id === offerId);
+  if (offer) {
+    offer.offerHistory = offer.offerHistory || [];
+    offer.offerHistory.push({
+      action,
+      amount,
+      counterAmount,
+      notes,
+      updatedBy,
+      timestamp: new Date()
+    });
+  }
+};
+
+// Method to update offer status with validation
+ListingSchema.methods.updateOfferStatus = function(offerId: string, newStatus: string, updatedBy: string, counterAmount?: number, counterNotes?: string) {
+  const offer = this.offers.find((o: { id: string; [key: string]: unknown }) => o.id === offerId);
+  if (!offer) {
+    throw new Error('Offer not found');
+  }
+
+  // Validate status transition
+  const validTransitions: { [key: string]: string[] } = {
+    'submitted': ['accepted', 'rejected', 'countered', 'withdrawn'],
+    'countered': ['accepted', 'rejected', 'countered', 'withdrawn'],
+    'accepted': [], // Final state
+    'rejected': [], // Final state
+    'withdrawn': [] // Final state
+  };
+
+  if (!validTransitions[offer.status]?.includes(newStatus)) {
+    throw new Error(`Invalid status transition from ${offer.status} to ${newStatus}`);
+  }
+
+  // Update offer
+  const oldStatus = offer.status;
+  offer.status = newStatus;
+  offer.statusUpdatedAt = new Date();
+  offer.updatedBy = updatedBy;
+  offer.respondedAt = new Date();
+
+  if (newStatus === 'countered' && counterAmount) {
+    offer.counterOffer = counterAmount;
+    offer.counterOfferNotes = counterNotes;
+  }
+
+  // Add to history
+  this.addOfferHistory(offerId, newStatus, offer.amount, counterAmount, counterNotes, updatedBy);
+
+  // If offer is accepted, mark property as sold
+  if (newStatus === 'accepted') {
+    this.status = 'sold';
+  }
+
+  return { oldStatus, newStatus };
+};
 
 export default mongoose.models.Listing || mongoose.model('Listing', ListingSchema);

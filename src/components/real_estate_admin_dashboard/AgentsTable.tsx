@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
+import { useCustomAlert } from '@/components/ui/CustomAlert';
 import Link from 'next/link';
 import { 
   User, 
@@ -31,6 +32,7 @@ interface Agent {
 }
 
 const AgentsTable = () => {
+  const { showAlert, AlertComponent } = useCustomAlert();
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -115,7 +117,11 @@ const AgentsTable = () => {
       await fetchAgents(); // Refresh the list
     } catch (err) {
       console.error('Error updating agent status:', err);
-      alert('Failed to update agent status. Please try again.');
+      showAlert({
+        title: 'Error',
+        message: 'Failed to update agent status. Please try again.',
+        type: 'error'
+      });
     } finally {
       setActionLoading(null);
     }
@@ -139,7 +145,11 @@ const AgentsTable = () => {
     } catch (err) {
       console.error('Error deleting agent:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete agent. Please try again.';
-      alert(errorMessage);
+      showAlert({
+        title: 'Error',
+        message: errorMessage,
+        type: 'error'
+      });
     } finally {
       setDeleting(null);
     }
@@ -160,6 +170,7 @@ const AgentsTable = () => {
 
   return (
     <>
+      <AlertComponent />
       {/* Delete Confirmation Popup */}
       <DeleteConfirmationPopup
         show={deleteConfirm.show}
@@ -358,7 +369,11 @@ const AgentsTable = () => {
                       <button 
                         onClick={() => {
                           if (agent.listingCount && agent.listingCount > 0) {
-                            alert("Cannot delete agent with active listings. Please make them inactive instead.");
+                            showAlert({
+                              title: 'Cannot Delete',
+                              message: "Cannot delete agent with active listings. Please make them inactive instead.",
+                              type: 'warning'
+                            });
                             return;
                           }
                           setDeleteConfirm({ show: true, agent });

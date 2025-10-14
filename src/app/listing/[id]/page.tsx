@@ -19,6 +19,15 @@ interface RawOffer {
   submittedAt?: Date;
   statusUpdatedAt?: Date;
   notes?: string;
+  offerHistory?: Array<{
+    _id?: mongoose.Types.ObjectId;
+    action?: string;
+    amount?: number;
+    counterAmount?: number;
+    notes?: string;
+    updatedBy?: string;
+    timestamp?: Date;
+  }>;
   [key: string]: unknown;
 }
 
@@ -101,14 +110,20 @@ export default async function ListingPage({ params }: ListingPageProps) {
         ...offer,
         _id: offer._id?.toString(),
         submittedAt: offer.submittedAt ? new Date(offer.submittedAt).toISOString() : undefined,
-        statusUpdatedAt: offer.statusUpdatedAt ? new Date(offer.statusUpdatedAt).toISOString() : undefined
+        statusUpdatedAt: offer.statusUpdatedAt ? new Date(offer.statusUpdatedAt).toISOString() : undefined,
+        // Convert offerHistory ObjectIds to strings
+        offerHistory: Array.isArray(offer.offerHistory) ? offer.offerHistory.map((history: { _id?: mongoose.Types.ObjectId; timestamp?: Date; [key: string]: unknown }) => ({
+          ...history,
+          _id: history._id?.toString(),
+          timestamp: history.timestamp ? new Date(history.timestamp).toISOString() : new Date().toISOString()
+        })) : []
       })) as Array<{
         _id?: string;
         id: string;
         buyerName: string;
         buyerEmail: string;
         amount: number;
-        status: 'submitted' | 'verified' | 'countered' | 'pending verification' | 'accepted' | 'declined';
+        status: 'submitted' | 'accepted' | 'rejected' | 'countered' | 'withdrawn';
         fundingType: 'Cash' | 'Mortgage' | 'Chain';
         chain: boolean;
         aipPresent: boolean;

@@ -41,3 +41,32 @@ declare module "next-auth/jwt" {
   }
 }
 
+// Offer types
+export interface Offer {
+  id: string;
+  buyerName: string;
+  buyerEmail: string;
+  amount: number;
+  status: 'submitted' | 'accepted' | 'rejected' | 'countered' | 'withdrawn';
+  fundingType: 'Cash' | 'Mortgage' | 'Chain';
+  chain: boolean;
+  aipPresent: boolean;
+  submittedAt: string | Date;
+  notes?: string;
+  counterOffer?: number;
+  counterOfferNotes?: string;
+  agentNotes?: string;
+  statusUpdatedAt?: string | Date;
+  updatedBy?: string;
+  respondedAt?: string | Date;
+  counterOfferBy?: 'seller' | 'agent';
+  offerHistory?: Array<{
+    action: string;
+    amount: number;
+    counterAmount?: number;
+    notes?: string;
+    timestamp: string | Date;
+    updatedBy: string;
+  }>;
+}
+

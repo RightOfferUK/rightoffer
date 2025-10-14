@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import ListingView from './ListingView';
 import AccessControl from './AccessControl';
 import SellerView from './SellerView';
@@ -12,7 +13,7 @@ interface Offer {
   buyerName: string;
   buyerEmail: string;
   amount: number;
-  status: 'submitted' | 'verified' | 'countered' | 'pending verification' | 'accepted' | 'declined';
+  status: 'submitted' | 'accepted' | 'rejected' | 'countered' | 'withdrawn';
   fundingType: 'Cash' | 'Mortgage' | 'Chain';
   chain: boolean;
   aipPresent: boolean;
@@ -48,6 +49,7 @@ interface BuyerDetails {
 type UserRole = 'agent' | 'seller' | 'buyer' | 'public';
 
 const ListingPageClient: React.FC<ListingPageClientProps> = ({ listing, canEdit = false }) => {
+  const { data: session } = useSession();
   const [userRole, setUserRole] = useState<UserRole>(canEdit ? 'agent' : 'public');
   const [buyerDetails, setBuyerDetails] = useState<BuyerDetails | null>(null);
 
@@ -82,11 +84,11 @@ const ListingPageClient: React.FC<ListingPageClientProps> = ({ listing, canEdit 
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit offer');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit offer');
       }
 
       const result = await response.json();
-      console.log('Offer submitted successfully:', result);
       
       // Trigger a custom event to notify other components of the new offer
       window.dispatchEvent(new CustomEvent('newOfferSubmitted', { 
@@ -105,7 +107,7 @@ const ListingPageClient: React.FC<ListingPageClientProps> = ({ listing, canEdit 
 
   // Agent view - full editing capabilities
   if (userRole === 'agent') {
-    return <ListingView listing={listing} canEdit={true} />;
+    return <ListingView listing={listing} canEdit={true} userRole={userRole} session={session || undefined} />;
   }
 
   // Seller view - can see all offers

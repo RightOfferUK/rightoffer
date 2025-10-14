@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
+import { useCustomAlert } from '@/components/ui/CustomAlert';
 import { Building2, Users, Edit3, Trash2, Loader2 } from 'lucide-react';
 
 interface RealEstateAdmin {
@@ -17,6 +18,7 @@ interface RealEstateAdmin {
 }
 
 export default function RealEstateAdminsTable() {
+  const { showAlert, AlertComponent } = useCustomAlert();
   const [admins, setAdmins] = useState<RealEstateAdmin[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; admin: RealEstateAdmin | null }>({ 
@@ -77,7 +79,11 @@ export default function RealEstateAdminsTable() {
       setDeleteConfirm({ show: false, admin: null });
     } catch (err) {
       console.error('Error deleting admin:', err);
-      alert('Failed to delete company. Please try again.');
+      showAlert({
+        title: 'Error',
+        message: 'Failed to delete company. Please try again.',
+        type: 'error'
+      });
     } finally {
       setDeleting(null);
     }
@@ -96,6 +102,7 @@ export default function RealEstateAdminsTable() {
 
   return (
     <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+      <AlertComponent />
       <div className="p-6 border-b border-white/10">
         <h2 className="text-xl font-bold font-dm-sans text-white mb-2">
           Real Estate Companies

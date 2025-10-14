@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
+import User from '@/models/User';
 import { v4 as uuidv4 } from 'uuid';
 import { parsePrice } from '@/lib/priceUtils';
+import { sendEmail } from '@/lib/resend';
+import { generateOfferNotificationEmail } from '@/emails/templates';
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,6 +54,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
 
+    // Check if property is still available
+    if (listing.status === 'sold') {
+      return NextResponse.json({ error: 'This property has already been sold' }, { status: 400 });
+    }
+
+    // Check if buyer already has a pending offer
+    if (listing.hasPendingOffer(buyerEmail)) {
+      return NextResponse.json({ 
+        error: 'You already have a pending offer for this property. You can only make a new offer if your previous offer has been rejected.' 
+      }, { status: 400 });
+    }
+
     // Create new offer
     const newOffer = {
       id: uuidv4(),
@@ -69,9 +84,56 @@ export async function POST(request: NextRequest) {
     listing.offers.push(newOffer);
     await listing.save();
 
-    // Trigger real-time update event
-    // This could be enhanced with WebSocket or Server-Sent Events in the future
-    // For now, we'll rely on polling from the frontend
+    // Add to offer history
+    listing.addOfferHistory(newOffer.id, 'submitted', numericAmount, undefined, notes?.trim() || '', 'buyer');
+
+    // Get agent and seller details for email notifications
+    const agent = await User.findById(listing.agentId);
+    if (!agent) {
+      console.error('Agent not found for listing:', listingId);
+    }
+
+    // Send email notifications
+    try {
+      // Email to seller
+      const sellerEmail = generateOfferNotificationEmail({
+        recipientName: listing.sellerName,
+        propertyAddress: listing.address,
+        offerAmount: `£${numericAmount.toLocaleString()}`,
+        buyerName: buyerName.trim(),
+        fundingType,
+        listingId: listing._id.toString()
+      });
+
+      await sendEmail({
+        to: listing.sellerEmail,
+        subject: sellerEmail.subject,
+        html: sellerEmail.html,
+        text: sellerEmail.text
+      });
+
+      // Email to agent
+      if (agent) {
+        const agentEmail = generateOfferNotificationEmail({
+          recipientName: agent.name || agent.email,
+          propertyAddress: listing.address,
+          offerAmount: `£${numericAmount.toLocaleString()}`,
+          buyerName: buyerName.trim(),
+          fundingType,
+          listingId: listing._id.toString()
+        });
+
+        await sendEmail({
+          to: agent.email,
+          subject: agentEmail.subject,
+          html: agentEmail.html,
+          text: agentEmail.text
+        });
+      }
+    } catch (emailError) {
+      console.error('Error sending offer notification emails:', emailError);
+      // Don't fail the offer creation if email fails
+    }
     
     return NextResponse.json({ 
       message: 'Offer submitted successfully',

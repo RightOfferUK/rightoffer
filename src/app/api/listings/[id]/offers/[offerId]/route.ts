@@ -23,7 +23,7 @@ export async function PATCH(
     const { status, counterOffer, notes } = body;
 
     // Validate status
-    const validStatuses = ['submitted', 'verified', 'countered', 'pending verification', 'accepted', 'declined'];
+    const validStatuses = ['submitted', 'accepted', 'rejected', 'countered', 'withdrawn'];
     if (!validStatuses.includes(status)) {
       return NextResponse.json({ 
         error: 'Invalid status. Must be one of: ' + validStatuses.join(', ')

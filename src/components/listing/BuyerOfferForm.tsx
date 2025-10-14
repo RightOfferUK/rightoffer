@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { formatPrice, formatPriceInput, parsePrice } from '@/lib/priceUtils';
+import { useCustomAlert } from '@/components/ui/CustomAlert';
 import { 
   PoundSterling, 
   User, 
@@ -18,7 +19,9 @@ import {
   MessageSquare,
   CheckCircle,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  Clock,
+  XCircle
 } from 'lucide-react';
 
 interface BuyerDetails {
@@ -77,6 +80,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
     aipPresent: false,
     notes: ''
   });
+  const { showAlert, AlertComponent } = useCustomAlert();
 
   const [amountInput, setAmountInput] = useState('');
 
@@ -88,6 +92,13 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
   const [offers, setOffers] = useState<BuyerOffer[]>([]);
   const [loadingOffers, setLoadingOffers] = useState(false);
   const [offersError, setOffersError] = useState<string | null>(null);
+
+  // Counter offer response state
+  const [selectedOffer, setSelectedOffer] = useState<BuyerOffer | null>(null);
+  const [counterAction, setCounterAction] = useState<'accept' | 'reject' | 'counter'>('accept');
+  const [counterAmount, setCounterAmount] = useState('');
+  const [counterNotes, setCounterNotes] = useState('');
+  const [isResponding, setIsResponding] = useState(false);
 
   // Fetch buyer's offer history
   const fetchOffers = useCallback(async () => {
@@ -197,11 +208,107 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
       if (buyerDetails) {
         fetchOffers();
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error submitting offer:', error);
-      setError('Failed to submit offer. Please try again.');
+      // Display the specific error message from the API if available
+      const errorMessage = (error as { message?: string; error?: string })?.message || (error as { message?: string; error?: string })?.error || 'Failed to submit offer. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Handle offer withdrawal
+  const handleWithdrawOffer = async (offerId: string) => {
+    try {
+      const response = await fetch(`/api/offers/${offerId}/withdraw`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          buyerEmail: buyerDetails?.buyerEmail
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to withdraw offer');
+      }
+
+      // Refresh offers after successful withdrawal
+      await fetchOffers();
+      showAlert({
+        title: 'Success',
+        message: 'Offer withdrawn successfully',
+        type: 'success',
+        autoClose: true
+      });
+    } catch (error: unknown) {
+      console.error('Error withdrawing offer:', error);
+      showAlert({
+        title: 'Error',
+        message: error instanceof Error ? error.message : 'Failed to withdraw offer. Please try again.',
+        type: 'error'
+      });
+    }
+  };
+
+  // Handle counter offer response
+  const handleCounterOfferResponse = async () => {
+    if (!selectedOffer) return;
+
+    setIsResponding(true);
+    try {
+      const actionData: Record<string, unknown> = {};
+      
+      if (counterAction === 'counter') {
+        if (!counterAmount || parseFloat(counterAmount) <= 0) {
+          showAlert({
+            title: 'Invalid Amount',
+            message: 'Please enter a valid counter offer amount',
+            type: 'warning'
+          });
+          return;
+        }
+        actionData.counterAmount = parseFloat(counterAmount);
+        actionData.counterNotes = counterNotes;
+      }
+
+      const response = await fetch(`/api/offers/${selectedOffer.id}/respond`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: counterAction,
+          buyerEmail: buyerDetails?.buyerEmail,
+          ...actionData
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to respond to counter offer');
+      }
+
+      // Refresh offers after successful response
+      await fetchOffers();
+      
+      // Reset modal state
+      setSelectedOffer(null);
+      setCounterAmount('');
+      setCounterNotes('');
+      setCounterAction('accept');
+    } catch (error: unknown) {
+      console.error('Error responding to counter offer:', error);
+      showAlert({
+        title: 'Error',
+        message: error instanceof Error ? error.message : 'Failed to respond to counter offer. Please try again.',
+        type: 'error'
+      });
+    } finally {
+      setIsResponding(false);
     }
   };
 
@@ -223,13 +330,13 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
               Offer Submitted!
             </h2>
             <p className="text-white/70 mb-6">
-              Your offer has been successfully submitted to the seller. They will review it and respond shortly.
+              Your offer has been successfully submitted to the seller. They will review it and respond shortly. You will receive an email notification when they respond.
             </p>
             <button
               onClick={() => setSuccess(false)}
               className="px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors font-medium"
             >
-              Submit Another Offer
+              View Offer Status
             </button>
           </div>
         </motion.div>
@@ -237,8 +344,14 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
     );
   }
 
+  // Check if there's a pending offer
+  const pendingOffer = offers.find(offer => 
+    offer.status === 'submitted' || offer.status === 'countered'
+  );
+
   return (
     <div className="min-h-screen bg-navy-gradient">
+      <AlertComponent />
       {/* Header */}
       <div className="bg-navy-gradient border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -366,7 +479,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                               <div className="flex items-center gap-1">
                                 <PoundSterling className="w-3 h-3 text-green-400" />
                                 <span className="text-green-400 font-semibold text-sm">
-                                  {formatPrice(offer.amount)}
+                                  {offer.amount.toLocaleString()}
                                 </span>
                               </div>
                               <div className="flex items-center gap-1">
@@ -410,12 +523,47 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                               <MessageSquare className="w-3 h-3 text-blue-400" />
                               <span className="text-blue-400 font-medium text-xs">Counter Offer</span>
                             </div>
-                            <p className="text-white text-sm font-semibold">{offer.counterOffer}</p>
+                            <p className="text-white text-sm font-semibold">£{offer.counterOffer.toLocaleString()}</p>
                             {offer.agentNotes && (
                               <p className="text-white/70 text-xs mt-1">{offer.agentNotes}</p>
                             )}
                           </div>
                         )}
+
+                        {/* Action Buttons */}
+                        <div className="mt-3 flex items-center gap-2">
+                          {/* Withdraw Button - for submitted or countered offers */}
+                          {(offer.status === 'submitted' || offer.status === 'countered') && (
+                            <button
+                              onClick={() => {
+                                showAlert({
+                                  title: 'Confirm Withdrawal',
+                                  message: 'Are you sure you want to withdraw this offer?',
+                                  type: 'warning',
+                                  showCancel: true,
+                                  confirmText: 'Withdraw',
+                                  cancelText: 'Cancel',
+                                  onConfirm: () => handleWithdrawOffer(offer.id)
+                                });
+                              }}
+                              className="flex items-center gap-1 px-2 py-1 bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/30 text-orange-300 rounded text-xs transition-colors"
+                            >
+                              <XCircle className="w-3 h-3" />
+                              Withdraw
+                            </button>
+                          )}
+
+                          {/* Counter Offer Response Button - for countered offers */}
+                          {offer.status === 'countered' && (
+                            <button
+                              onClick={() => setSelectedOffer(offer)}
+                              className="flex items-center gap-1 px-2 py-1 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 rounded text-xs transition-colors"
+                            >
+                              <MessageSquare className="w-3 h-3" />
+                              Respond
+                            </button>
+                          )}
+                        </div>
                       </motion.div>
                     ))}
                     
@@ -591,13 +739,18 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
               <div className="pt-4">
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="w-full px-6 py-4 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
+                  disabled={isSubmitting || !!pendingOffer}
+                  className="w-full px-6 py-4 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
                       Submitting Offer...
+                    </>
+                  ) : pendingOffer ? (
+                    <>
+                      <Clock className="w-5 h-5" />
+                      Offer Pending
                     </>
                   ) : (
                     <>
@@ -607,6 +760,26 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                   )}
                 </button>
               </div>
+
+              {/* Warning message for pending offers */}
+              {pendingOffer && (
+                <div className="mt-4 p-4 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-yellow-200 text-sm font-medium mb-1">
+                        You have a pending offer for this property
+                      </p>
+                      <p className="text-yellow-200/80 text-sm">
+                        Your current offer: £{pendingOffer.amount.toLocaleString()} ({pendingOffer.status})
+                      </p>
+                      <p className="text-yellow-200/80 text-sm mt-1">
+                        A new offer can only be made if your previous offer is rejected or withdrawn.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="text-center pt-4">
                 <p className="text-white/50 text-sm">
@@ -618,6 +791,100 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
           </motion.div>
         </div>
       </div>
+
+      {/* Counter Offer Response Modal */}
+      {selectedOffer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">
+              Respond to Counter Offer
+            </h3>
+
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-2">
+                <strong>Your Original Offer:</strong> £{selectedOffer.amount.toLocaleString()}
+              </p>
+              <p className="text-sm text-gray-600 mb-2">
+                <strong>Counter Offer:</strong> £{selectedOffer.counterOffer?.toLocaleString()}
+              </p>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Your Response
+              </label>
+              <select
+                value={counterAction}
+                onChange={(e) => setCounterAction(e.target.value as 'accept' | 'reject' | 'counter')}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="accept">Accept Counter Offer</option>
+                <option value="reject">Reject Counter Offer</option>
+                <option value="counter">Make New Counter Offer</option>
+              </select>
+            </div>
+
+            {counterAction === 'counter' && (
+              <>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Your Counter Offer Amount (£)
+                  </label>
+                  <input
+                    type="number"
+                    value={counterAmount}
+                    onChange={(e) => setCounterAmount(e.target.value)}
+                    placeholder="Enter your counter offer amount"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Counter Offer Notes (Optional)
+                  </label>
+                  <textarea
+                    value={counterNotes}
+                    onChange={(e) => setCounterNotes(e.target.value)}
+                    placeholder="Add any notes for the seller"
+                    rows={3}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setSelectedOffer(null);
+                  setCounterAmount('');
+                  setCounterNotes('');
+                  setCounterAction('accept');
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                disabled={isResponding}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCounterOfferResponse}
+                disabled={isResponding}
+                className={`flex-1 px-4 py-2 rounded-md text-white ${
+                  counterAction === 'accept' ? 'bg-green-600 hover:bg-green-700' :
+                  counterAction === 'reject' ? 'bg-red-600 hover:bg-red-700' :
+                  'bg-blue-600 hover:bg-blue-700'
+                } disabled:opacity-50`}
+              >
+                {isResponding ? 'Processing...' : 
+                 counterAction === 'accept' ? 'Accept Counter Offer' :
+                 counterAction === 'reject' ? 'Reject Counter Offer' :
+                 'Send Counter Offer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
