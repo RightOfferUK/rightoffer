@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { uploadImage } from '@/lib/supabase';
@@ -218,7 +218,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
     }
   };
 
-  const fetchBuyerCodes = async () => {
+  const fetchBuyerCodes = useCallback(async () => {
     setLoadingBuyerCodes(true);
     try {
       const response = await fetch(`/api/agent/listings/${listing._id}/buyer-codes`);
@@ -233,7 +233,14 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false }) =
     } finally {
       setLoadingBuyerCodes(false);
     }
-  };
+  }, [listing._id]);
+
+  // Fetch buyer codes when component mounts
+  useEffect(() => {
+    if (canEdit) {
+      fetchBuyerCodes();
+    }
+  }, [canEdit, fetchBuyerCodes]);
 
   const handleGenerateBuyerCode = async () => {
     if (!newBuyerName.trim() || !newBuyerEmail.trim()) {

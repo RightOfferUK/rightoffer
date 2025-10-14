@@ -55,6 +55,7 @@ export async function GET(
     }
 
     // Get all active buyer codes for this listing
+    // Use the listing's agentId, not the session user's ID
     const buyerCodes = await (BuyerCode as unknown as { findByListing: (listingId: string, agentId: string) => Promise<Array<{
       _id: { toString: () => string };
       code: string;
@@ -66,7 +67,7 @@ export async function GET(
       expiresAt: Date;
       createdAt: Date;
       lastEmailSent?: Date;
-    }>> }).findByListing(id, session.user.id);
+    }>> }).findByListing(id, listing.agentId.toString());
 
     // Transform the data for the frontend
     const transformedCodes = buyerCodes.map(code => ({

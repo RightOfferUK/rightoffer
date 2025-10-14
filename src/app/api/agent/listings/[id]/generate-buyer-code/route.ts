@@ -118,12 +118,13 @@ export async function POST(
       } while (await BuyerCode.findOne({ code: buyerCode }));
 
       // Store buyer code in database
+      // Use the listing's agentId, not the session user's ID
       savedBuyerCode = await BuyerCode.create({
         code: buyerCode,
         listingId: id,
         buyerName: buyerNameValue.trim(),
         buyerEmail: buyerEmailValue.trim().toLowerCase(),
-        agentId: new mongoose.Types.ObjectId(session.user.id),
+        agentId: listing.agentId,
         isActive: true,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
       });
