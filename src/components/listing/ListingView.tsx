@@ -51,7 +51,7 @@ interface ListingViewProps {
   session?: { user?: { id?: string; role?: string; [key: string]: unknown } };
 }
 
-const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, userRole = 'public', session }) => {
+const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, userRole = 'public' }) => {
   const [activeTab, setActiveTab] = useState<'details' | 'offers'>('details');
   const [isEditing, setIsEditing] = useState(false);
   
