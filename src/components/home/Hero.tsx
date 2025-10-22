@@ -63,7 +63,7 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 1.0 }}
             >
-              Connect agents, sellers, and buyers with complete transparency. See all offers in real-time, no hidden deals.
+              Connect agents, sellers, and buyers with complete transparency. See all offers in real-time, no more constant phone calls.
             </motion.p>
           </motion.div>
 
@@ -123,7 +123,7 @@ const Hero = () => {
           {[
             {
               title: "For Real Estate Agents",
-              description: "List properties and generate unique seller codes. Provide complete transparency to your clients and build trust through our open offer system.",
+              description: "List properties and generate unique seller & buyer codes. Provide complete transparency to your clients, build trust through our open offer system, and say goodbye to constant phone calls.",
               icon: Building2,
               gradient: "from-purple-500 to-purple-600",
               glowColor: "from-purple-500/20 to-purple-600/20",
@@ -132,7 +132,7 @@ const Hero = () => {
             },
             {
               title: "For Property Sellers",
-              description: "Use your unique code to see every offer in real-time. No more wondering if your agent is showing you all offers - complete transparency guaranteed.",
+              description: "Use your unique code to see every offer in real-time. No more constant phone calls to your estate agent — reply to offers in real time with complete transparency guaranteed.",
               icon: Eye,
               gradient: "from-purple-600 to-purple-700",
               glowColor: "from-purple-600/20 to-purple-700/20",
@@ -141,7 +141,7 @@ const Hero = () => {
             },
             {
               title: "For Property Buyers",
-              description: "Submit competitive offers directly through our platform. See where you stand and make informed decisions in real-time bidding scenarios.",
+              description: "Use your unique buyer code and submit offers directly through our platform. No more phone calls to your agent — track your offer status with real-time transparency.",
               icon: DollarSign,
               gradient: "from-purple-700 to-purple-800",
               glowColor: "from-purple-700/20 to-purple-800/20",
@@ -199,7 +199,7 @@ const Hero = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 2.0 }}
           >
-            <span className="text-purple-600 font-medium">Mortgage brokers</span> and <span className="text-purple-600 font-medium">conveyancers/solicitors</span> - want to advertise here? <span className="text-purple-600 font-medium">Contact us</span>.
+            <span className="text-purple-600 font-medium">Mortgage brokers</span> and <span className="text-purple-600 font-medium">conveyancers/solicitors</span> - want to advertise here? <a href="#pricing-contact" className="text-purple-600 font-medium underline hover:text-purple-800 transition-colors">Contact us</a>.
           </motion.p>
 
           {/* Mortgage Brokers */}

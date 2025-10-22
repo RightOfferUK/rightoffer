@@ -12,7 +12,7 @@ const ForSellers = () => {
     },
     {
       icon: BarChart3,
-      text: "Compare all offers side-by-side with detailed breakdowns"
+      text: "Compare all offers and responses with detailed breakdowns"
     },
     {
       icon: Clock,
@@ -20,7 +20,7 @@ const ForSellers = () => {
     },
     {
       icon: Shield,
-      text: "No more wondering if your agent is hiding better offers"
+      text: "No more phone calls — just clarity at every step"
     }
   ];
 
@@ -131,13 +131,13 @@ const ForSellers = () => {
                 whileTap={{ scale: 0.95 }}
                 transition={{ duration: 0.2 }}
                 onClick={() => {
-                  const element = document.querySelector('#pricing-contact');
+                  const element = document.querySelector('/listing');
                   if (element) {
                     element.scrollIntoView({ behavior: 'smooth' });
                   }
                 }}
               >
-                Get Your Seller Code
+                Have a Seller Code?
               </motion.button>
             </motion.div>
           </motion.div>

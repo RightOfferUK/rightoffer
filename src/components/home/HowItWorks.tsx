@@ -2,16 +2,16 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Home, Eye, DollarSign, CheckCircle2 } from 'lucide-react';
+import { Home, Eye, PoundSterling, CheckCircle2 } from 'lucide-react';
 
 const HowItWorks = () => {
   const steps = [
     {
       number: "01",
       title: "Agent Lists Property",
-      description: "Real estate agents create a listing and generate a unique transparency code for the seller.",
+      description: "Estate agents create a listing and generate a unique transparency code for the seller & buyer. No more constant phone calls. ",
       icon: Home,
-      details: ["Upload property details", "Set asking price", "Generate seller code", "Share with all parties"],
+      details: ["Add property details", "Set asking price", "Generate seller & buyer codes", "Share with all parties"],
       color: "from-purple-500 to-purple-600",
       bgColor: "bg-purple-50",
       textColor: "text-purple-600"
@@ -29,9 +29,9 @@ const HowItWorks = () => {
     {
       number: "03",
       title: "Buyers Submit Offers",
-      description: "Potential buyers can submit competitive offers directly through the platform with complete transparency.",
-      icon: DollarSign,
-      details: ["Browse available properties", "Submit competitive offers", "See market positioning", "Get instant feedback"],
+      description: "Verified and potential buyers can submit offers directly through the platform with complete transparency.",
+      icon: PoundSterling,
+        details: ["No more phone calls to your agent", "Submit offers.", "See market positioning", "Get instant feedback"],
       color: "from-purple-700 to-purple-800",
       bgColor: "bg-purple-50",
       textColor: "text-purple-600"
@@ -98,8 +98,8 @@ const HowItWorks = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             viewport={{ once: true }}
           >
-            Three simple steps to revolutionize how real estate deals are made. 
-            No more hidden agendas, no more wondering if you&apos;re getting the best deal.
+            Three simple steps to revolutionise how real estate deals are made. 
+            No more constant phone calls or chasing for updates.
           </motion.p>
         </motion.div>
 
@@ -224,7 +224,7 @@ const HowItWorks = () => {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 viewport={{ once: true }}
               >
-                Join the revolution and see every offer in real-time.
+                Join the revolution before the regulation.
               </motion.p>
             </div>
 

@@ -2,25 +2,27 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Building2, Users, TrendingUp, Shield } from 'lucide-react';
+import { Building2, Users, TrendingUp, Shield, PhoneOff } from 'lucide-react';
 
 const ForAgents = () => {
   const benefits = [
-    {
-      icon: Building2,
-      text: "List properties with complete transparency and build trust with clients"
-    },
+
     {
       icon: Users,
-      text: "Generate unique seller codes for real-time offer visibility"
+      text: "Generate unique seller & buyer codes for real-time offer visibility"
     },
     {
       icon: TrendingUp,
-      text: "Close deals faster with transparent bidding process"
+      text: "Close deals faster with transparent offers process"
     },
     {
       icon: Shield,
       text: "Protect your reputation with honest, open transactions"
+    },
+    // Added as per instruction
+    {
+      icon: PhoneOff,
+      text: "No more lengthy phone calls — focus on more sales"
     }
   ];
 
@@ -59,14 +61,14 @@ const ForAgents = () => {
               variants={itemVariants}
             >
               Built for 
-              <span className="text-purple-500"> Real Estate Agents</span>
+              <span className="text-purple-500"> Estate Agents</span>
             </motion.h2>
             
             <motion.p
               className="text-xl text-white/80 font-dm-sans mb-8 leading-relaxed"
               variants={itemVariants}
             >
-              Empower your clients with complete transparency and build lasting trust through our revolutionary platform.
+              Build lasting trust with your clients — no more constant calls for updates, just clarity at every step.
             </motion.p>
 
             <motion.div

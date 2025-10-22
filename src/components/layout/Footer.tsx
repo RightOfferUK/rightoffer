@@ -12,9 +12,35 @@ const Footer = () => {
             <span className="text-white font-dm-sans text-xl font-bold">rightoffer</span>
           </div>
 
-          {/* Copyright */}
-          <div className="text-white/60 font-dm-sans text-sm text-center">
-            © 2024 RightOffer. All rights reserved.
+          {/* Address & Legal Links */}
+          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 text-white/60 font-dm-sans text-sm text-center">
+            <span>
+            167-169 Great Portland Street, 5th Floor, London, England, W1W 5PF            </span>
+            <span className="hidden md:inline">|</span>
+            {/* Legal links */}
+            <a
+              href="/privacy-policy"
+              className="hover:text-purple-400 transition-colors underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Privacy Policy
+            </a>
+            <span className="hidden md:inline">|</span>
+            <a
+              href="/terms-and-conditions"
+              className="hover:text-purple-400 transition-colors underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Terms &amp; Conditions
+            </a>
+          </div>
+
+          {/* Copyright and Company Number */}
+          <div className="flex flex-col items-center text-white/60 font-dm-sans text-sm">
+            <span>© 2025 Transparency UK Limited.</span>
+            <span className="mt-1">Company No. 16769713</span>
           </div>
         </div>
       </div>

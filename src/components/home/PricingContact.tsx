@@ -61,15 +61,21 @@ const PricingContact = () => {
                 <div className="space-y-3 mb-8">
                   <div className="flex items-center justify-center gap-3 text-white/90">
                     <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                    <span className="font-dm-sans text-base">Real-time offers</span>
+                    <span className="font-dm-sans text-base font-medium">
+                      Confidential – keep all offers between agent and seller.
+                    </span>
                   </div>
                   <div className="flex items-center justify-center gap-3 text-white/90">
                     <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                    <span className="font-dm-sans text-base">Unlimited submissions</span>
+                    <span className="font-dm-sans text-base font-medium">
+                      Dual visibility – only the agent & seller have access.
+                    </span>
                   </div>
                   <div className="flex items-center justify-center gap-3 text-white/90">
                     <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                    <span className="font-dm-sans text-base">Dashboard access</span>
+                    <span className="font-dm-sans text-base font-medium">
+                      Full transparency – every activity is visible to both sides.
+                    </span>
                   </div>
                 </div>
 
