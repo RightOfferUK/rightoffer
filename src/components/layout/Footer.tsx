@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 
 const Footer = () => {
   return (
@@ -18,23 +19,19 @@ const Footer = () => {
             167-169 Great Portland Street, 5th Floor, London, England, W1W 5PF            </span>
             <span className="hidden md:inline">|</span>
             {/* Legal links */}
-            <a
+            <Link
               href="/privacy-policy"
               className="hover:text-purple-400 transition-colors underline"
-              target="_blank"
-              rel="noopener noreferrer"
             >
               Privacy Policy
-            </a>
+            </Link>
             <span className="hidden md:inline">|</span>
-            <a
+            <Link
               href="/terms-and-conditions"
               className="hover:text-purple-400 transition-colors underline"
-              target="_blank"
-              rel="noopener noreferrer"
             >
               Terms &amp; Conditions
-            </a>
+            </Link>
           </div>
 
           {/* Copyright and Company Number */}
