@@ -124,7 +124,7 @@ const PrivacyPolicyPage = () => {
                 <ul className="list-disc list-inside text-white/80 space-y-1 ml-4">
                   <li>Buyer information is shared with sellers when an offer is submitted</li>
                   <li>Seller names (but not emails) are shared with buyers viewing property listings</li>
-                  <li>Real estate agents have access to their clients' information</li>
+                  <li>Real estate agents have access to their clients&apos; information</li>
                 </ul>
               </div>
 
@@ -277,7 +277,7 @@ const PrivacyPolicyPage = () => {
             <div className="flex items-center gap-3 mb-4">
               <Users className="w-6 h-6 text-pink-400" />
               <h2 className="text-2xl font-bold text-white font-dm-sans">
-                8. Children's Privacy
+                8. Children&apos;s Privacy
               </h2>
             </div>
             
@@ -340,7 +340,7 @@ const PrivacyPolicyPage = () => {
             <div className="space-y-3 ml-9">
               <p className="text-white/80 leading-relaxed">
                 We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new 
-                Privacy Policy on this page and updating the "Last updated" date at the top of this policy. You are advised 
+                Privacy Policy on this page and updating the &quot;Last updated&quot; date at the top of this policy. You are advised 
                 to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when 
                 they are posted on this page.
               </p>

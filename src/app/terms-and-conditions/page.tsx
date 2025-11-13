@@ -32,8 +32,8 @@ const TermsAndConditionsPage = () => {
           {/* Introduction */}
           <section>
             <p className="text-white/80 leading-relaxed">
-              Welcome to RightOffer. These Terms and Conditions ("Terms", "Terms and Conditions") govern your relationship 
-              with the RightOffer platform (the "Service") operated by Transparency UK Limited ("us", "we", or "our").
+              Welcome to RightOffer. These Terms and Conditions (&quot;Terms&quot;, &quot;Terms and Conditions&quot;) govern your relationship 
+              with the RightOffer platform (the &quot;Service&quot;) operated by Transparency UK Limited (&quot;us&quot;, &quot;we&quot;, or &quot;our&quot;).
             </p>
             <p className="text-white/80 leading-relaxed mt-4">
               Please read these Terms and Conditions carefully before using our Service. Your access to and use of the 
@@ -60,15 +60,15 @@ const TermsAndConditionsPage = () => {
                 For the purposes of these Terms and Conditions:
               </p>
               <ul className="space-y-2 text-white/80">
-                <li><strong className="text-white">"Platform" or "Service"</strong> refers to the RightOffer website and related services</li>
-                <li><strong className="text-white">"User", "You", "Your"</strong> refers to the individual accessing or using the Service</li>
-                <li><strong className="text-white">"Buyer"</strong> refers to users submitting offers on properties</li>
-                <li><strong className="text-white">"Seller"</strong> refers to property owners listing properties for sale</li>
-                <li><strong className="text-white">"Agent"</strong> refers to real estate agents using the platform</li>
-                <li><strong className="text-white">"Real Estate Admin"</strong> refers to real estate companies managing multiple agents</li>
-                <li><strong className="text-white">"Listing"</strong> refers to a property advertised for sale on the platform</li>
-                <li><strong className="text-white">"Offer"</strong> refers to a proposal to purchase a property submitted through the platform</li>
-                <li><strong className="text-white">"Company"</strong> refers to Transparency UK Limited (Company No. 16769713)</li>
+                <li><strong className="text-white">&quot;Platform&quot; or &quot;Service&quot;</strong> refers to the RightOffer website and related services</li>
+                <li><strong className="text-white">&quot;User&quot;, &quot;You&quot;, &quot;Your&quot;</strong> refers to the individual accessing or using the Service</li>
+                <li><strong className="text-white">&quot;Buyer&quot;</strong> refers to users submitting offers on properties</li>
+                <li><strong className="text-white">&quot;Seller&quot;</strong> refers to property owners listing properties for sale</li>
+                <li><strong className="text-white">&quot;Agent&quot;</strong> refers to real estate agents using the platform</li>
+                <li><strong className="text-white">&quot;Real Estate Admin&quot;</strong> refers to real estate companies managing multiple agents</li>
+                <li><strong className="text-white">&quot;Listing&quot;</strong> refers to a property advertised for sale on the platform</li>
+                <li><strong className="text-white">&quot;Offer&quot;</strong> refers to a proposal to purchase a property submitted through the platform</li>
+                <li><strong className="text-white">&quot;Company&quot;</strong> refers to Transparency UK Limited (Company No. 16769713)</li>
               </ul>
             </div>
           </section>
@@ -147,7 +147,7 @@ const TermsAndConditionsPage = () => {
                 </p>
                 <ul className="list-disc list-inside text-white/80 mt-2 space-y-1 ml-4">
                   <li>Create and manage agent accounts within their organization</li>
-                  <li>Monitor their organization's listing usage</li>
+                  <li>Monitor their organization&apos;s listing usage</li>
                   <li>Manage company information and settings</li>
                   <li>Have listing limits based on their subscription tier</li>
                 </ul>
@@ -249,7 +249,7 @@ const TermsAndConditionsPage = () => {
                 <ul className="list-disc list-inside text-white/80 mt-2 space-y-1 ml-4">
                   <li>Codes are personal and should not be shared with unauthorized parties</li>
                   <li>You are responsible for maintaining the confidentiality of your codes</li>
-                  <li>Codes may expire or be revoked at the agent's discretion</li>
+                  <li>Codes may expire or be revoked at the agent&apos;s discretion</li>
                   <li>Lost codes can be resent by the agent</li>
                 </ul>
               </div>
@@ -324,7 +324,7 @@ const TermsAndConditionsPage = () => {
               <div>
                 <h3 className="text-lg font-semibold text-white mb-2">7.3 Trademarks</h3>
                 <p className="text-white/80 leading-relaxed">
-                  "RightOffer" and related logos are trademarks of Transparency UK Limited. You may not use these 
+                  &quot;RightOffer&quot; and related logos are trademarks of Transparency UK Limited. You may not use these 
                   trademarks without our prior written permission.
                 </p>
               </div>
@@ -396,7 +396,7 @@ const TermsAndConditionsPage = () => {
               <div>
                 <h3 className="text-lg font-semibold text-white mb-2">9.3 Service Availability</h3>
                 <p className="text-white/80 leading-relaxed">
-                  The Service is provided "as is" and "as available" without warranties of any kind. We do not guarantee 
+                  The Service is provided &quot;as is&quot; and &quot;as available&quot; without warranties of any kind. We do not guarantee 
                   that the Service will be:
                 </p>
                 <ul className="list-disc list-inside text-white/80 mt-2 space-y-1 ml-4">
