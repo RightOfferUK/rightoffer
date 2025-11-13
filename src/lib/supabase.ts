@@ -21,10 +21,10 @@ const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 // Helper function to upload image to Supabase storage
 export const uploadImage = async (file: File, bucket: string = 'listings') => {
-  // Check file size (2MB limit)
-  const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+  // Check file size (1MB limit)
+  const maxSize = 1 * 1024 * 1024; // 1MB in bytes
   if (file.size > maxSize) {
-    throw new Error('File size must be less than 2MB');
+    throw new Error('File size must be less than 1MB');
   }
 
   const fileExt = file.name.split('.').pop();

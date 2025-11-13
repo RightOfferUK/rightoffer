@@ -166,12 +166,12 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check file size (2MB limit)
-    const maxSize = 2 * 1024 * 1024;
+    // Check file size (1MB limit)
+    const maxSize = 1 * 1024 * 1024;
     if (file.size > maxSize) {
       showAlert({
         title: 'File Too Large',
-        message: 'File size must be less than 2MB. Please choose a smaller image.',
+        message: 'File size must be less than 1MB. Please choose a smaller image.',
         type: 'error'
       });
       return;

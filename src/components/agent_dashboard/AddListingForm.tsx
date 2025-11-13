@@ -55,10 +55,10 @@ const AddListingForm = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Check file size (2MB = 2 * 1024 * 1024 bytes)
-      const maxSize = 2 * 1024 * 1024;
+      // Check file size (1MB = 1 * 1024 * 1024 bytes)
+      const maxSize = 1 * 1024 * 1024;
       if (file.size > maxSize) {
-        setError('Image must be less than 2MB');
+        setError('Image must be less than 1MB');
         return;
       }
 
@@ -274,7 +274,7 @@ const AddListingForm = () => {
                 <div className="text-center">
                   <ImageIcon className="w-8 h-8 text-white/40 mx-auto mb-2" />
                   <p className="text-white/60 text-sm">Click to upload photo *</p>
-                  <p className="text-white/40 text-xs">Required • Max 2MB</p>
+                  <p className="text-white/40 text-xs">Required • Max 1MB</p>
                 </div>
               )}
             </label>
