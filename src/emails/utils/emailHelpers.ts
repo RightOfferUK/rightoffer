@@ -59,7 +59,5 @@ export const emailConstants = {
   maxSubjectLength: 78,
   maxPreheaderLength: 100,
   defaultFromName: 'RightOffer',
-  defaultFromEmail: process.env.EMAIL_FROM || 'rightoffer@cromostudios.com',
-  supportEmail: 'support@rightoffer.com',
-  noReplyEmail: 'noreply@rightoffer.com'
+  defaultFromEmail: process.env.EMAIL_FROM || 'noreply@rightoffer.co.uk',
 };

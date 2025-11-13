@@ -20,7 +20,7 @@ export async function sendEmail({
   subject,
   html,
   text,
-  from = process.env.EMAIL_FROM || 'rightoffer@cromostudios.com'
+  from = process.env.EMAIL_FROM || 'noreply@rightoffer.co.uk'
 }: SendEmailParams) {
   try {
     const emailOptions: Record<string, unknown> = {

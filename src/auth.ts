@@ -10,7 +10,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Resend({
       apiKey: process.env.AUTH_RESEND_KEY,
-      from: process.env.EMAIL_FROM || "rightoffer@cromostudios.com",
+      from: process.env.EMAIL_FROM || "noreply@rightoffer.co.uk",
       sendVerificationRequest: async ({ identifier: email, url }) => {
         try {
           const host = new URL(url).host;
