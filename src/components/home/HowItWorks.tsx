@@ -215,7 +215,7 @@ const HowItWorks = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 viewport={{ once: true }}
               >
-                Ready to experience <span className="text-purple-500">transparent real estate</span>?
+                Ready to experience <span className="text-purple-500">transparent property deals?</span>
               </motion.h3>
               <motion.p 
                 className="text-gray-300 font-dm-sans text-base lg:text-lg"
