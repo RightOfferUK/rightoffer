@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useRealTimeOffers } from '@/hooks/useRealTimeOffers';
 import { formatPrice } from '@/lib/priceUtils';
+import OfferActions from './OfferActions';
 import { 
   Home, 
   PoundSterling, 
@@ -45,6 +46,7 @@ interface SellerViewProps {
     status: string;
     offers: Offer[];
     createdAt: string;
+    sellerCode: string;
   };
 }
 
@@ -202,7 +204,6 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                           
                           <div className="flex items-center gap-6 text-sm text-white/70 mb-3">
                             <div className="flex items-center gap-2">
-                              <PoundSterling className="w-4 h-4 text-green-400" />
                               <span className="text-green-400 font-semibold text-xl">
                                 {formatPrice(offer.amount)}
                               </span>
@@ -249,6 +250,29 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                           <p className="text-white/80 text-sm">{offer.notes}</p>
                         </div>
                       )}
+
+                      {/* Counter Offer Display */}
+                      {offer.counterOffer && (
+                        <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-blue-400 font-medium text-sm">Counter Offer Sent</span>
+                          </div>
+                          <p className="text-white font-semibold">{formatPrice(offer.counterOffer)}</p>
+                          {offer.agentNotes && (
+                            <p className="text-white/70 text-sm mt-1">{offer.agentNotes}</p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Offer Actions */}
+                      <OfferActions
+                        offer={offer}
+                        listingId={listing._id}
+                        onActionComplete={refreshOffers}
+                        showActions={offer.status === 'submitted'}
+                        isSeller={true}
+                        sellerCode={listing.sellerCode}
+                      />
                     </motion.div>
                   ))
                 )}

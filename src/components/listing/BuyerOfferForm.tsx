@@ -478,9 +478,8 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                             </h4>
                             <div className="flex items-center gap-3 mt-1">
                               <div className="flex items-center gap-1">
-                                <PoundSterling className="w-3 h-3 text-green-400" />
                                 <span className="text-green-400 font-semibold text-sm">
-                                  {offer.amount.toLocaleString()}
+                                  {formatPrice(offer.amount)}
                                 </span>
                               </div>
                               <div className="flex items-center gap-1">

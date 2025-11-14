@@ -52,11 +52,13 @@ export const useRealTimeOffers = (listingId: string, enabled: boolean = true) =>
 
       const data: OffersData = await response.json();
       
-      // Only update if data has changed (simple comparison by length and highest offer)
+      // Check if offers have changed (comparing by status updates and other fields)
       const hasChanged = 
         data.offers.length !== totalOffers || 
         data.highestOffer !== highestOffer ||
-        Date.now() - lastFetchRef.current > 30000; // Force update every 30 seconds
+        Date.now() - lastFetchRef.current > 30000 || // Force update every 30 seconds
+        JSON.stringify(data.offers.map(o => ({ id: o.id, status: o.status, counterOffer: o.counterOffer }))) !== 
+        JSON.stringify(offers.map(o => ({ id: o.id, status: o.status, counterOffer: o.counterOffer })));
 
       if (hasChanged) {
         setOffers(data.offers);
@@ -72,7 +74,7 @@ export const useRealTimeOffers = (listingId: string, enabled: boolean = true) =>
     } finally {
       setLoading(false);
     }
-  }, [listingId, enabled, totalOffers, highestOffer]);
+  }, [listingId, enabled, totalOffers, highestOffer, offers]);
 
   // Initial fetch
   useEffect(() => {
@@ -99,6 +101,7 @@ export const useRealTimeOffers = (listingId: string, enabled: boolean = true) =>
   // Manual refresh function
   const refreshOffers = useCallback(() => {
     setLoading(true);
+    lastFetchRef.current = 0; // Reset to force update on next fetch
     return fetchOffers();
   }, [fetchOffers]);
 

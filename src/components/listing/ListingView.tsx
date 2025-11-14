@@ -8,6 +8,7 @@ import { useRealTimeOffers } from '@/hooks/useRealTimeOffers';
 import { formatPrice, formatPriceInput, parsePrice } from '@/lib/priceUtils';
 import { Offer } from '@/types/next-auth';
 import { useCustomAlert } from '@/components/ui/CustomAlert';
+import OfferActions from './OfferActions';
 import { 
   Home, 
   PoundSterling, 
@@ -97,9 +98,6 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
   const [newBuyerName, setNewBuyerName] = useState('');
   const [newBuyerEmail, setNewBuyerEmail] = useState('');
   const [generatingBuyerCode, setGeneratingBuyerCode] = useState(false);
-  const [showCounterModal, setShowCounterModal] = useState<{ show: boolean; offerId: string | null }>({ show: false, offerId: null });
-  const [counterAmount, setCounterAmount] = useState('');
-  const [counterNotes, setCounterNotes] = useState('');
 
   const getStatusColor = (status: Offer['status']) => {
     switch (status) {
@@ -395,51 +393,6 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
     }
   };
 
-  const handleAcceptOffer = (offerId: string) => {
-    showAlert({
-      title: 'Confirm Action',
-      message: 'Are you sure you want to accept this offer? This will mark the property as under offer.',
-      type: 'warning',
-      showCancel: true,
-      confirmText: 'Accept',
-      cancelText: 'Cancel',
-      onConfirm: () => handleOfferStatusUpdate(offerId, 'accepted')
-    });
-  };
-
-  const handleDeclineOffer = (offerId: string) => {
-    showAlert({
-      title: 'Confirm Action',
-      message: 'Are you sure you want to decline this offer?',
-      type: 'warning',
-      showCancel: true,
-      confirmText: 'Decline',
-      cancelText: 'Cancel',
-      onConfirm: () => handleOfferStatusUpdate(offerId, 'rejected')
-    });
-  };
-
-  const handleCounterOffer = (offerId: string) => {
-    setShowCounterModal({ show: true, offerId });
-  };
-
-  const handleCounterSubmit = () => {
-    if (!showCounterModal.offerId) return;
-    
-    const counterAmountValue = parsePrice(counterAmount);
-    if (counterAmountValue > 0) {
-      handleOfferStatusUpdate(showCounterModal.offerId, 'countered', counterAmountValue.toString(), counterNotes || undefined);
-      setShowCounterModal({ show: false, offerId: null });
-      setCounterAmount('');
-      setCounterNotes('');
-    } else {
-      showAlert({
-        title: 'Invalid Amount',
-        message: 'Please enter a valid offer amount.',
-        type: 'warning'
-      });
-    }
-  };
 
   // Use real-time offers if available, otherwise fall back to listing offers
   const displayOffers: Offer[] = liveOffers.length > 0 ? liveOffers as Offer[] : listing.offers;
@@ -830,9 +783,8 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                             
                             <div className="flex items-center gap-6 text-sm text-white/70 mb-3">
                               <div className="flex items-center gap-2">
-                                <PoundSterling className="w-4 h-4 text-green-400" />
                                 <span className="text-green-400 font-semibold text-lg">
-                                  {offer.amount.toLocaleString()}
+                                  {formatPrice(offer.amount)}
                                 </span>
                               </div>
                               
@@ -888,30 +840,13 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                         )}
 
                         {/* Agent Actions */}
-                        {canEdit && offer.status === 'submitted' && (
-                          <div className="mt-4 flex items-center gap-2">
-                            <button
-                              onClick={() => handleAcceptOffer(offer.id)}
-                              className="flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors text-sm"
-                            >
-                              <Check className="w-4 h-4" />
-                              Accept
-                            </button>
-                            <button
-                              onClick={() => handleDeclineOffer(offer.id)}
-                              className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors text-sm"
-                            >
-                              <XCircle className="w-4 h-4" />
-                              Decline
-                            </button>
-                            <button
-                              onClick={() => handleCounterOffer(offer.id)}
-                              className="flex items-center gap-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm"
-                            >
-                              <MessageSquare className="w-4 h-4" />
-                              Counter
-                            </button>
-                          </div>
+                        {canEdit && (
+                          <OfferActions
+                            offer={offer}
+                            listingId={listing._id}
+                            onActionComplete={refreshOffers}
+                            showActions={offer.status === 'submitted'}
+                          />
                         )}
 
                         {/* Buyer Actions - Withdraw Button */}
@@ -1138,66 +1073,6 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
         </div>
       )}
 
-      {/* Counter Offer Modal */}
-      <AnimatePresence>
-        {showCounterModal.show && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className="backdrop-blur-2xl bg-white/20 border border-white/30 rounded-2xl p-8 w-full max-w-md shadow-2xl"
-            >
-            <h3 className="text-2xl font-bold text-white mb-6 text-center">Make Counter Offer</h3>
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-white/80 mb-3">
-                  Counter Offer Amount
-                </label>
-                <input
-                  type="text"
-                  value={counterAmount}
-                  onChange={(e) => setCounterAmount(e.target.value)}
-                  placeholder="e.g., £450,000"
-                  className="w-full px-4 py-3 bg-white/20 border border-white/40 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all duration-200 backdrop-blur-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-white/80 mb-3">
-                  Notes (Optional)
-                </label>
-                <textarea
-                  value={counterNotes}
-                  onChange={(e) => setCounterNotes(e.target.value)}
-                  placeholder="Add any notes for the buyer..."
-                  rows={3}
-                  className="w-full px-4 py-3 bg-white/20 border border-white/40 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all duration-200 backdrop-blur-sm resize-none"
-                />
-              </div>
-              <div className="flex gap-4 pt-2">
-                <button
-                  onClick={() => {
-                    setShowCounterModal({ show: false, offerId: null });
-                    setCounterAmount('');
-                    setCounterNotes('');
-                  }}
-                  className="flex-1 px-6 py-3 border border-white/30 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 text-sm font-medium backdrop-blur-sm"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleCounterSubmit}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-xl transition-all duration-200 text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
-                >
-                  Submit Counter Offer
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
