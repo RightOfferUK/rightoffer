@@ -10,6 +10,7 @@ interface RawListing {
     status: string;
     [key: string]: unknown;
   }>;
+  status: string;
 }
 
 export async function GET(
@@ -22,9 +23,9 @@ export async function GET(
     // Connect to MongoDB
     await cachedMongooseConnection;
 
-    // Find the listing and get its offers
+    // Find the listing and get its offers and status
     const listing = await Listing.findById(id)
-      .select('offers')
+      .select('offers status')
       .lean() as unknown as RawListing | null;
 
     if (!listing) {
@@ -54,7 +55,8 @@ export async function GET(
       totalOffers: liveOffers.length, // Only count live offers
       highestOffer: liveOfferAmounts.length > 0 
         ? Math.max(...liveOfferAmounts)
-        : 0
+        : 0,
+      listingStatus: listing.status // Include listing status so frontend can update it
     });
 
   } catch (error) {

@@ -15,6 +15,7 @@ interface Offer {
   submittedAt: string;
   notes?: string;
   counterOffer?: number;
+  counterOfferBy?: 'seller' | 'agent' | 'buyer';
   agentNotes?: string;
   statusUpdatedAt?: string;
   updatedBy?: string;
@@ -24,12 +25,14 @@ interface OffersData {
   offers: Offer[];
   totalOffers: number;
   highestOffer: number;
+  listingStatus?: string;
 }
 
 export const useRealTimeOffers = (listingId: string, enabled: boolean = true) => {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [totalOffers, setTotalOffers] = useState(0);
   const [highestOffer, setHighestOffer] = useState(0);
+  const [listingStatus, setListingStatus] = useState<string>('live');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -52,10 +55,11 @@ export const useRealTimeOffers = (listingId: string, enabled: boolean = true) =>
 
       const data: OffersData = await response.json();
       
-      // Check if offers have changed (comparing by status updates and other fields)
+      // Check if offers or listing status have changed
       const hasChanged = 
         data.offers.length !== totalOffers || 
         data.highestOffer !== highestOffer ||
+        data.listingStatus !== listingStatus ||
         Date.now() - lastFetchRef.current > 30000 || // Force update every 30 seconds
         JSON.stringify(data.offers.map(o => ({ id: o.id, status: o.status, counterOffer: o.counterOffer }))) !== 
         JSON.stringify(offers.map(o => ({ id: o.id, status: o.status, counterOffer: o.counterOffer })));
@@ -64,6 +68,9 @@ export const useRealTimeOffers = (listingId: string, enabled: boolean = true) =>
         setOffers(data.offers);
         setTotalOffers(data.totalOffers);
         setHighestOffer(data.highestOffer);
+        if (data.listingStatus) {
+          setListingStatus(data.listingStatus);
+        }
         lastFetchRef.current = Date.now();
       }
 
@@ -74,7 +81,7 @@ export const useRealTimeOffers = (listingId: string, enabled: boolean = true) =>
     } finally {
       setLoading(false);
     }
-  }, [listingId, enabled, totalOffers, highestOffer, offers]);
+  }, [listingId, enabled, totalOffers, highestOffer, listingStatus, offers]);
 
   // Initial fetch
   useEffect(() => {
@@ -120,6 +127,7 @@ export const useRealTimeOffers = (listingId: string, enabled: boolean = true) =>
     offers,
     totalOffers,
     highestOffer,
+    listingStatus,
     loading,
     error,
     refreshOffers,

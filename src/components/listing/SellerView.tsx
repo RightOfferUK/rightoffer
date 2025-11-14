@@ -31,6 +31,7 @@ interface Offer {
   submittedAt: string;
   notes?: string;
   counterOffer?: number;
+  counterOfferBy?: 'seller' | 'agent' | 'buyer';
   agentNotes?: string;
   statusUpdatedAt?: string;
   updatedBy?: string;
@@ -55,7 +56,8 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
   const { 
     offers: liveOffers, 
     totalOffers, 
-    highestOffer: liveHighestOffer, 
+    highestOffer: liveHighestOffer,
+    listingStatus: liveListingStatus,
     loading: offersLoading, 
     error: offersError,
     refreshOffers 
@@ -122,12 +124,12 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
             </div>
             <div className="flex items-center gap-2">
               <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
-                listing.status === 'live' ? 'bg-green-500/20 text-green-400' :
-                listing.status === 'archive' ? 'bg-gray-500/20 text-gray-400' :
-                listing.status === 'sold' ? 'bg-blue-500/20 text-blue-400' :
+                (liveListingStatus || listing.status) === 'live' ? 'bg-green-500/20 text-green-400' :
+                (liveListingStatus || listing.status) === 'archive' ? 'bg-gray-500/20 text-gray-400' :
+                (liveListingStatus || listing.status) === 'sold' ? 'bg-blue-500/20 text-blue-400' :
                 'bg-gray-500/20 text-gray-400'
               }`}>
-                {listing.status}
+                {liveListingStatus || listing.status}
               </span>
             </div>
           </div>
@@ -197,9 +199,12 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                             <h3 className="text-lg font-medium text-white">
                               {offer.buyerName}
                             </h3>
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(offer.status)}`}>
-                              {offer.status}
-                            </span>
+                            {/* Show status badge here only if no counter offer exists or status is submitted/countered */}
+                            {(!offer.counterOffer || offer.status === 'submitted' || offer.status === 'countered') && (
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(offer.status)}`}>
+                                {offer.status}
+                              </span>
+                            )}
                           </div>
                           
                           <div className="flex items-center gap-6 text-sm text-white/70 mb-3">
@@ -207,6 +212,12 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                               <span className="text-green-400 font-semibold text-xl">
                                 {formatPrice(offer.amount)}
                               </span>
+                              {/* Show status on initial offer only if no counter offer */}
+                              {!offer.counterOffer && (offer.status === 'accepted' || offer.status === 'rejected') && (
+                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ml-2 ${getStatusColor(offer.status)}`}>
+                                  {offer.status}
+                                </span>
+                              )}
                             </div>
                             
                             <div className="flex items-center gap-2">
@@ -254,22 +265,36 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                       {/* Counter Offer Display */}
                       {offer.counterOffer && (
                         <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center justify-between mb-2">
                             <span className="text-blue-400 font-medium text-sm">Counter Offer Sent</span>
+                            {(offer.counterOfferBy === 'seller' || offer.counterOfferBy === 'agent') && offer.status === 'countered' && (
+                              <span className="text-xs text-yellow-400 flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                Waiting for buyer
+                              </span>
+                            )}
                           </div>
-                          <p className="text-white font-semibold">{formatPrice(offer.counterOffer)}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-white font-semibold">{formatPrice(offer.counterOffer)}</p>
+                            {/* Show status badge on counter offer if accepted/rejected */}
+                            {(offer.status === 'accepted' || offer.status === 'rejected') && (
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(offer.status)}`}>
+                                {offer.status}
+                              </span>
+                            )}
+                          </div>
                           {offer.agentNotes && (
                             <p className="text-white/70 text-sm mt-1">{offer.agentNotes}</p>
                           )}
                         </div>
                       )}
 
-                      {/* Offer Actions */}
+                      {/* Offer Actions - Show for submitted and countered offers */}
                       <OfferActions
                         offer={offer}
                         listingId={listing._id}
                         onActionComplete={refreshOffers}
-                        showActions={offer.status === 'submitted'}
+                        showActions={offer.status === 'submitted' || offer.status === 'countered'}
                         isSeller={true}
                         sellerCode={listing.sellerCode}
                       />
@@ -308,12 +333,12 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                 <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg">
                   <h4 className="text-purple-300 font-semibold mb-2">Status</h4>
                   <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
-                    listing.status === 'live' ? 'bg-green-500/20 text-green-400' :
-                    listing.status === 'archive' ? 'bg-gray-500/20 text-gray-400' :
-                    listing.status === 'sold' ? 'bg-blue-500/20 text-blue-400' :
+                    (liveListingStatus || listing.status) === 'live' ? 'bg-green-500/20 text-green-400' :
+                    (liveListingStatus || listing.status) === 'archive' ? 'bg-gray-500/20 text-gray-400' :
+                    (liveListingStatus || listing.status) === 'sold' ? 'bg-blue-500/20 text-blue-400' :
                     'bg-gray-500/20 text-gray-400'
                   }`}>
-                    {listing.status}
+                    {liveListingStatus || listing.status}
                   </span>
                 </div>
               </div>

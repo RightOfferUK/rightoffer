@@ -6,6 +6,8 @@ export { generateOfferAcceptedEmail, type OfferAcceptedEmailProps } from './Offe
 export { generateOfferRejectedEmail, type OfferRejectedEmailProps } from './OfferRejectedEmail';
 export { generateCounterOfferEmail, type CounterOfferEmailProps } from './CounterOfferEmail';
 export { generateOfferAcceptedSellerEmail, type OfferAcceptedSellerEmailProps } from './OfferAcceptedSellerEmail';
+export { generateCounterOfferRejectedSellerEmail, type CounterOfferRejectedSellerEmailProps } from './CounterOfferRejectedSellerEmail';
+export { generateReCounterOfferEmail, type ReCounterOfferEmailProps } from './ReCounterOfferEmail';
 export { generateWelcomeEmail, type WelcomeEmailProps } from './WelcomeEmail';
 export { generateMagicLinkEmail, type MagicLinkEmailProps } from './MagicLinkEmail';
 

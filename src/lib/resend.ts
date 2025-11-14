@@ -1,5 +1,15 @@
 import { Resend } from 'resend';
-import { generateSellerCodeEmail, generateBuyerCodeEmail, generateWelcomeEmail, generateMagicLinkEmail } from '@/emails/templates';
+import { 
+  generateSellerCodeEmail, 
+  generateBuyerCodeEmail, 
+  generateWelcomeEmail, 
+  generateMagicLinkEmail,
+  generateCounterOfferEmail,
+  generateOfferAcceptedEmail,
+  generateOfferAcceptedSellerEmail,
+  generateCounterOfferRejectedSellerEmail,
+  generateReCounterOfferEmail
+} from '@/emails/templates';
 
 if (!process.env.AUTH_RESEND_KEY) {
   throw new Error('AUTH_RESEND_KEY is not set in environment variables');
@@ -131,6 +141,135 @@ export async function sendMagicLinkEmail(
 
   return await sendEmail({
     to: email,
+    subject: emailContent.subject,
+    html: emailContent.html,
+    text: emailContent.text
+  });
+}
+
+// Send counter offer email to buyer (when seller/agent counters)
+export async function sendCounterOfferEmailToBuyer(
+  buyerName: string,
+  buyerEmail: string,
+  propertyAddress: string,
+  originalOfferAmount: string,
+  counterOfferAmount: string,
+  counterOfferNotes: string | undefined,
+  listingId: string
+) {
+  const emailContent = generateCounterOfferEmail({
+    recipientName: buyerName,
+    propertyAddress,
+    originalOfferAmount,
+    counterOfferAmount,
+    counterOfferNotes,
+    listingId
+  });
+
+  return await sendEmail({
+    to: buyerEmail,
+    subject: emailContent.subject,
+    html: emailContent.html,
+    text: emailContent.text
+  });
+}
+
+// Send offer accepted email to buyer (when buyer's offer/counter is accepted)
+export async function sendOfferAcceptedEmailToBuyer(
+  buyerName: string,
+  buyerEmail: string,
+  propertyAddress: string,
+  offerAmount: string,
+  listingId: string
+) {
+  const emailContent = generateOfferAcceptedEmail({
+    recipientName: buyerName,
+    propertyAddress,
+    offerAmount,
+    listingId
+  });
+
+  return await sendEmail({
+    to: buyerEmail,
+    subject: emailContent.subject,
+    html: emailContent.html,
+    text: emailContent.text
+  });
+}
+
+// Send offer accepted email to seller (when buyer accepts seller's counter)
+export async function sendOfferAcceptedEmailToSeller(
+  sellerName: string,
+  sellerEmail: string,
+  propertyAddress: string,
+  offerAmount: string,
+  buyerName: string,
+  listingId: string
+) {
+  const emailContent = generateOfferAcceptedSellerEmail({
+    recipientName: sellerName,
+    propertyAddress,
+    offerAmount,
+    buyerName,
+    listingId
+  });
+
+  return await sendEmail({
+    to: sellerEmail,
+    subject: emailContent.subject,
+    html: emailContent.html,
+    text: emailContent.text
+  });
+}
+
+// Send counter offer rejected email to seller (when buyer rejects seller's counter)
+export async function sendCounterOfferRejectedEmailToSeller(
+  sellerName: string,
+  sellerEmail: string,
+  propertyAddress: string,
+  counterOfferAmount: string,
+  buyerName: string,
+  listingId: string
+) {
+  const emailContent = generateCounterOfferRejectedSellerEmail({
+    recipientName: sellerName,
+    propertyAddress,
+    counterOfferAmount,
+    buyerName,
+    listingId
+  });
+
+  return await sendEmail({
+    to: sellerEmail,
+    subject: emailContent.subject,
+    html: emailContent.html,
+    text: emailContent.text
+  });
+}
+
+// Send re-counter offer email to seller (when buyer makes a counter to seller's counter)
+export async function sendReCounterOfferEmailToSeller(
+  sellerName: string,
+  sellerEmail: string,
+  propertyAddress: string,
+  yourCounterOfferAmount: string,
+  buyerCounterOfferAmount: string,
+  buyerName: string,
+  buyerNotes: string | undefined,
+  listingId: string
+) {
+  const emailContent = generateReCounterOfferEmail({
+    recipientName: sellerName,
+    propertyAddress,
+    yourCounterOfferAmount,
+    buyerCounterOfferAmount,
+    buyerName,
+    buyerNotes,
+    listingId
+  });
+
+  return await sendEmail({
+    to: sellerEmail,
     subject: emailContent.subject,
     html: emailContent.html,
     text: emailContent.text

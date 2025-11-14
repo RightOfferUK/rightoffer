@@ -37,6 +37,7 @@ interface BuyerOfferFormProps {
     listedPrice: string | number;
     sellerName: string;
     mainPhoto: string;
+    status?: string;
   };
   buyerDetails: BuyerDetails | null;
   onSubmit: (offerData: OfferFormData) => Promise<void>;
@@ -87,6 +88,9 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  
+  // Check if property is sold
+  const isSold = listing.status === 'sold';
   
   // Offer history state
   const [offers, setOffers] = useState<BuyerOffer[]>([]);
@@ -187,6 +191,17 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent submission if property is sold
+    if (isSold) {
+      showAlert({
+        title: 'Property Sold',
+        message: 'This property has already been sold and is no longer accepting offers.',
+        type: 'error'
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     setError('');
 
@@ -481,6 +496,12 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                                 <span className="text-green-400 font-semibold text-sm">
                                   {formatPrice(offer.amount)}
                                 </span>
+                                {/* Show status on initial offer only if no counter offer */}
+                                {!offer.counterOffer && (offer.status === 'accepted' || offer.status === 'declined') && (
+                                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ml-1 ${getStatusColor(offer.status)}`}>
+                                    {offer.status.charAt(0).toUpperCase() + offer.status.slice(1)}
+                                  </span>
+                                )}
                               </div>
                               <div className="flex items-center gap-1">
                                 <Calendar className="w-3 h-3 text-white/50" />
@@ -490,9 +511,12 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                               </div>
                             </div>
                           </div>
-                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(offer.status)}`}>
-                            {offer.status.charAt(0).toUpperCase() + offer.status.slice(1)}
-                          </span>
+                          {/* Show status badge here only if no counter offer exists or status is submitted/countered */}
+                          {(!offer.counterOffer || offer.status === 'submitted' || offer.status === 'countered') && (
+                            <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(offer.status)}`}>
+                              {offer.status.charAt(0).toUpperCase() + offer.status.slice(1)}
+                            </span>
+                          )}
                         </div>
 
                         {/* Additional Info */}
@@ -523,7 +547,15 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                               <MessageSquare className="w-3 h-3 text-blue-400" />
                               <span className="text-blue-400 font-medium text-xs">Counter Offer</span>
                             </div>
-                            <p className="text-white text-sm font-semibold">{formatPrice(offer.counterOffer)}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-white text-sm font-semibold">{formatPrice(offer.counterOffer)}</p>
+                              {/* Show status badge on counter offer if accepted/declined */}
+                              {(offer.status === 'accepted' || offer.status === 'declined') && (
+                                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(offer.status)}`}>
+                                  {offer.status.charAt(0).toUpperCase() + offer.status.slice(1)}
+                                </span>
+                              )}
+                            </div>
                             {offer.agentNotes && (
                               <p className="text-white/70 text-xs mt-1">{offer.agentNotes}</p>
                             )}
@@ -583,6 +615,23 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                 Your Offer Details
               </h2>
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Property Sold Banner */}
+                {isSold && (
+                  <div className="p-4 bg-red-500/20 border border-red-500/30 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-red-200 text-sm font-semibold mb-1">
+                          Property Sold
+                        </p>
+                        <p className="text-red-200/80 text-sm">
+                          This property has been sold and is no longer accepting new offers.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Personal Information */}
                 <div className="space-y-4">
                 <div>
@@ -596,10 +645,10 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                     value={formData.buyerName}
                     onChange={handleInputChange}
                     required
-                    disabled={!!buyerDetails}
+                    disabled={!!buyerDetails || isSold}
                     className={`w-full px-4 py-3 border rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 ${
-                      buyerDetails 
-                        ? 'bg-white/5 border-green-500/30 cursor-not-allowed' 
+                      buyerDetails || isSold
+                        ? 'bg-white/5 border-green-500/30 cursor-not-allowed opacity-50' 
                         : 'bg-white/10 border-white/20'
                     }`}
                     placeholder="John Smith"
@@ -623,10 +672,10 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                     value={formData.buyerEmail}
                     onChange={handleInputChange}
                     required
-                    disabled={!!buyerDetails}
+                    disabled={!!buyerDetails || isSold}
                     className={`w-full px-4 py-3 border rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 ${
-                      buyerDetails 
-                        ? 'bg-white/5 border-green-500/30 cursor-not-allowed' 
+                      buyerDetails || isSold
+                        ? 'bg-white/5 border-green-500/30 cursor-not-allowed opacity-50' 
                         : 'bg-white/10 border-white/20'
                     }`}
                     placeholder="john@example.com"
@@ -652,7 +701,10 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                   value={amountInput}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
+                  disabled={isSold}
+                  className={`w-full px-4 py-3 border rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 ${
+                    isSold ? 'bg-white/5 border-white/20 cursor-not-allowed opacity-50' : 'bg-white/10 border-white/20'
+                  }`}
                   placeholder="£450,000"
                 />
               </div>
@@ -668,7 +720,10 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                   value={formData.fundingType}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
+                  disabled={isSold}
+                  className={`w-full px-4 py-3 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 ${
+                    isSold ? 'bg-white/5 border-white/20 cursor-not-allowed opacity-50' : 'bg-white/10 border-white/20'
+                  }`}
                 >
                   <option value="Cash" className="bg-gray-800">Cash</option>
                   <option value="Mortgage" className="bg-gray-800">Mortgage</option>
@@ -684,9 +739,12 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                     name="chain"
                     checked={formData.chain}
                     onChange={handleInputChange}
-                    className="w-4 h-4 text-purple-500 bg-white/10 border-white/20 rounded focus:ring-purple-500/50"
+                    disabled={isSold}
+                    className={`w-4 h-4 text-purple-500 bg-white/10 border-white/20 rounded focus:ring-purple-500/50 ${
+                      isSold ? 'cursor-not-allowed opacity-50' : ''
+                    }`}
                   />
-                  <label className="ml-3 text-white/70">
+                  <label className={`ml-3 text-white/70 ${isSold ? 'opacity-50' : ''}`}>
                     I have a property to sell (chain)
                   </label>
                 </div>
@@ -697,9 +755,12 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                     name="aipPresent"
                     checked={formData.aipPresent}
                     onChange={handleInputChange}
-                    className="w-4 h-4 text-purple-500 bg-white/10 border-white/20 rounded focus:ring-purple-500/50"
+                    disabled={isSold}
+                    className={`w-4 h-4 text-purple-500 bg-white/10 border-white/20 rounded focus:ring-purple-500/50 ${
+                      isSold ? 'cursor-not-allowed opacity-50' : ''
+                    }`}
                   />
-                  <label className="ml-3 text-white/70">
+                  <label className={`ml-3 text-white/70 ${isSold ? 'opacity-50' : ''}`}>
                     I have an Agreement in Principle (AIP)
                   </label>
                 </div>
@@ -715,7 +776,10 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                   value={formData.notes}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 resize-none"
+                  disabled={isSold}
+                  className={`w-full px-4 py-3 border rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 resize-none ${
+                    isSold ? 'bg-white/5 border-white/20 cursor-not-allowed opacity-50' : 'bg-white/10 border-white/20'
+                  }`}
                   placeholder="Any additional information about your offer..."
                 />
               </div>
@@ -731,7 +795,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
               <div className="pt-4">
                 <button
                   type="submit"
-                  disabled={isSubmitting || !!pendingOffer}
+                  disabled={isSubmitting || !!pendingOffer || isSold}
                   className="w-full px-6 py-4 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (

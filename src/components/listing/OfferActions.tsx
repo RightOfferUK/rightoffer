@@ -12,6 +12,7 @@ interface Offer {
   amount: number;
   status: 'submitted' | 'accepted' | 'rejected' | 'countered' | 'withdrawn';
   counterOffer?: number;
+  counterOfferBy?: 'seller' | 'agent' | 'buyer';
 }
 
 interface OfferActionsProps {
@@ -39,8 +40,25 @@ const OfferActions: React.FC<OfferActionsProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // Only show actions for submitted offers
-  if (!showActions || offer.status !== 'submitted') {
+  // Show actions based on whose turn it is:
+  // - Always show for submitted offers
+  // - For countered offers, only show if it's the seller/agent's turn (buyer made the last counter)
+  // - Hide if seller/agent made the last counter (waiting for buyer to respond)
+  if (!showActions) {
+    return null;
+  }
+
+  if (offer.status === 'submitted') {
+    // Fresh offer, show actions
+  } else if (offer.status === 'countered') {
+    // Countered offer - only show actions if buyer made the last counter
+    // If seller or agent made the counter, they're waiting for buyer response
+    if (offer.counterOfferBy === 'seller' || offer.counterOfferBy === 'agent') {
+      return null; // Waiting for buyer to respond
+    }
+    // If buyer made the counter (counterOfferBy === 'buyer'), show actions
+  } else {
+    // Accepted, rejected, or withdrawn - no actions
     return null;
   }
 

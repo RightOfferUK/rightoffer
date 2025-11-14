@@ -15,13 +15,15 @@ interface AccessControlProps {
   onSellerAccess: () => void;
   onBuyerAccess: (buyerDetails: BuyerDetails) => void;
   propertyAddress: string;
+  listingId: string; // SECURITY: Required to validate buyer code for this specific listing
 }
 
 const AccessControl: React.FC<AccessControlProps> = ({ 
   sellerCode, 
   onSellerAccess, 
   onBuyerAccess,
-  propertyAddress 
+  propertyAddress,
+  listingId 
 }) => {
   const [enteredCode, setEnteredCode] = useState('');
   const [accessType, setAccessType] = useState<'seller' | 'buyer' | null>(null);
@@ -33,7 +35,8 @@ const AccessControl: React.FC<AccessControlProps> = ({
     setError('');
 
     try {
-      const response = await fetch(`/api/buyer-codes/${code.trim()}`);
+      // CRITICAL SECURITY: Include listingId to ensure the buyer code is valid for THIS property only
+      const response = await fetch(`/api/buyer-codes/${code.trim()}?listingId=${listingId}`);
       const data = await response.json();
 
       if (data.valid) {

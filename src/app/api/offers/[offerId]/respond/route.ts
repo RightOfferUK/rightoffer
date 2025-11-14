@@ -2,13 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cachedMongooseConnection } from '@/lib/db';
 import Listing from '@/models/Listing';
 import User from '@/models/User';
-import { sendEmail } from '@/lib/resend';
 import { 
-  generateOfferAcceptedEmail, 
-  generateOfferRejectedEmail, 
-  generateCounterOfferEmail,
-  generateOfferAcceptedSellerEmail 
-} from '@/emails/templates';
+  sendOfferAcceptedEmailToBuyer,
+  sendOfferAcceptedEmailToSeller,
+  sendCounterOfferRejectedEmailToSeller,
+  sendReCounterOfferEmailToSeller
+} from '@/lib/resend';
 
 export async function POST(
   request: NextRequest,
@@ -106,105 +105,96 @@ export async function POST(
         counterNotes
       );
 
+      // If buyer countered, track that they made this counter
+      if (action === 'counter') {
+        const offerIndex = listing.offers.findIndex((o: { id: string }) => o.id === offerId);
+        if (offerIndex !== -1) {
+          listing.offers[offerIndex].counterOfferBy = 'buyer';
+        }
+      }
+
       await listing.save();
 
       // Send appropriate email notifications
       try {
+        const acceptedAmount = offer.counterOffer || offer.amount;
+        
         if (action === 'accept') {
+          // Buyer accepted seller's counter offer
           // Email to buyer
-          const buyerEmailContent = generateOfferAcceptedEmail({
-            recipientName: offer.buyerName,
-            propertyAddress: listing.address,
-            offerAmount: `£${offer.counterOffer?.toLocaleString() || offer.amount.toLocaleString()}`,
-            listingId: listing._id.toString()
-          });
-
-          await sendEmail({
-            to: offer.buyerEmail,
-            subject: buyerEmailContent.subject,
-            html: buyerEmailContent.html,
-            text: buyerEmailContent.text
-          });
+          await sendOfferAcceptedEmailToBuyer(
+            offer.buyerName,
+            offer.buyerEmail,
+            listing.address,
+            `£${acceptedAmount.toLocaleString()}`,
+            listing._id.toString()
+          );
 
           // Email to seller
-          const sellerEmail = generateOfferAcceptedSellerEmail({
-            recipientName: listing.sellerName,
-            propertyAddress: listing.address,
-            offerAmount: `£${offer.counterOffer?.toLocaleString() || offer.amount.toLocaleString()}`,
-            buyerName: offer.buyerName,
-            listingId: listing._id.toString()
-          });
-
-          await sendEmail({
-            to: listing.sellerEmail,
-            subject: sellerEmail.subject,
-            html: sellerEmail.html,
-            text: sellerEmail.text
-          });
+          await sendOfferAcceptedEmailToSeller(
+            listing.sellerName,
+            listing.sellerEmail,
+            listing.address,
+            `£${acceptedAmount.toLocaleString()}`,
+            offer.buyerName,
+            listing._id.toString()
+          );
 
           // Email to agent
-          const agentEmail = generateOfferAcceptedSellerEmail({
-            recipientName: agent.name || agent.email,
-            propertyAddress: listing.address,
-            offerAmount: `£${offer.counterOffer?.toLocaleString() || offer.amount.toLocaleString()}`,
-            buyerName: offer.buyerName,
-            listingId: listing._id.toString()
-          });
-
-          await sendEmail({
-            to: agent.email,
-            subject: agentEmail.subject,
-            html: agentEmail.html,
-            text: agentEmail.text
-          });
+          await sendOfferAcceptedEmailToSeller(
+            agent.name || agent.email,
+            agent.email,
+            listing.address,
+            `£${acceptedAmount.toLocaleString()}`,
+            offer.buyerName,
+            listing._id.toString()
+          );
 
         } else if (action === 'reject') {
-          // Email to seller and agent
-          const sellerEmail = generateOfferRejectedEmail({
-            recipientName: listing.sellerName,
-            propertyAddress: listing.address,
-            offerAmount: `£${offer.amount.toLocaleString()}`,
-            listingId: listing._id.toString()
-          });
+          // Buyer rejected seller's counter offer
+          await sendCounterOfferRejectedEmailToSeller(
+            listing.sellerName,
+            listing.sellerEmail,
+            listing.address,
+            `£${offer.counterOffer?.toLocaleString() || offer.amount.toLocaleString()}`,
+            offer.buyerName,
+            listing._id.toString()
+          );
 
-          await sendEmail({
-            to: listing.sellerEmail,
-            subject: sellerEmail.subject,
-            html: sellerEmail.html,
-            text: sellerEmail.text
-          });
-
-          await sendEmail({
-            to: agent.email,
-            subject: sellerEmail.subject,
-            html: sellerEmail.html,
-            text: sellerEmail.text
-          });
+          // Also notify agent
+          await sendCounterOfferRejectedEmailToSeller(
+            agent.name || agent.email,
+            agent.email,
+            listing.address,
+            `£${offer.counterOffer?.toLocaleString() || offer.amount.toLocaleString()}`,
+            offer.buyerName,
+            listing._id.toString()
+          );
 
         } else if (action === 'counter') {
-          // Email to seller and agent
-          const sellerEmail = generateCounterOfferEmail({
-            recipientName: listing.sellerName,
-            propertyAddress: listing.address,
-            originalOfferAmount: `£${offer.counterOffer?.toLocaleString() || offer.amount.toLocaleString()}`,
-            counterOfferAmount: `£${counterAmount.toLocaleString()}`,
-            counterOfferNotes: counterNotes,
-            listingId: listing._id.toString()
-          });
+          // Buyer made a re-counter to seller's counter
+          await sendReCounterOfferEmailToSeller(
+            listing.sellerName,
+            listing.sellerEmail,
+            listing.address,
+            `£${offer.counterOffer?.toLocaleString() || offer.amount.toLocaleString()}`,
+            `£${counterAmount.toLocaleString()}`,
+            offer.buyerName,
+            counterNotes,
+            listing._id.toString()
+          );
 
-          await sendEmail({
-            to: listing.sellerEmail,
-            subject: sellerEmail.subject,
-            html: sellerEmail.html,
-            text: sellerEmail.text
-          });
-
-          await sendEmail({
-            to: agent.email,
-            subject: sellerEmail.subject,
-            html: sellerEmail.html,
-            text: sellerEmail.text
-          });
+          // Also notify agent
+          await sendReCounterOfferEmailToSeller(
+            agent.name || agent.email,
+            agent.email,
+            listing.address,
+            `£${offer.counterOffer?.toLocaleString() || offer.amount.toLocaleString()}`,
+            `£${counterAmount.toLocaleString()}`,
+            offer.buyerName,
+            counterNotes,
+            listing._id.toString()
+          );
         }
       } catch (emailError) {
         console.error('Error sending offer response emails:', emailError);

@@ -12,17 +12,36 @@ export async function GET(
     await cachedMongooseConnection;
 
     const { code } = await params;
+    
+    // Get listing ID from query parameter
+    const { searchParams } = new URL(request.url);
+    const listingId = searchParams.get('listingId');
 
-    // Find valid buyer code (without populate to avoid schema dependency)
-    const buyerCode = await BuyerCode.findOne({
+    // If listing ID is provided, validate that the code belongs to that listing
+    const query: {
+      code: string;
+      isActive: boolean;
+      expiresAt: { $gt: Date };
+      listingId?: string;
+    } = {
       code,
       isActive: true,
       expiresAt: { $gt: new Date() }
-    });
+    };
+
+    // CRITICAL SECURITY: If listingId is provided, ensure the code is only valid for that listing
+    if (listingId) {
+      query.listingId = listingId;
+    }
+
+    // Find valid buyer code (without populate to avoid schema dependency)
+    const buyerCode = await BuyerCode.findOne(query);
     
     if (!buyerCode) {
       return NextResponse.json({ 
-        error: 'Invalid or expired buyer code',
+        error: listingId 
+          ? 'This buyer code is not valid for this property' 
+          : 'Invalid or expired buyer code',
         valid: false 
       }, { status: 404 });
     }

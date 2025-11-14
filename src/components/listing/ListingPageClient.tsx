@@ -124,7 +124,8 @@ const ListingPageClient: React.FC<ListingPageClientProps> = ({ listing, canEdit 
           address: listing.address,
           listedPrice: listing.listedPrice,
           sellerName: listing.sellerName,
-          mainPhoto: listing.mainPhoto
+          mainPhoto: listing.mainPhoto,
+          status: listing.status
         }}
         buyerDetails={buyerDetails}
         onSubmit={handleOfferSubmit}
@@ -139,6 +140,7 @@ const ListingPageClient: React.FC<ListingPageClientProps> = ({ listing, canEdit 
       onSellerAccess={handleSellerAccess}
       onBuyerAccess={handleBuyerAccess}
       propertyAddress={listing.address}
+      listingId={listing._id}
     />
   );
 };

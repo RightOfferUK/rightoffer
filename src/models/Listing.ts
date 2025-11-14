@@ -87,10 +87,10 @@ const ListingSchema = new mongoose.Schema({
     statusUpdatedAt: Date,
     updatedBy: String,
     respondedAt: Date,
-    // Track who made the counter offer (seller or agent)
+    // Track who made the counter offer (seller, agent, or buyer)
     counterOfferBy: {
       type: String,
-      enum: ['seller', 'agent']
+      enum: ['seller', 'agent', 'buyer']
     },
     // Track offer history for audit trail
     offerHistory: [{
