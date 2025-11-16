@@ -81,6 +81,10 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
   // Check if property is sold - if so, disable editing and buyer code generation
   const isSold = (liveListingStatus || listing.status) === 'sold';
   
+  // Find the sold price (accepted offer amount)
+  const soldOffer = isSold ? liveOffers.find(offer => offer.status === 'accepted') : null;
+  const soldPrice = soldOffer ? (soldOffer.counterOffer || soldOffer.amount) : 0;
+  
   // Admin functionality state
   const [sendingSellerCode, setSendingSellerCode] = useState(false);
   const { showAlert, AlertComponent } = useCustomAlert();
@@ -100,6 +104,7 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
   const [newBuyerName, setNewBuyerName] = useState('');
   const [newBuyerEmail, setNewBuyerEmail] = useState('');
   const [generatingBuyerCode, setGeneratingBuyerCode] = useState(false);
+  const [resendingBuyerCode, setResendingBuyerCode] = useState<string | null>(null);
 
   const getStatusColor = (status: Offer['status']) => {
     switch (status) {
@@ -299,6 +304,40 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
       });
     } finally {
       setGeneratingBuyerCode(false);
+    }
+  };
+
+  const handleResendBuyerCode = async (codeId: string, buyerEmail: string) => {
+    setResendingBuyerCode(codeId);
+    try {
+      const response = await fetch(`/api/agent/buyer-codes/${codeId}/resend`, {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        showAlert({
+          title: 'Success',
+          message: `Buyer code resent to ${buyerEmail}`,
+          type: 'success',
+          autoClose: true
+        });
+        fetchBuyerCodes(); // Refresh the list to update lastEmailSent
+      } else {
+        const errorData = await response.json();
+        showAlert({
+          title: 'Error',
+          message: errorData.error || 'Failed to resend buyer code',
+          type: 'error'
+        });
+      }
+    } catch {
+      showAlert({
+        title: 'Error',
+        message: 'Error resending buyer code. Please try again.',
+        type: 'error'
+      });
+    } finally {
+      setResendingBuyerCode(null);
     }
   };
 
@@ -502,8 +541,13 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
               <span>Listed: {formatPrice(listing.listedPrice)}</span>
             </div>
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-purple-400" />
-              <span>Highest Offer: {highestOffer > 0 ? `£${highestOffer.toLocaleString()}` : 'None yet'}</span>
+              <TrendingUp className={`w-4 h-4 ${isSold ? 'text-green-400' : 'text-purple-400'}`} />
+              <span>
+                {isSold && soldPrice > 0 
+                  ? `Sold Price: £${soldPrice.toLocaleString()}` 
+                  : `Highest Offer: ${highestOffer > 0 ? `£${highestOffer.toLocaleString()}` : 'None yet'}`
+                }
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-blue-400" />
@@ -711,11 +755,17 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                     
                     <div>
                       <label className="block text-sm font-medium text-white/70 mb-2">
-                        Top Offer
+                        Top/Sold Offer
                       </label>
-                      <p className="text-purple-400 font-semibold text-lg">
-                        {highestOffer > 0 ? `£${highestOffer.toLocaleString()}` : 'None yet'}
+                      <p className={`font-semibold text-lg ${isSold ? 'text-green-400' : 'text-purple-400'}`}>
+                        {isSold && soldPrice > 0 
+                          ? `£${soldPrice.toLocaleString()}` 
+                          : (highestOffer > 0 ? `£${highestOffer.toLocaleString()}` : 'None yet')
+                        }
                       </p>
+                      {isSold && soldPrice > 0 && (
+                        <span className="text-xs text-green-400/70 mt-1 block">Sold Price</span>
+                      )}
                     </div>
                   </div>
 
@@ -836,33 +886,87 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                           </div>
                         )}
 
-                        {/* Counter Offer Display */}
-                        {offer.counterOffer && (
-                          <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <MessageSquare className="w-4 h-4 text-blue-400" />
-                                <span className="text-blue-400 font-medium text-sm">Counter Offer</span>
+                        {/* Negotiation History - Show all counter offers as a thread */}
+                        {offer.offerHistory && offer.offerHistory.length > 0 && (
+                          <div className="mt-4 space-y-2">
+                            <h4 className="text-white/80 font-medium text-sm mb-2 flex items-center gap-2">
+                              <MessageSquare className="w-4 h-4" />
+                              Negotiation History:
+                            </h4>
+                            
+                            {/* Always show the buyer's initial offer first */}
+                            <div className="p-3 rounded-lg border bg-white/5 border-white/10 opacity-70">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs text-white/60">Initial Offer from Buyer</span>
+                                <span className="text-xs text-white/50">
+                                  {new Date(offer.submittedAt).toLocaleDateString()}
+                                </span>
                               </div>
-                              {(offer.counterOfferBy === 'seller' || offer.counterOfferBy === 'agent') && offer.status === 'countered' && (
-                                <span className="text-xs text-yellow-400 flex items-center gap-1">
-                                  <Clock className="w-3 h-3" />
-                                  Waiting for buyer
-                                </span>
-                              )}
+                              <div className="flex items-center gap-2">
+                                <p className="text-white font-semibold text-sm">{formatPrice(offer.amount)}</p>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <p className="text-white font-semibold">{formatPrice(offer.counterOffer)}</p>
-                              {/* Show status badge on counter offer if accepted/rejected */}
-                              {(offer.status === 'accepted' || offer.status === 'rejected') && (
-                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(offer.status)}`}>
-                                  {offer.status}
-                                </span>
-                              )}
-                            </div>
-                            {offer.agentNotes && (
-                              <p className="text-white/70 text-sm mt-1">{offer.agentNotes}</p>
-                            )}
+
+                            {offer.offerHistory.map((historyEntry, historyIndex) => {
+                              // If there's a counterAmount, display it; otherwise show the original amount
+                              const hasCounterOffer = !!historyEntry.counterAmount;
+                              const displayAmount = historyEntry.counterAmount || historyEntry.amount;
+                              const isLatest = historyIndex === offer.offerHistory!.length - 1;
+                              
+                              // Debug logging
+                              console.log('ListingView - History Entry:', {
+                                index: historyIndex,
+                                updatedBy: historyEntry.updatedBy,
+                                buyerEmail: offer.buyerEmail,
+                                matches: historyEntry.updatedBy === offer.buyerEmail
+                              });
+                              
+                              return (
+                                <div 
+                                  key={historyIndex}
+                                  className={`p-3 rounded-lg border ${
+                                    isLatest && offer.status === 'accepted' 
+                                      ? 'bg-green-500/10 border-green-500/30'
+                                      : isLatest && offer.status === 'rejected'
+                                      ? 'bg-red-500/10 border-red-500/30'
+                                      : 'bg-blue-500/10 border-blue-500/20'
+                                  } ${!isLatest ? 'opacity-70' : ''}`}
+                                >
+                                  <div className="flex items-center justify-between mb-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs text-white/60">
+                                        {hasCounterOffer ? 'Counter Offer' : historyEntry.action.charAt(0).toUpperCase() + historyEntry.action.slice(1)}
+                                      </span>
+                                      {historyEntry.updatedBy && (
+                                        <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70">
+                                          {historyEntry.updatedBy === offer.buyerEmail ? 'Buyer' : 'Seller/Agent'}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <span className="text-xs text-white/50">
+                                      {new Date(historyEntry.timestamp).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-white font-semibold text-sm">{formatPrice(displayAmount!)}</p>
+                                    {isLatest && (offer.status === 'accepted' || offer.status === 'rejected') && (
+                                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(offer.status)}`}>
+                                        {offer.status}
+                                      </span>
+                                    )}
+                                    {isLatest && offer.status === 'countered' && historyEntry.counterAmount && (offer.counterOfferBy === 'seller' || offer.counterOfferBy === 'agent') && (
+                                      <span className="text-xs text-yellow-400 flex items-center gap-1">
+                                        <Clock className="w-3 h-3" />
+                                        Waiting for buyer
+                                      </span>
+                                    )}
+                                  </div>
+                                  {historyEntry.notes && (
+                                    <p className="text-white/60 text-xs mt-1">{historyEntry.notes}</p>
+                                  )}
+                                </div>
+                              );
+                            })}
                           </div>
                         )}
 
@@ -939,27 +1043,22 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                     <h4 className="font-medium text-white">Buyer Management</h4>
                   </div>
                   <p className="text-white/70 text-sm mb-3">
-                    {isSold ? 'Buyer codes cannot be generated for sold properties' : 'Generate and manage buyer access codes'}
+                    {isSold ? 'View existing buyer codes (generation disabled for sold properties)' : 'Generate and manage buyer access codes'}
                   </p>
                   <button
                     onClick={() => {
                       setShowBuyerCodeModal(true);
                       fetchBuyerCodes();
                     }}
-                    disabled={isSold}
-                    className={`w-full px-4 py-2 text-white rounded-lg transition-colors font-medium ${
-                      isSold 
-                        ? 'bg-gray-500/50 cursor-not-allowed' 
-                        : 'bg-green-500 hover:bg-green-600'
-                    }`}
-                    title={isSold ? 'Cannot generate buyer codes for sold properties' : 'Manage Buyer Codes'}
+                    className="w-full px-4 py-2 text-white rounded-lg transition-colors font-medium bg-green-500 hover:bg-green-600"
+                    title={isSold ? 'View existing buyer codes' : 'Manage Buyer Codes'}
                   >
-                    {isSold ? 'Property Sold' : 'Manage Buyer Codes'}
+                    {isSold ? 'View Buyer Codes' : 'Manage Buyer Codes'}
                   </button>
                   {isSold && (
                     <p className="text-yellow-400 text-xs mt-2 flex items-center gap-1">
                       <AlertCircle className="w-3 h-3" />
-                      Buyer codes disabled for sold properties
+                      New buyer code generation disabled for sold properties
                     </p>
                   )}
                 </div>
@@ -1063,8 +1162,8 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                 <div className="space-y-3">
                   {buyerCodes.map((buyerCode) => (
                     <div key={buyerCode._id} className="bg-white/5 border border-white/10 rounded-lg p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
                           <div className="flex items-center gap-3 mb-1">
                             <span className="font-mono text-purple-400 font-medium">
                               {buyerCode.code}
@@ -1082,14 +1181,33 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
                           <div className="text-white/50 text-xs mt-1">
                             Expires in {buyerCode.daysUntilExpiry} days
                           </div>
+                          {buyerCode.lastEmailSent && (
+                            <div className="text-white/40 text-xs mt-1">
+                              Last sent: {new Date(buyerCode.lastEmailSent).toLocaleDateString()}
+                            </div>
+                          )}
                         </div>
-                        <button
-                          onClick={() => navigator.clipboard.writeText(buyerCode.code)}
-                          className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                          title="Copy code"
-                        >
-                          <Copy className="w-4 h-4" />
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => navigator.clipboard.writeText(buyerCode.code)}
+                            className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                            title="Copy code"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleResendBuyerCode(buyerCode._id, buyerCode.buyerEmail)}
+                            disabled={!buyerCode.isValid || resendingBuyerCode === buyerCode._id}
+                            className={`p-2 rounded-lg transition-colors ${
+                              buyerCode.isValid 
+                                ? 'text-blue-400 hover:text-blue-300 hover:bg-blue-500/10' 
+                                : 'text-white/30 cursor-not-allowed'
+                            }`}
+                            title={buyerCode.isValid ? 'Resend email' : 'Cannot resend expired code'}
+                          >
+                            <Mail className={`w-4 h-4 ${resendingBuyerCode === buyerCode._id ? 'animate-pulse' : ''}`} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}

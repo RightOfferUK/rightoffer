@@ -23,6 +23,9 @@ export async function POST(
     const body = await request.json();
     const { action, buyerEmail, counterAmount, counterNotes } = body;
 
+    // Debug logging
+    console.log('Buyer Response - Received counterAmount:', counterAmount, 'Type:', typeof counterAmount);
+
     // Validate action
     const validActions = ['accept', 'reject', 'counter'];
     if (!validActions.includes(action)) {
@@ -38,11 +41,38 @@ export async function POST(
       }, { status: 400 });
     }
 
-    // Validate counter offer amount if action is counter
+    // Parse and validate counter offer amount if action is counter
+    let parsedCounterAmount: number | undefined;
     if (action === 'counter') {
-      if (!counterAmount || counterAmount <= 0) {
+      if (!counterAmount) {
         return NextResponse.json({ 
-          error: 'Counter offer amount is required and must be greater than 0' 
+          error: 'Counter offer amount is required' 
+        }, { status: 400 });
+      }
+      
+      console.log('=== BUYER COUNTER OFFER DEBUG ===');
+      console.log('Buyer Response - Received counterAmount:', counterAmount);
+      console.log('Buyer Response - Type:', typeof counterAmount);
+      console.log('Buyer Response - Raw value:', JSON.stringify(counterAmount));
+      
+      // Handle both string and number inputs
+      if (typeof counterAmount === 'string') {
+        // Remove any formatting (£, commas, spaces)
+        const cleaned = counterAmount.replace(/[£,\s]/g, '');
+        console.log('Buyer Response - Cleaned string:', cleaned);
+        parsedCounterAmount = parseInt(cleaned, 10);
+      } else {
+        console.log('Buyer Response - Converting number:', counterAmount);
+        parsedCounterAmount = Number(counterAmount);
+      }
+      
+      console.log('Buyer Response - Final parsed amount:', parsedCounterAmount);
+      console.log('=== END DEBUG ===');
+      
+      // Validate it's a valid number
+      if (isNaN(parsedCounterAmount) || parsedCounterAmount <= 0) {
+        return NextResponse.json({ 
+          error: 'Invalid counter offer amount' 
         }, { status: 400 });
       }
     }
@@ -90,7 +120,7 @@ export async function POST(
         break;
       case 'counter':
         newStatus = 'countered';
-        counterOfferAmount = counterAmount;
+        counterOfferAmount = parsedCounterAmount;
         break;
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
@@ -100,7 +130,7 @@ export async function POST(
       listing.updateOfferStatus(
         offerId, 
         newStatus, 
-        offer.buyerName,
+        offer.buyerEmail,
         counterOfferAmount,
         counterNotes
       );
@@ -178,7 +208,7 @@ export async function POST(
             listing.sellerEmail,
             listing.address,
             `£${offer.counterOffer?.toLocaleString() || offer.amount.toLocaleString()}`,
-            `£${counterAmount.toLocaleString()}`,
+            `£${parsedCounterAmount!.toLocaleString()}`,
             offer.buyerName,
             counterNotes,
             listing._id.toString()
@@ -190,7 +220,7 @@ export async function POST(
             agent.email,
             listing.address,
             `£${offer.counterOffer?.toLocaleString() || offer.amount.toLocaleString()}`,
-            `£${counterAmount.toLocaleString()}`,
+            `£${parsedCounterAmount!.toLocaleString()}`,
             offer.buyerName,
             counterNotes,
             listing._id.toString()

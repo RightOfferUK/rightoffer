@@ -200,6 +200,9 @@ ListingSchema.methods.updateOfferStatus = function(offerId: string, newStatus: s
     throw new Error(`Invalid status transition from ${offer.status} to ${newStatus}`);
   }
 
+  // Store previous counter offer before updating
+  const previousCounterOffer = offer.counterOffer;
+
   // Update offer
   const oldStatus = offer.status;
   offer.status = newStatus;
@@ -212,8 +215,12 @@ ListingSchema.methods.updateOfferStatus = function(offerId: string, newStatus: s
     offer.counterOfferNotes = counterNotes;
   }
 
+  // For accepted/rejected, include the previousCounterOffer if it exists
+  // This ensures the status badge shows on the right offer
+  const historyCounterAmount = counterAmount || (newStatus === 'accepted' || newStatus === 'rejected' ? previousCounterOffer : undefined);
+
   // Add to history
-  this.addOfferHistory(offerId, newStatus, offer.amount, counterAmount, counterNotes, updatedBy);
+  this.addOfferHistory(offerId, newStatus, offer.amount, historyCounterAmount, counterNotes, updatedBy);
 
   // If offer is accepted, mark property as sold
   if (newStatus === 'accepted') {

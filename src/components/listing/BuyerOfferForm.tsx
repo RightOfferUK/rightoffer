@@ -66,9 +66,18 @@ interface BuyerOffer {
   chain: boolean;
   aipPresent: boolean;
   submittedAt: string;
+  buyerEmail: string;
   notes?: string;
   counterOffer?: number;
   agentNotes?: string;
+  offerHistory?: Array<{
+    action: string;
+    amount: number;
+    counterAmount?: number;
+    notes?: string;
+    timestamp: string;
+    updatedBy?: string;
+  }>;
 }
 
 const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, onSubmit }) => {
@@ -133,6 +142,9 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
       fetchOffers();
     }
   }, [buyerDetails, fetchOffers]);
+
+  // Filter offers to only show offers for THIS property
+  const currentPropertyOffers = offers.filter(offer => offer.listingId === listing._id);
 
   // Helper functions for offer history
   const getStatusColor = (status: BuyerOffer['status']) => {
@@ -278,7 +290,15 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
       const actionData: Record<string, unknown> = {};
       
       if (counterAction === 'counter') {
-        if (!counterAmount || parseFloat(counterAmount) <= 0) {
+        // Use parsePrice to correctly handle formatted amounts like "512,000"
+        const parsedAmount = parsePrice(counterAmount);
+        
+        console.log('=== BUYER COUNTER OFFER FRONTEND DEBUG ===');
+        console.log('BuyerOfferForm - counterAmount string:', counterAmount);
+        console.log('BuyerOfferForm - parsedAmount:', parsedAmount);
+        console.log('=== END FRONTEND DEBUG ===');
+        
+        if (!counterAmount || parsedAmount <= 0) {
           showAlert({
             title: 'Invalid Amount',
             message: 'Please enter a valid counter offer amount',
@@ -286,9 +306,15 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
           });
           return;
         }
-        actionData.counterAmount = parseFloat(counterAmount);
+        actionData.counterAmount = parsedAmount;
         actionData.counterNotes = counterNotes;
       }
+
+      console.log('BuyerOfferForm - Sending request body:', JSON.stringify({
+        action: counterAction,
+        buyerEmail: buyerDetails?.buyerEmail,
+        ...actionData
+      }, null, 2));
 
       const response = await fetch(`/api/offers/${selectedOffer.id}/respond`, {
         method: 'POST',
@@ -359,8 +385,8 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
     );
   }
 
-  // Check if there's a pending offer
-  const pendingOffer = offers.find(offer => 
+  // Check if there's a pending offer for THIS property
+  const pendingOffer = currentPropertyOffers.find(offer => 
     offer.status === 'submitted' || offer.status === 'countered'
   );
 
@@ -442,7 +468,9 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
             {buyerDetails && (
               <div className="mt-6 backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6 flex-1 flex flex-col">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-white">Your Previous Offers</h3>
+                  <h3 className="text-lg font-semibold text-white">
+                    Your Offers for This Property {currentPropertyOffers.length > 0 && `(${currentPropertyOffers.length})`}
+                  </h3>
                   <button
                     onClick={fetchOffers}
                     disabled={loadingOffers}
@@ -469,16 +497,16 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                     <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500 mb-2"></div>
                     <p className="text-white/70 text-sm">Loading your offers...</p>
                   </div>
-                ) : offers.length === 0 ? (
+                ) : currentPropertyOffers.length === 0 ? (
                   /* Empty State */
                   <div className="text-center py-6">
                     <History className="w-10 h-10 text-white/30 mx-auto mb-3" />
-                    <p className="text-white/50 text-sm">No previous offers yet</p>
+                    <p className="text-white/50 text-sm">No previous offers for this property</p>
                   </div>
                 ) : (
                   /* Offers List */
                   <div className="space-y-4 flex-1 overflow-y-auto">
-                    {offers.map((offer, index) => (
+                    {currentPropertyOffers.map((offer, index) => (
                       <motion.div
                         key={offer.id}
                         initial={{ opacity: 0, y: 10 }}
@@ -540,25 +568,81 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                           )}
                         </div>
 
-                        {/* Counter Offer */}
-                        {offer.counterOffer && (
-                          <div className="mt-3 p-2 bg-blue-500/10 border border-blue-500/20 rounded">
-                            <div className="flex items-center gap-1 mb-1">
-                              <MessageSquare className="w-3 h-3 text-blue-400" />
-                              <span className="text-blue-400 font-medium text-xs">Counter Offer</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <p className="text-white text-sm font-semibold">{formatPrice(offer.counterOffer)}</p>
-                              {/* Show status badge on counter offer if accepted/declined */}
-                              {(offer.status === 'accepted' || offer.status === 'declined') && (
-                                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(offer.status)}`}>
-                                  {offer.status.charAt(0).toUpperCase() + offer.status.slice(1)}
+                        {/* Negotiation History - Show all counter offers as a thread */}
+                        {offer.offerHistory && offer.offerHistory.length > 0 && (
+                          <div className="mt-4 space-y-2">
+                            <h4 className="text-white/80 font-medium text-sm mb-2 flex items-center gap-2">
+                              <MessageSquare className="w-4 h-4" />
+                              Negotiation History:
+                            </h4>
+                            
+                            {/* Always show your initial offer first */}
+                            <div className="p-3 rounded-lg border bg-white/5 border-white/10 opacity-70">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs text-white/60">Your Initial Offer</span>
+                                <span className="text-xs text-white/50">
+                                  {new Date(offer.submittedAt).toLocaleDateString()}
                                 </span>
-                              )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <p className="text-white font-semibold text-sm">{formatPrice(offer.amount)}</p>
+                              </div>
                             </div>
-                            {offer.agentNotes && (
-                              <p className="text-white/70 text-xs mt-1">{offer.agentNotes}</p>
-                            )}
+
+                            {offer.offerHistory.map((historyEntry, historyIndex) => {
+                              // If there's a counterAmount, display it; otherwise show the original amount
+                              const hasCounterOffer = !!historyEntry.counterAmount;
+                              const displayAmount = historyEntry.counterAmount || historyEntry.amount;
+                              const isLatest = historyIndex === offer.offerHistory!.length - 1;
+                              
+                              // Debug logging
+                              console.log('BuyerOfferForm - History Entry:', {
+                                index: historyIndex,
+                                updatedBy: historyEntry.updatedBy,
+                                buyerEmail: offer.buyerEmail,
+                                matches: historyEntry.updatedBy === offer.buyerEmail
+                              });
+                              
+                              return (
+                                <div 
+                                  key={historyIndex}
+                                  className={`p-3 rounded-lg border ${
+                                    isLatest && offer.status === 'accepted' 
+                                      ? 'bg-green-500/10 border-green-500/30'
+                                      : isLatest && offer.status === 'declined'
+                                      ? 'bg-red-500/10 border-red-500/30'
+                                      : 'bg-blue-500/10 border-blue-500/20'
+                                  } ${!isLatest ? 'opacity-70' : ''}`}
+                                >
+                                  <div className="flex items-center justify-between mb-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs text-white/60">
+                                        {hasCounterOffer ? 'Counter Offer' : historyEntry.action.charAt(0).toUpperCase() + historyEntry.action.slice(1)}
+                                      </span>
+                                      {historyEntry.updatedBy && (
+                                        <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70">
+                                          {historyEntry.updatedBy === offer.buyerEmail ? 'You' : 'Seller'}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <span className="text-xs text-white/50">
+                                      {new Date(historyEntry.timestamp).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-white font-semibold text-sm">{formatPrice(displayAmount!)}</p>
+                                    {isLatest && (offer.status === 'accepted' || offer.status === 'declined') && (
+                                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(offer.status)}`}>
+                                        {offer.status.charAt(0).toUpperCase() + offer.status.slice(1)}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {historyEntry.notes && (
+                                    <p className="text-white/70 text-xs mt-1">{historyEntry.notes}</p>
+                                  )}
+                                </div>
+                              );
+                            })}
                           </div>
                         )}
 

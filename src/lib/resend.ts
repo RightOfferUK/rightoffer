@@ -7,6 +7,7 @@ import {
   generateCounterOfferEmail,
   generateOfferAcceptedEmail,
   generateOfferAcceptedSellerEmail,
+  generateOfferRejectedEmail,
   generateCounterOfferRejectedSellerEmail,
   generateReCounterOfferEmail
 } from '@/emails/templates';
@@ -216,6 +217,29 @@ export async function sendOfferAcceptedEmailToSeller(
 
   return await sendEmail({
     to: sellerEmail,
+    subject: emailContent.subject,
+    html: emailContent.html,
+    text: emailContent.text
+  });
+}
+
+// Send offer rejected email to buyer (when seller/agent rejects buyer's offer)
+export async function sendOfferRejectedEmailToBuyer(
+  buyerName: string,
+  buyerEmail: string,
+  propertyAddress: string,
+  offerAmount: string,
+  listingId: string
+) {
+  const emailContent = generateOfferRejectedEmail({
+    recipientName: buyerName,
+    propertyAddress,
+    offerAmount,
+    listingId
+  });
+
+  return await sendEmail({
+    to: buyerEmail,
     subject: emailContent.subject,
     html: emailContent.html,
     text: emailContent.text

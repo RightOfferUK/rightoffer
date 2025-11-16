@@ -59,14 +59,14 @@ export interface Offer {
   statusUpdatedAt?: string | Date;
   updatedBy?: string;
   respondedAt?: string | Date;
-  counterOfferBy?: 'seller' | 'agent';
+  counterOfferBy?: 'seller' | 'agent' | 'buyer';
   offerHistory?: Array<{
     action: string;
     amount: number;
     counterAmount?: number;
     notes?: string;
     timestamp: string | Date;
-    updatedBy: string;
+    updatedBy?: string;
   }>;
 }
 

@@ -18,6 +18,15 @@ import {
   RefreshCw
 } from 'lucide-react';
 
+interface OfferHistoryEntry {
+  action: 'submitted' | 'accepted' | 'rejected' | 'countered' | 'withdrawn';
+  amount: number;
+  counterAmount?: number;
+  notes?: string;
+  timestamp: string;
+  updatedBy?: string;
+}
+
 interface Offer {
   _id?: string;
   id: string;
@@ -35,6 +44,7 @@ interface Offer {
   agentNotes?: string;
   statusUpdatedAt?: string;
   updatedBy?: string;
+  offerHistory?: OfferHistoryEntry[];
 }
 
 interface SellerViewProps {
@@ -262,30 +272,84 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                         </div>
                       )}
 
-                      {/* Counter Offer Display */}
-                      {offer.counterOffer && (
-                        <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-blue-400 font-medium text-sm">Counter Offer Sent</span>
-                            {(offer.counterOfferBy === 'seller' || offer.counterOfferBy === 'agent') && offer.status === 'countered' && (
-                              <span className="text-xs text-yellow-400 flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                Waiting for buyer
+                      {/* Negotiation History - Show all counter offers as a thread */}
+                      {offer.offerHistory && offer.offerHistory.length > 0 && (
+                        <div className="mt-4 space-y-2">
+                          <h4 className="text-white/80 font-medium text-sm mb-2">Negotiation History:</h4>
+                          
+                          {/* Always show the buyer's initial offer first */}
+                          <div className="p-3 rounded-lg border bg-white/5 border-white/10 opacity-70">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs text-white/60">Initial Offer from Buyer</span>
+                              <span className="text-xs text-white/50">
+                                {new Date(offer.submittedAt).toLocaleDateString()}
                               </span>
-                            )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <p className="text-white font-semibold text-sm">{formatPrice(offer.amount)}</p>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <p className="text-white font-semibold">{formatPrice(offer.counterOffer)}</p>
-                            {/* Show status badge on counter offer if accepted/rejected */}
-                            {(offer.status === 'accepted' || offer.status === 'rejected') && (
-                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(offer.status)}`}>
-                                {offer.status}
-                              </span>
-                            )}
-                          </div>
-                          {offer.agentNotes && (
-                            <p className="text-white/70 text-sm mt-1">{offer.agentNotes}</p>
-                          )}
+
+                          {offer.offerHistory.map((historyEntry, historyIndex) => {
+                            // If there's a counterAmount, display it; otherwise show the original amount
+                            const hasCounterOffer = !!historyEntry.counterAmount;
+                            const displayAmount = historyEntry.counterAmount || historyEntry.amount;
+                            const isLatest = historyIndex === offer.offerHistory!.length - 1;
+                            
+                            // Debug logging
+                            console.log('SellerView - History Entry:', {
+                              index: historyIndex,
+                              updatedBy: historyEntry.updatedBy,
+                              buyerEmail: offer.buyerEmail,
+                              matches: historyEntry.updatedBy === offer.buyerEmail
+                            });
+                            
+                            return (
+                              <div 
+                                key={historyIndex}
+                                className={`p-3 rounded-lg border ${
+                                  isLatest && offer.status === 'accepted' 
+                                    ? 'bg-green-500/10 border-green-500/30'
+                                    : isLatest && offer.status === 'rejected'
+                                    ? 'bg-red-500/10 border-red-500/30'
+                                    : 'bg-blue-500/10 border-blue-500/20'
+                                } ${!isLatest ? 'opacity-70' : ''}`}
+                              >
+                                <div className="flex items-center justify-between mb-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-white/60">
+                                      {hasCounterOffer ? 'Counter Offer' : historyEntry.action.charAt(0).toUpperCase() + historyEntry.action.slice(1)}
+                                    </span>
+                                    {historyEntry.updatedBy && (
+                                      <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70">
+                                        {historyEntry.updatedBy === offer.buyerEmail ? 'Buyer' : 'Seller/Agent'}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="text-xs text-white/50">
+                                    {new Date(historyEntry.timestamp).toLocaleDateString()}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-white font-semibold text-sm">{formatPrice(displayAmount!)}</p>
+                                  {isLatest && (offer.status === 'accepted' || offer.status === 'rejected') && (
+                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(offer.status)}`}>
+                                      {offer.status}
+                                    </span>
+                                  )}
+                                  {isLatest && offer.status === 'countered' && historyEntry.counterAmount && (offer.counterOfferBy === 'seller' || offer.counterOfferBy === 'agent') && (
+                                    <span className="text-xs text-yellow-400 flex items-center gap-1">
+                                      <Clock className="w-3 h-3" />
+                                      Waiting for buyer
+                                    </span>
+                                  )}
+                                </div>
+                                {historyEntry.notes && (
+                                  <p className="text-white/60 text-xs mt-1">{historyEntry.notes}</p>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
 

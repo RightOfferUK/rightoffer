@@ -7,7 +7,8 @@ import mongoose from 'mongoose';
 import { 
   sendCounterOfferEmailToBuyer,
   sendOfferAcceptedEmailToBuyer,
-  sendOfferAcceptedEmailToSeller
+  sendOfferAcceptedEmailToSeller,
+  sendOfferRejectedEmailToBuyer
 } from '@/lib/resend';
 
 export async function PATCH(
@@ -29,12 +30,37 @@ export async function PATCH(
     const body = await request.json();
     const { status, counterOffer, notes } = body;
 
+    // Debug logging
+    console.log('Agent Action - Received counterOffer:', counterOffer, 'Type:', typeof counterOffer);
+
     // Validate status
     const validStatuses = ['submitted', 'accepted', 'rejected', 'countered', 'withdrawn'];
     if (!validStatuses.includes(status)) {
       return NextResponse.json({ 
         error: 'Invalid status. Must be one of: ' + validStatuses.join(', ')
       }, { status: 400 });
+    }
+
+    // Ensure counterOffer is a number if provided
+    let counterOfferAmount: number | undefined;
+    if (counterOffer) {
+      // Handle both string and number inputs
+      if (typeof counterOffer === 'string') {
+        // Remove any formatting (£, commas, spaces)
+        const cleaned = counterOffer.replace(/[£,\s]/g, '');
+        counterOfferAmount = parseInt(cleaned, 10);
+      } else {
+        counterOfferAmount = Number(counterOffer);
+      }
+      
+      console.log('Agent Action - Parsed counterOfferAmount:', counterOfferAmount);
+      
+      // Validate it's a valid number
+      if (isNaN(counterOfferAmount) || counterOfferAmount <= 0) {
+        return NextResponse.json({ 
+          error: 'Invalid counter offer amount' 
+        }, { status: 400 });
+      }
     }
 
     // Find the listing
@@ -74,22 +100,44 @@ export async function PATCH(
       return NextResponse.json({ error: 'Offer not found' }, { status: 404 });
     }
 
+    // Store offer reference and previous counter offer for history
+    const offer = listing.offers[offerIndex];
+    const previousCounterOffer = offer.counterOffer;
+
     // Update the offer
-    listing.offers[offerIndex].status = status;
+    offer.status = status;
     
-    if (counterOffer) {
-      listing.offers[offerIndex].counterOffer = counterOffer;
+    if (counterOfferAmount) {
+      offer.counterOffer = counterOfferAmount;
       // Track that agent made this counter offer
-      listing.offers[offerIndex].counterOfferBy = 'agent';
+      offer.counterOfferBy = 'agent';
     }
     
     if (notes) {
-      listing.offers[offerIndex].agentNotes = notes;
+      offer.agentNotes = notes;
     }
 
     // Add timestamp for status change
-    listing.offers[offerIndex].statusUpdatedAt = new Date();
-    listing.offers[offerIndex].updatedBy = session.user?.email;
+    offer.statusUpdatedAt = new Date();
+    offer.updatedBy = session.user?.email;
+
+    // Add to offer history
+    if (!offer.offerHistory) {
+      offer.offerHistory = [];
+    }
+    
+    // For accepted/rejected, include the previousCounterOffer if it exists
+    // This ensures the status badge shows on the right offer
+    const historyCounterAmount = counterOfferAmount || (status === 'accepted' || status === 'rejected' ? previousCounterOffer : undefined);
+    
+    offer.offerHistory.push({
+      action: status,
+      amount: offer.amount,
+      counterAmount: historyCounterAmount,
+      notes: notes,
+      timestamp: new Date(),
+      updatedBy: session.user?.email
+    });
 
     // If offer is accepted, update listing status and reject all other offers
     if (status === 'accepted') {
@@ -110,17 +158,25 @@ export async function PATCH(
 
     // Send appropriate email notifications
     try {
-      const offer = listing.offers[offerIndex];
-      
-      if (status === 'countered') {
-        // Agent/seller countered the offer - notify buyer
+      if (status === 'countered' && counterOfferAmount) {
+        // Agent countered the offer - notify buyer
         await sendCounterOfferEmailToBuyer(
           offer.buyerName,
           offer.buyerEmail,
           listing.address,
           `£${offer.amount.toLocaleString()}`,
-          `£${counterOffer.toLocaleString()}`,
+          `£${counterOfferAmount.toLocaleString()}`,
           notes,
+          listing._id.toString()
+        );
+      } else if (status === 'rejected') {
+        // Agent rejected the offer - notify buyer
+        const rejectedAmount = offer.counterOffer || offer.amount;
+        await sendOfferRejectedEmailToBuyer(
+          offer.buyerName,
+          offer.buyerEmail,
+          listing.address,
+          `£${rejectedAmount.toLocaleString()}`,
           listing._id.toString()
         );
       } else if (status === 'accepted') {

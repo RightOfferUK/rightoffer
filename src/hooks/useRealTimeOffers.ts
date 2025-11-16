@@ -19,6 +19,14 @@ interface Offer {
   agentNotes?: string;
   statusUpdatedAt?: string;
   updatedBy?: string;
+  offerHistory?: Array<{
+    action: string;
+    amount: number;
+    counterAmount?: number;
+    notes?: string;
+    timestamp: string;
+    updatedBy?: string;
+  }>;
 }
 
 interface OffersData {

@@ -65,7 +65,7 @@ const OfferActions: React.FC<OfferActionsProps> = ({
   const handleOfferStatusUpdate = async (
     offerId: string, 
     status: string, 
-    counterOffer?: string, 
+    counterOffer?: number | string, 
     notes?: string
   ) => {
     try {
@@ -87,6 +87,8 @@ const OfferActions: React.FC<OfferActionsProps> = ({
       if (isSeller && sellerCode) {
         requestBody.sellerCode = sellerCode;
       }
+
+      console.log('OfferActions - Request body being sent:', JSON.stringify(requestBody, null, 2));
 
       const response = await fetch(endpoint, {
         method: 'PATCH',
@@ -124,12 +126,16 @@ const OfferActions: React.FC<OfferActionsProps> = ({
     } else if (confirmAction === 'decline') {
       handleOfferStatusUpdate(offer.id, 'rejected');
     } else if (confirmAction === 'counter') {
+      console.log('OfferActions - counterAmount string:', counterAmount);
       const counterAmountValue = parsePrice(counterAmount);
+      console.log('OfferActions - parsed counterAmountValue:', counterAmountValue);
+      
       if (counterAmountValue > 0) {
+        console.log('OfferActions - sending to API:', counterAmountValue);
         handleOfferStatusUpdate(
           offer.id, 
           'countered', 
-          counterAmountValue.toString(), 
+          counterAmountValue, // Send as number, not string
           counterNotes || undefined
         );
       } else {
@@ -204,21 +210,35 @@ const OfferActions: React.FC<OfferActionsProps> = ({
                   <span className="text-white/70">Buyer:</span>
                   <span className="text-white font-medium">{offer.buyerName}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm mt-2">
-                  <span className="text-white/70">Offer Amount:</span>
-                  <span className="text-green-400 font-semibold">{formatPrice(offer.amount)}</span>
-                </div>
+                {offer.counterOffer && (
+                  <>
+                    <div className="flex justify-between items-center text-sm mt-2">
+                      <span className="text-white/70">Initial Offer:</span>
+                      <span className="text-white/50 font-medium line-through">{formatPrice(offer.amount)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm mt-2">
+                      <span className="text-white/70">Current Counter Offer:</span>
+                      <span className="text-blue-400 font-semibold">{formatPrice(offer.counterOffer)}</span>
+                    </div>
+                  </>
+                )}
+                {!offer.counterOffer && (
+                  <div className="flex justify-between items-center text-sm mt-2">
+                    <span className="text-white/70">Offer Amount:</span>
+                    <span className="text-green-400 font-semibold">{formatPrice(offer.amount)}</span>
+                  </div>
+                )}
               </div>
 
               {/* Confirmation Message */}
               {confirmAction === 'accept' && (
                 <p className="text-white/80 text-sm mb-4">
-                  Are you sure you want to accept this offer? This will mark the property as under offer.
+                  Are you sure you want to accept {offer.counterOffer ? 'this counter offer' : 'this offer'}? This will mark the property as sold.
                 </p>
               )}
               {confirmAction === 'decline' && (
                 <p className="text-white/80 text-sm mb-4">
-                  Are you sure you want to decline this offer?
+                  Are you sure you want to decline {offer.counterOffer ? 'this counter offer' : 'this offer'}?
                 </p>
               )}
 
