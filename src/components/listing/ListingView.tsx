@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { uploadImage } from '@/lib/supabase';
 import { useRealTimeOffers } from '@/hooks/useRealTimeOffers';
@@ -24,7 +24,6 @@ import {
   UserPlus,
   Copy,
   RefreshCw,
-  Check,
   XCircle,
   MessageSquare
 } from 'lucide-react';
@@ -361,43 +360,6 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
       autoClose: true
     });
   };
-
-  // Offer management functions
-  const handleOfferStatusUpdate = async (offerId: string, status: string, counterOffer?: string, notes?: string) => {
-    try {
-      const response = await fetch(`/api/listings/${listing._id}/offers/${offerId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status,
-          counterOffer,
-          notes
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update offer status');
-      }
-
-      // Refresh offers to get updated data
-      await refreshOffers();
-      showAlert({
-        title: 'Success',
-        message: `Offer ${status} successfully!`,
-        type: 'success',
-        autoClose: true
-      });
-    } catch {
-      showAlert({
-        title: 'Error',
-        message: 'Failed to update offer status. Please try again.',
-        type: 'error'
-      });
-    }
-  };
-
 
   // Handle offer withdrawal
   const handleWithdrawOffer = async (offerId: string, buyerEmail: string) => {
