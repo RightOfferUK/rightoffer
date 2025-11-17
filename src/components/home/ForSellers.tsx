@@ -56,12 +56,13 @@ const ForSellers = () => {
             viewport={{ once: true }}
           >
             <div className="relative overflow-hidden rounded-2xl shadow-2xl">
-              <div className="aspect-[4/3] bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
-                <div className="text-center">
-                  <Eye className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-400 font-dm-sans text-lg">Seller Dashboard Preview</p>
-                  <p className="text-gray-500 font-dm-sans text-sm mt-2">Real-time Offer Tracking</p>
-                </div>
+              <div className="aspect-[4/3] bg-white flex items-center justify-center">
+                <img
+                  src="/sellerView.webp"
+                  alt="Seller Dashboard Preview - Real-time Offer Tracking"
+                  className="object-cover w-full h-full"
+                  loading="lazy"
+                />
               </div>
               
               {/* Glass overlay effect */}

@@ -114,27 +114,36 @@ const ForAgents = () => {
             </motion.div>
           </motion.div>
 
-          {/* Right side - Image */}
+          {/* Right side - Images */}
           <motion.div
-            className="relative"
+            className="relative flex flex-col items-center space-y-6"
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
             viewport={{ once: true }}
           >
-            <div className="relative overflow-hidden rounded-2xl shadow-2xl">
-              <div className="aspect-[4/3] bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
-                <div className="text-center">
-                  <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-400 font-dm-sans text-lg">Agent Dashboard Preview</p>
-                  <p className="text-gray-500 font-dm-sans text-sm mt-2">Coming Soon</p>
-                </div>
-              </div>
-              
+            <div className="relative overflow-hidden rounded-2xl shadow-2xl flex items-center justify-center">
+              <img
+                src="/agentView.webp"
+                alt="Agent Dashboard Preview - Real-time Offer Management"
+                className="block max-w-full h-auto rounded-2xl"
+                style={{ display: 'block' }}
+                loading="lazy"
+              />
               {/* Glass overlay effect */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none rounded-2xl"></div>
             </div>
-            
+            <div className="relative overflow-hidden rounded-2xl shadow-2xl flex items-center justify-center">
+              <img
+                src="/agentView2.webp"
+                alt="Agent Dashboard Alternate Preview"
+                className="block max-w-full h-auto rounded-2xl"
+                style={{ display: 'block' }}
+                loading="lazy"
+              />
+              {/* Glass overlay effect */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none rounded-2xl"></div>
+            </div>
             {/* Decorative elements */}
             <div className="absolute -top-4 -right-4 w-20 h-20 bg-purple-500/20 rounded-full blur-xl"></div>
             <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-blue-500/20 rounded-full blur-xl"></div>
