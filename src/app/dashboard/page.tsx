@@ -22,6 +22,9 @@ import {
   RightSidebar as AgentRightSidebar 
 } from "@/components/agent_dashboard";
 
+// Layout Components
+import DashboardFooter from "@/components/layout/DashboardFooter";
+
 export default async function DashboardPage() {
   const session = await auth();
 
@@ -69,8 +72,9 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-navy-gradient">
+    <div className="min-h-screen bg-navy-gradient pb-16">
       {renderDashboard()}
+      <DashboardFooter />
     </div>
   );
 }

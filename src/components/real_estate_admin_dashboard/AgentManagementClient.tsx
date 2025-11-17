@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import ListingsTable from '../agent_dashboard/ListingsTable';
 import AgentEditForm from './AgentEditForm';
+import DashboardFooter from '../layout/DashboardFooter';
 
 interface Agent {
   _id: string;
@@ -20,7 +21,7 @@ interface AgentManagementClientProps {
 
 const AgentManagementClient: React.FC<AgentManagementClientProps> = ({ agent }) => {
   return (
-    <div className="min-h-screen bg-navy-gradient">
+    <div className="min-h-screen bg-navy-gradient pb-16">
       {/* Header - Similar to UserMenu */}
       <div className="border-b border-white/10 bg-white/5 backdrop-blur-xl">
         <div className="px-6 py-4">
@@ -66,6 +67,8 @@ const AgentManagementClient: React.FC<AgentManagementClientProps> = ({ agent }) 
           <AgentEditForm agent={agent} />
         </div>
       </div>
+
+      <DashboardFooter />
     </div>
   );
 };
