@@ -1037,13 +1037,28 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                     'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
                   } disabled:opacity-50 disabled:transform-none`}
                 >
-                  {isResponding ? 'Processing...' : 
-                   counterAction === 'accept' ? <span className="hidden sm:inline">Accept Counter Offer</span> :
-                   counterAction === 'accept' ? <span className="sm:hidden">Accept</span> :
-                   counterAction === 'reject' ? <span className="hidden sm:inline">Reject Counter Offer</span> :
-                   counterAction === 'reject' ? <span className="sm:hidden">Reject</span> :
-                   <span className="hidden sm:inline">Send Counter Offer</span>}
-                  {isResponding ? null : counterAction === 'counter' && <span className="sm:hidden">Send</span>}
+                  {isResponding ? 'Processing...' : (
+                    <>
+                      {counterAction === 'accept' && (
+                        <>
+                          <span className="hidden sm:inline">Accept Counter Offer</span>
+                          <span className="sm:hidden">Accept</span>
+                        </>
+                      )}
+                      {counterAction === 'reject' && (
+                        <>
+                          <span className="hidden sm:inline">Reject Counter Offer</span>
+                          <span className="sm:hidden">Reject</span>
+                        </>
+                      )}
+                      {counterAction === 'counter' && (
+                        <>
+                          <span className="hidden sm:inline">Send Counter Offer</span>
+                          <span className="sm:hidden">Send</span>
+                        </>
+                      )}
+                    </>
+                  )}
                 </button>
               </div>
             </motion.div>

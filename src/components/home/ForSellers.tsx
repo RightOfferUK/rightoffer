@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Eye, Clock, Shield, BarChart3 } from 'lucide-react';
+import Image from 'next/image';
 
 const ForSellers = () => {
   const benefits = [
@@ -57,11 +58,15 @@ const ForSellers = () => {
           >
             <div className="relative overflow-hidden rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl">
               <div className="aspect-[4/3] bg-white flex items-center justify-center">
-                <img
+                <Image
                   src="/sellerView.webp"
                   alt="Seller Dashboard Preview - Real-time Offer Tracking"
                   className="object-cover w-full h-full"
                   loading="lazy"
+                  width={700}
+                  height={400}
+                  sizes="(max-width: 640px) 100vw, 700px"
+                  priority={false}
                 />
               </div>
               

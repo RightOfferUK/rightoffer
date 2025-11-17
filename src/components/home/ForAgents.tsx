@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Building2, Users, TrendingUp, Shield, PhoneOff } from 'lucide-react';
+import { Users, TrendingUp, Shield, PhoneOff } from 'lucide-react';
+import Image from 'next/image';
 
 const ForAgents = () => {
   const benefits = [
@@ -123,23 +124,31 @@ const ForAgents = () => {
             viewport={{ once: true }}
           >
             <div className="relative overflow-hidden rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl flex items-center justify-center w-full">
-              <img
+              <Image
                 src="/agentView.webp"
                 alt="Agent Dashboard Preview - Real-time Offer Management"
                 className="block max-w-full h-auto rounded-xl sm:rounded-2xl"
                 style={{ display: 'block' }}
                 loading="lazy"
+                width={700}
+                height={400}
+                sizes="(max-width: 640px) 100vw, 700px"
+                priority={false}
               />
               {/* Glass overlay effect */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none rounded-xl sm:rounded-2xl"></div>
             </div>
             <div className="relative overflow-hidden rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl flex items-center justify-center w-full">
-              <img
+              <Image
                 src="/agentView2.webp"
                 alt="Agent Dashboard Alternate Preview"
                 className="block max-w-full h-auto rounded-xl sm:rounded-2xl"
                 style={{ display: 'block' }}
                 loading="lazy"
+                width={700}
+                height={400}
+                sizes="(max-width: 640px) 100vw, 700px"
+                priority={false}
               />
               {/* Glass overlay effect */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none rounded-xl sm:rounded-2xl"></div>
