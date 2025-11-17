@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     default: "RightOffer - Transparent Real Estate Offers | See All Property Offers in Real-Time",
     template: "%s | RightOffer"
   },
-  description: "FREE for buyers and sellers! Revolutionary real estate platform connecting agents, sellers, and buyers with complete transparency. View all property offers in real-time, manage negotiations, and close deals faster. No hidden offers, no constant phone calls.",
+  description: "Real estate platform connecting agents, sellers, and buyers with complete transparency. View all property offers in real-time, manage negotiations, and close deals faster. No hidden offers, no constant phone calls.",
   keywords: [
     "free property platform",
     "free property offers",
@@ -62,8 +62,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_GB',
     url: 'https://rightoffer.co.uk',
-    title: 'RightOffer - FREE for Buyers & Sellers | Real Estate Transparency',
-    description: 'Completely FREE for buyers and sellers! Connect agents, sellers, and buyers with complete transparency. See all offers in real-time, no more constant phone calls.',
+    title: 'RightOffer | Real Estate Transparency',
+    description: 'Connect agents, sellers, and buyers with complete transparency. See all offers in real-time, no more constant phone calls.',
     siteName: 'RightOffer',
     images: [
       {
@@ -76,8 +76,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'RightOffer - FREE for Buyers & Sellers | Real Estate Transparency',
-    description: 'Completely FREE for buyers and sellers! Connect with complete transparency. See all offers in real-time.',
+    title: 'RightOffer | Real Estate Transparency',
+    description: 'Connect agents, sellers, and buyers with complete transparency. See all offers in real-time, no more constant phone calls.',
     images: ['/openGL.png'],
     creator: '@rightoffer',
   },
