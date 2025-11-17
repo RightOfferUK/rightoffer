@@ -20,7 +20,12 @@ interface RawListing {
   sellerEmail: string;
   listedPrice: number;
   status: string;
-  offers?: Array<{ amount: number; [key: string]: unknown }>;
+  offers?: Array<{ 
+    amount: number; 
+    status: string; 
+    counterOffer?: number; 
+    [key: string]: unknown 
+  }>;
   createdAt: Date;
   updatedAt: Date;
   sellerCode: string;
@@ -93,9 +98,36 @@ export async function GET(
     // Transform data for frontend
     const transformedListings = listings.map((listing: RawListing) => {
       const offersCount = listing.offers?.length || 0;
-      const topOffer = offersCount > 0 
-        ? Math.max(...(listing.offers || []).map((offer: { amount: number }) => offer.amount))
-        : 0;
+      
+      // Calculate top offer/sold price
+      // If an offer is accepted with a counter offer, use the counter offer amount
+      // Otherwise, use the highest offer amount
+      let topOffer = 0;
+      if (offersCount > 0) {
+        const acceptedOffer = (listing.offers || []).find((offer: { status: string; counterOffer?: number }) => 
+          offer.status === 'accepted'
+        );
+        
+        if (acceptedOffer && (acceptedOffer as { counterOffer?: number }).counterOffer) {
+          // If there's an accepted counter offer, that's the sold price
+          topOffer = (acceptedOffer as { counterOffer: number }).counterOffer;
+        } else if (acceptedOffer) {
+          // If there's an accepted offer without counter, use the original amount
+          topOffer = (acceptedOffer as { amount: number }).amount;
+        } else {
+          // Otherwise, show the highest offer amount
+          topOffer = Math.max(...(listing.offers || [])
+            .filter((offer: { status: string }) => offer.status !== 'withdrawn')
+            .map((offer: { amount: number; status: string; counterOffer?: number }) => {
+              // For active counter offers, show the counter amount
+              if (offer.status === 'countered' && offer.counterOffer) {
+                return offer.counterOffer;
+              }
+              return offer.amount;
+            })
+          );
+        }
+      }
 
       return {
         _id: listing._id.toString(),

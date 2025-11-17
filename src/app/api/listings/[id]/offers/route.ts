@@ -6,8 +6,9 @@ import Listing from '@/models/Listing';
 interface RawListing {
   offers: Array<{
     amount: number;
-    submittedAt: Date;
     status: string;
+    counterOffer?: number;
+    submittedAt: Date;
     [key: string]: unknown;
   }>;
   status: string;
@@ -48,14 +49,32 @@ export async function GET(
 
     // Filter out withdrawn offers for live offer calculations
     const liveOffers = sortedOffers.filter(offer => offer.status !== 'withdrawn');
-    const liveOfferAmounts = liveOffers.map(offer => offer.amount);
+    
+    // Calculate highest offer/sold price properly
+    // If an offer is accepted with a counter offer, use the counter offer amount
+    let highestOffer = 0;
+    if (liveOffers.length > 0) {
+      const acceptedOffer = liveOffers.find(offer => offer.status === 'accepted');
+      
+      if (acceptedOffer) {
+        // If there's an accepted offer, that's the sold price (counter offer or original amount)
+        highestOffer = acceptedOffer.counterOffer || acceptedOffer.amount;
+      } else {
+        // Otherwise, show the highest offer amount (considering counter offers)
+        highestOffer = Math.max(...liveOffers.map(offer => {
+          // For countered offers, show the counter amount
+          if (offer.status === 'countered' && offer.counterOffer) {
+            return offer.counterOffer;
+          }
+          return offer.amount;
+        }));
+      }
+    }
 
     return NextResponse.json({ 
       offers: sortedOffers, // Return all offers for display purposes
       totalOffers: liveOffers.length, // Only count live offers
-      highestOffer: liveOfferAmounts.length > 0 
-        ? Math.max(...liveOfferAmounts)
-        : 0,
+      highestOffer,
       listingStatus: listing.status // Include listing status so frontend can update it
     });
 

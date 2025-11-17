@@ -403,11 +403,34 @@ const ListingView: React.FC<ListingViewProps> = ({ listing, canEdit = false, use
     new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
   );
 
-  const displayHighestOffer = highestOffer > 0 ? highestOffer : (
-    listing.offers.length > 0 
-      ? Math.max(...listing.offers.filter(offer => offer.status !== 'withdrawn').map(offer => offer.amount))
-      : 0
-  );
+  // Calculate highest offer/sold price properly
+  const displayHighestOffer = (() => {
+    if (highestOffer > 0) {
+      return highestOffer;
+    }
+    
+    if (listing.offers.length === 0) {
+      return 0;
+    }
+    
+    // If there's an accepted offer, show the sold price (counter offer or original amount)
+    const acceptedOffer = listing.offers.find(offer => offer.status === 'accepted');
+    if (acceptedOffer) {
+      return acceptedOffer.counterOffer || acceptedOffer.amount;
+    }
+    
+    // Otherwise, show the highest offer amount (considering counter offers)
+    return Math.max(...listing.offers
+      .filter(offer => offer.status !== 'withdrawn')
+      .map(offer => {
+        // For countered offers, show the counter amount
+        if (offer.status === 'countered' && offer.counterOffer) {
+          return offer.counterOffer;
+        }
+        return offer.amount;
+      })
+    );
+  })();
 
   return (
     <div className="min-h-screen bg-navy-gradient">

@@ -229,7 +229,7 @@ const ListingsTable: React.FC<ListingsTableProps> = ({ agentId, agentName, hideH
                   Offers
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
-                  Top Offer
+                  Top Offer/Sold Price
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
                   Seller
@@ -399,6 +399,8 @@ const QuickEditModal: React.FC<{
 
   if (!show || !listing) return null;
 
+  const isSold = listing.status.toLowerCase() === 'sold';
+
   const handleEditSave = async () => {
     setLoading(true);
     setError(null);
@@ -563,6 +565,13 @@ const QuickEditModal: React.FC<{
         <div className="mb-4">
           <p className="text-white/80 mb-2">{listing.address}</p>
           <p className="text-white/60 text-sm">Seller: {listing.owner}</p>
+          {isSold && (
+            <div className="mt-3 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+              <p className="text-green-400 text-sm font-medium">
+                ✓ This property has been sold and is view-only. No changes can be made.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Tabs */}
@@ -613,8 +622,9 @@ const QuickEditModal: React.FC<{
                 <input
                   type="text"
                   value={editData.address}
-                  onChange={(e) => setEditData({ ...editData, address: e.target.value })}
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  onChange={(e) => !isSold && setEditData({ ...editData, address: e.target.value })}
+                  disabled={isSold}
+                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
               <div>
@@ -625,22 +635,27 @@ const QuickEditModal: React.FC<{
                     type="text"
                     value={editPriceInput}
                     onChange={(e) => {
-                      const formatted = formatPriceInput(e.target.value);
-                      setEditPriceInput(formatted);
-                      setEditData({ ...editData, listedPrice: parsePrice(formatted) });
+                      if (!isSold) {
+                        const formatted = formatPriceInput(e.target.value);
+                        setEditPriceInput(formatted);
+                        setEditData({ ...editData, listedPrice: parsePrice(formatted) });
+                      }
                     }}
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                    disabled={isSold}
+                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder="450,000"
                   />
               </div>
-              <button
-                onClick={handleEditSave}
-                disabled={loading}
-                className="w-full px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
-              >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Edit3 className="w-4 h-4" />}
-                {loading ? 'Saving...' : 'Save Changes'}
-              </button>
+              {!isSold && (
+                <button
+                  onClick={handleEditSave}
+                  disabled={loading}
+                  className="w-full px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
+                >
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Edit3 className="w-4 h-4" />}
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </button>
+              )}
             </div>
           )}
 
@@ -669,41 +684,51 @@ const QuickEditModal: React.FC<{
               {/* Generate New Buyer Code Section */}
               <div className="space-y-4">
                 <h4 className="text-white font-medium">Generate New Buyer Code</h4>
-                <p className="text-white/70 text-sm">
-                  Generate a buyer code to give potential buyers access to make offers on this property.
-                </p>
-                <div>
-                  <label className="block text-sm font-medium text-white/70 mb-2">
-                    Buyer Name
-                  </label>
-                  <input
-                    type="text"
-                    value={buyerData.name}
-                    onChange={(e) => setBuyerData({ ...buyerData, name: e.target.value })}
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                    placeholder="John Smith"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-white/70 mb-2">
-                    Buyer Email
-                  </label>
-                  <input
-                    type="email"
-                    value={buyerData.email}
-                    onChange={(e) => setBuyerData({ ...buyerData, email: e.target.value })}
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                    placeholder="john@example.com"
-                  />
-                </div>
-                <button
-                  onClick={handleGenerateBuyerCode}
-                  disabled={loading || !buyerData.name || !buyerData.email}
-                  className="w-full px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
-                >
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
-                  {loading ? 'Generating...' : 'Generate Buyer Code'}
-                </button>
+                {isSold ? (
+                  <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                    <p className="text-yellow-400 text-sm">
+                      Cannot generate buyer codes for sold properties.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-white/70 text-sm">
+                      Generate a buyer code to give potential buyers access to make offers on this property.
+                    </p>
+                    <div>
+                      <label className="block text-sm font-medium text-white/70 mb-2">
+                        Buyer Name
+                      </label>
+                      <input
+                        type="text"
+                        value={buyerData.name}
+                        onChange={(e) => setBuyerData({ ...buyerData, name: e.target.value })}
+                        className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                        placeholder="John Smith"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-white/70 mb-2">
+                        Buyer Email
+                      </label>
+                      <input
+                        type="email"
+                        value={buyerData.email}
+                        onChange={(e) => setBuyerData({ ...buyerData, email: e.target.value })}
+                        className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                        placeholder="john@example.com"
+                      />
+                    </div>
+                    <button
+                      onClick={handleGenerateBuyerCode}
+                      disabled={loading || !buyerData.name || !buyerData.email}
+                      className="w-full px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
+                    >
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
+                      {loading ? 'Generating...' : 'Generate Buyer Code'}
+                    </button>
+                  </>
+                )}
               </div>
 
               {/* Existing Buyer Codes Section */}

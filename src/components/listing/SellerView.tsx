@@ -96,11 +96,37 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
     new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
   );
 
-  const highestOffer = liveHighestOffer > 0 ? liveHighestOffer : (
-    listing.offers.length > 0 
-      ? Math.max(...listing.offers.filter(offer => offer.status !== 'withdrawn').map(offer => offer.amount))
-      : 0
-  );
+  // Calculate highest offer/sold price properly
+  // If an offer is accepted with a counter offer, use the counter offer amount
+  const acceptedOffer = displayOffers.find(offer => offer.status === 'accepted');
+  const isSold = acceptedOffer !== undefined;
+  
+  const highestOffer = (() => {
+    if (liveHighestOffer > 0) {
+      return liveHighestOffer;
+    }
+    
+    if (listing.offers.length === 0) {
+      return 0;
+    }
+    
+    // If there's an accepted offer, show the sold price (counter offer or original amount)
+    if (acceptedOffer) {
+      return acceptedOffer.counterOffer || acceptedOffer.amount;
+    }
+    
+    // Otherwise, show the highest offer amount (considering counter offers)
+    return Math.max(...listing.offers
+      .filter(offer => offer.status !== 'withdrawn')
+      .map(offer => {
+        // For countered offers, show the counter amount
+        if (offer.status === 'countered' && offer.counterOffer) {
+          return offer.counterOffer;
+        }
+        return offer.amount;
+      })
+    );
+  })();
 
   return (
     <div className="min-h-screen bg-navy-gradient">
@@ -382,11 +408,16 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                   <p className="text-white text-xl font-bold">{formatPrice(listing.listedPrice)}</p>
                 </div>
                 
-                <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                  <h4 className="text-purple-300 font-semibold mb-2">Highest Offer</h4>
+                <div className={`p-4 ${isSold ? 'bg-green-500/10 border-green-500/20' : 'bg-purple-500/10 border-purple-500/20'} border rounded-lg`}>
+                  <h4 className={`${isSold ? 'text-green-300' : 'text-purple-300'} font-semibold mb-2`}>
+                    {isSold ? 'Sold Price' : 'Highest Offer'}
+                  </h4>
                   <p className="text-white text-xl font-bold">
                     {highestOffer > 0 ? `£${highestOffer.toLocaleString()}` : 'None yet'}
                   </p>
+                  {isSold && (
+                    <span className="text-xs text-green-400/70 mt-1 block">Property Sold</span>
+                  )}
                 </div>
                 
                 <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
