@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Send, User, Mail, MessageSquare } from 'lucide-react';
+import { CheckCircle2, Send, User, Mail, MessageSquare, Check, AlertCircle } from 'lucide-react';
 
 const PricingContact = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +10,11 @@ const PricingContact = () => {
     email: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: 'success' | 'error' | null;
+    message: string;
+  }>({ type: null, message: '' });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -17,12 +22,58 @@ const PricingContact = () => {
       ...prev,
       [name]: value
     }));
+    // Clear error when user starts typing
+    if (submitStatus.type === 'error') {
+      setSubmitStatus({ type: null, message: '' });
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
+    setIsSubmitting(true);
+    setSubmitStatus({ type: null, message: '' });
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message');
+      }
+
+      setSubmitStatus({
+        type: 'success',
+        message: data.message || 'Message sent successfully!'
+      });
+
+      // Clear form on success
+      setFormData({
+        name: '',
+        email: '',
+        message: ''
+      });
+
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setSubmitStatus({ type: null, message: '' });
+      }, 5000);
+
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setSubmitStatus({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to send message. Please try again.'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -116,6 +167,26 @@ const PricingContact = () => {
               >
                 <h3 className="text-xl sm:text-2xl font-bold font-dm-sans text-white mb-4 sm:mb-6">Get in Touch</h3>
                 
+                {/* Status Messages */}
+                {submitStatus.type && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`flex items-center gap-2 px-4 py-3 rounded-xl mb-4 ${
+                      submitStatus.type === 'success'
+                        ? 'bg-green-500/20 border border-green-500/30 text-green-100'
+                        : 'bg-red-500/20 border border-red-500/30 text-red-100'
+                    }`}
+                  >
+                    {submitStatus.type === 'success' ? (
+                      <Check className="w-5 h-5 flex-shrink-0" />
+                    ) : (
+                      <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    )}
+                    <span className="text-sm font-dm-sans">{submitStatus.message}</span>
+                  </motion.div>
+                )}
+                
                 <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 flex-1 flex flex-col">
                   <div className="relative">
                     <User className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-white/60" />
@@ -157,13 +228,27 @@ const PricingContact = () => {
 
                   <motion.button
                     type="submit"
-                    className="w-full bg-white/20 hover:bg-white/30 border border-white/30 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl font-dm-sans font-semibold text-sm sm:text-base text-white backdrop-blur-sm transition-all duration-300 flex items-center justify-center gap-2 mt-auto"
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
+                    disabled={isSubmitting || !formData.name || !formData.email || !formData.message}
+                    className="w-full bg-white/20 hover:bg-white/30 border border-white/30 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl font-dm-sans font-semibold text-sm sm:text-base text-white backdrop-blur-sm transition-all duration-300 flex items-center justify-center gap-2 mt-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                    whileHover={!isSubmitting ? { scale: 1.02, y: -2 } : {}}
+                    whileTap={!isSubmitting ? { scale: 0.98 } : {}}
                     transition={{ duration: 0.2 }}
                   >
-                    <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    Send Message
+                    {isSubmitting ? (
+                      <>
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full"
+                        />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        Send Message
+                      </>
+                    )}
                   </motion.button>
                 </form>
               </motion.div>

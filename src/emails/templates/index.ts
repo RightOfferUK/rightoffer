@@ -10,6 +10,7 @@ export { generateCounterOfferRejectedSellerEmail, type CounterOfferRejectedSelle
 export { generateReCounterOfferEmail, type ReCounterOfferEmailProps } from './ReCounterOfferEmail';
 export { generateWelcomeEmail, type WelcomeEmailProps } from './WelcomeEmail';
 export { generateMagicLinkEmail, type MagicLinkEmailProps } from './MagicLinkEmail';
+export { generateContactFormEmail } from './ContactFormEmail';
 
 // Base components
 export { createBaseTemplate, emailStyles, colors, type BaseEmailProps } from '../components/BaseTemplate';
