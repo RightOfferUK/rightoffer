@@ -32,11 +32,11 @@ const Navbar = () => {
           >
             <div className="flex items-center">
               <Image
-                src="/logo.png"
+                src="/logo.webp"
                 alt="RightOffer Logo"
-                width={200}
-                height={50}
-                className="h-10 w-auto"
+                width={480}
+                height={120}
+                className="h-16 w-auto"
                 priority
               />
             </div>
