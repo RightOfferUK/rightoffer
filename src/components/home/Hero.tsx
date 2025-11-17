@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Building2, Eye, DollarSign } from 'lucide-react';
+import { Building2, Eye, PoundSterling } from 'lucide-react';
 
 const Hero = () => {
   return (
@@ -142,7 +142,7 @@ const Hero = () => {
             {
               title: "For Property Buyers",
               description: "Use your unique buyer code and submit offers directly through our platform. No more phone calls to your agent — track your offer status with real-time transparency.",
-              icon: DollarSign,
+              icon: PoundSterling,
               gradient: "from-purple-700 to-purple-800",
               glowColor: "from-purple-700/20 to-purple-800/20",
               shadowColor: "shadow-purple-700/25",
