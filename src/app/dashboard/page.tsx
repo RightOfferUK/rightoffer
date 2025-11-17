@@ -24,6 +24,7 @@ import {
 
 // Layout Components
 import DashboardFooter from "@/components/layout/DashboardFooter";
+import MobileRestriction from "@/components/layout/MobileRestriction";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -72,9 +73,11 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-navy-gradient pb-16">
-      {renderDashboard()}
-      <DashboardFooter />
-    </div>
+    <MobileRestriction showHomeButton={false}>
+      <div className="min-h-screen bg-navy-gradient pb-16">
+        {renderDashboard()}
+        <DashboardFooter />
+      </div>
+    </MobileRestriction>
   );
 }

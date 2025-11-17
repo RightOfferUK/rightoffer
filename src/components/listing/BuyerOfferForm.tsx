@@ -357,25 +357,25 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
 
   if (success) {
     return (
-      <div className="min-h-screen bg-navy-gradient flex items-center justify-center px-4">
+      <div className="min-h-screen bg-navy-gradient flex items-center justify-center px-4 py-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="max-w-md w-full"
         >
-          <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-8 text-center">
-            <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Send className="w-8 h-8 text-green-400" />
+          <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6 sm:p-8 text-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Send className="w-7 h-7 sm:w-8 sm:h-8 text-green-400" />
             </div>
-            <h2 className="text-2xl font-bold text-white font-dm-sans mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-white font-dm-sans mb-3 sm:mb-4">
               Offer Submitted!
             </h2>
-            <p className="text-white/70 mb-6">
+            <p className="text-white/70 mb-4 sm:mb-6 text-sm sm:text-base">
               Your offer has been successfully submitted to the seller. They will review it and respond shortly. You will receive an email notification when they respond.
             </p>
             <button
               onClick={() => setSuccess(false)}
-              className="px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors font-medium"
+              className="px-5 sm:px-6 py-2.5 sm:py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors font-medium text-sm sm:text-base"
             >
               View Offer Status
             </button>
@@ -395,16 +395,16 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
       <AlertComponent />
       {/* Header */}
       <div className="bg-navy-gradient border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Home className="w-6 h-6 text-purple-400" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Home className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
               <div>
-                <h1 className="text-2xl font-bold text-white font-dm-sans">
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white font-dm-sans">
                   Make an Offer
                 </h1>
                 {buyerDetails && (
-                  <p className="text-white/70 text-sm">Welcome back, {buyerDetails.buyerName}</p>
+                  <p className="text-white/70 text-xs sm:text-sm">Welcome back, {buyerDetails.buyerName}</p>
                 )}
               </div>
             </div>
@@ -413,8 +413,8 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
           {/* Property Details - Left Side */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -422,13 +422,13 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
             transition={{ duration: 0.6 }}
             className="flex flex-col"
           >
-            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6 top-8">
-              <h2 className="text-xl font-semibold text-white mb-4 font-dm-sans">
+            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-4 sm:p-6 top-8">
+              <h2 className="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4 font-dm-sans">
                 Property Details
               </h2>
               
               {/* Property Image */}
-              <div className="relative w-full h-64 mb-6 rounded-lg overflow-hidden">
+              <div className="relative w-full h-48 sm:h-56 md:h-64 mb-4 sm:mb-6 rounded-lg overflow-hidden">
                 <Image
                   src={listing.mainPhoto || '/placeholder-house.jpg'}
                   alt={listing.address}
@@ -439,25 +439,25 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
               </div>
 
               {/* Property Info */}
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-2">
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">
                     {listing.address}
                   </h3>
-                  <div className="flex items-center gap-2 text-green-400 text-xl font-bold">
+                  <div className="flex items-center gap-2 text-green-400 text-lg sm:text-xl font-bold">
                     <span>{formatPrice(listing.listedPrice)}</span>
                   </div>
-                  <p className="text-white/70 text-sm mt-1">Listed Price</p>
+                  <p className="text-white/70 text-xs sm:text-sm mt-1">Listed Price</p>
                 </div>
 
-                <div className="pt-4 border-t border-white/10">
-                  <p className="text-white/70 text-sm">
+                <div className="pt-3 sm:pt-4 border-t border-white/10">
+                  <p className="text-white/70 text-xs sm:text-sm">
                     <span className="font-medium text-white">Seller:</span> {listing.sellerName}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-white/10">
-                  <p className="text-white/60 text-sm">
+                <div className="pt-3 sm:pt-4 border-t border-white/10">
+                  <p className="text-white/60 text-xs sm:text-sm">
                     Submit your best offer below. The seller will review and respond to your proposal.
                   </p>
                 </div>
@@ -466,10 +466,10 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
 
             {/* Offer History Section */}
             {buyerDetails && (
-              <div className="mt-6 backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6 flex-1 flex flex-col">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-white">
-                    Your Offers for This Property {currentPropertyOffers.length > 0 && `(${currentPropertyOffers.length})`}
+              <div className="mt-4 sm:mt-6 backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-4 sm:p-6 flex-1 flex flex-col">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-white">
+                    Your Offers {currentPropertyOffers.length > 0 && `(${currentPropertyOffers.length})`}
                   </h3>
                   <button
                     onClick={fetchOffers}
@@ -694,8 +694,8 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-8">
-              <h2 className="text-xl font-semibold text-white mb-6 font-dm-sans">
+            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-4 sm:p-6 md:p-8">
+              <h2 className="text-lg sm:text-xl font-semibold text-white mb-4 sm:mb-6 font-dm-sans">
                 Your Offer Details
               </h2>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -941,41 +941,41 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ duration: 0.15, ease: "easeOut" }}
-              className="backdrop-blur-2xl bg-white/20 border border-white/30 rounded-2xl p-8 w-full max-w-lg shadow-2xl"
+              className="backdrop-blur-2xl bg-white/20 border border-white/30 rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto"
             >
-              <div className="flex flex-col items-center text-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center mb-4 shadow-lg">
-                  <MessageSquare className="w-8 h-8 text-white" />
+              <div className="flex flex-col items-center text-center mb-4 sm:mb-6">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center mb-3 sm:mb-4 shadow-lg">
+                  <MessageSquare className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2">
                   Respond to Counter Offer
                 </h3>
-                <p className="text-white/80 text-sm">
+                <p className="text-white/80 text-xs sm:text-sm">
                   Review the counter offer and choose your response
                 </p>
               </div>
 
               {/* Offer Details */}
-              <div className="mb-6 p-4 bg-white/10 border border-white/20 rounded-xl">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-white/70 text-sm">Your Original Offer:</span>
-                  <span className="text-white font-semibold">{formatPrice(selectedOffer.amount)}</span>
+              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-white/10 border border-white/20 rounded-lg sm:rounded-xl">
+                <div className="flex justify-between items-center mb-2 sm:mb-3">
+                  <span className="text-white/70 text-xs sm:text-sm">Your Original Offer:</span>
+                  <span className="text-white font-semibold text-sm sm:text-base">{formatPrice(selectedOffer.amount)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-blue-300 text-sm font-medium">Counter Offer:</span>
-                  <span className="text-blue-300 font-bold text-lg">{formatPrice(selectedOffer.counterOffer || 0)}</span>
+                  <span className="text-blue-300 text-xs sm:text-sm font-medium">Counter Offer:</span>
+                  <span className="text-blue-300 font-bold text-base sm:text-lg">{formatPrice(selectedOffer.counterOffer || 0)}</span>
                 </div>
               </div>
 
               {/* Response Selection */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-white/80 mb-3">
+              <div className="mb-4 sm:mb-6">
+                <label className="block text-xs sm:text-sm font-medium text-white/80 mb-2 sm:mb-3">
                   Your Response
                 </label>
                 <select
                   value={counterAction}
                   onChange={(e) => setCounterAction(e.target.value as 'accept' | 'reject' | 'counter')}
-                  className="w-full px-4 py-3 bg-white/20 border border-white/40 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-200 backdrop-blur-sm"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white/20 border border-white/40 rounded-lg sm:rounded-xl text-white text-sm sm:text-base placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-200 backdrop-blur-sm"
                 >
                   <option value="accept" className="bg-gray-800 text-white">Accept Counter Offer</option>
                   <option value="reject" className="bg-gray-800 text-white">Reject Counter Offer</option>
@@ -985,9 +985,9 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
 
               {/* Counter Offer Form */}
               {counterAction === 'counter' && (
-                <div className="mb-6 space-y-4">
+                <div className="mb-4 sm:mb-6 space-y-3 sm:space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-3">
+                    <label className="block text-xs sm:text-sm font-medium text-white/80 mb-2 sm:mb-3">
                       Your Counter Offer Amount
                     </label>
                     <input
@@ -995,12 +995,12 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                       value={counterAmount}
                       onChange={(e) => setCounterAmount(formatPriceInput(e.target.value))}
                       placeholder="e.g., 450000"
-                      className="w-full px-4 py-3 bg-white/20 border border-white/40 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-200 backdrop-blur-sm"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white/20 border border-white/40 rounded-lg sm:rounded-xl text-white text-sm sm:text-base placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-200 backdrop-blur-sm"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-3">
+                    <label className="block text-xs sm:text-sm font-medium text-white/80 mb-2 sm:mb-3">
                       Counter Offer Notes (Optional)
                     </label>
                     <textarea
@@ -1008,14 +1008,14 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                       onChange={(e) => setCounterNotes(e.target.value)}
                       placeholder="Add any notes for the seller..."
                       rows={3}
-                      className="w-full px-4 py-3 bg-white/20 border border-white/40 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-200 backdrop-blur-sm resize-none"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white/20 border border-white/40 rounded-lg sm:rounded-xl text-white text-sm sm:text-base placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-200 backdrop-blur-sm resize-none"
                     />
                   </div>
                 </div>
               )}
 
               {/* Action Buttons */}
-              <div className="flex gap-4">
+              <div className="flex gap-2 sm:gap-4">
                 <button
                   onClick={() => {
                     setSelectedOffer(null);
@@ -1023,7 +1023,7 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                     setCounterNotes('');
                     setCounterAction('accept');
                   }}
-                  className="flex-1 px-6 py-3 border border-white/30 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 text-sm font-medium backdrop-blur-sm"
+                  className="flex-1 px-4 sm:px-6 py-2 sm:py-3 border border-white/30 text-white/80 hover:text-white hover:bg-white/10 rounded-lg sm:rounded-xl transition-all duration-200 text-xs sm:text-sm font-medium backdrop-blur-sm"
                   disabled={isResponding}
                 >
                   Cancel
@@ -1031,16 +1031,19 @@ const BuyerOfferForm: React.FC<BuyerOfferFormProps> = ({ listing, buyerDetails, 
                 <button
                   onClick={handleCounterOfferResponse}
                   disabled={isResponding}
-                  className={`flex-1 px-6 py-3 text-white rounded-xl transition-all duration-200 text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 ${
+                  className={`flex-1 px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg sm:rounded-xl transition-all duration-200 text-xs sm:text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 ${
                     counterAction === 'accept' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700' :
                     counterAction === 'reject' ? 'bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700' :
                     'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
                   } disabled:opacity-50 disabled:transform-none`}
                 >
                   {isResponding ? 'Processing...' : 
-                   counterAction === 'accept' ? 'Accept Counter Offer' :
-                   counterAction === 'reject' ? 'Reject Counter Offer' :
-                   'Send Counter Offer'}
+                   counterAction === 'accept' ? <span className="hidden sm:inline">Accept Counter Offer</span> :
+                   counterAction === 'accept' ? <span className="sm:hidden">Accept</span> :
+                   counterAction === 'reject' ? <span className="hidden sm:inline">Reject Counter Offer</span> :
+                   counterAction === 'reject' ? <span className="sm:hidden">Reject</span> :
+                   <span className="hidden sm:inline">Send Counter Offer</span>}
+                  {isResponding ? null : counterAction === 'counter' && <span className="sm:hidden">Send</span>}
                 </button>
               </div>
             </motion.div>

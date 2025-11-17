@@ -4,6 +4,7 @@ import { cachedMongooseConnection } from '@/lib/db';
 import User from '@/models/User';
 import mongoose from 'mongoose';
 import AgentManagementClient from '@/components/real_estate_admin_dashboard/AgentManagementClient';
+import MobileRestriction from '@/components/layout/MobileRestriction';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -59,5 +60,9 @@ export default async function AgentPage({ params }: PageProps) {
     );
   }
 
-  return <AgentManagementClient agent={agent} />;
+  return (
+    <MobileRestriction showHomeButton={false}>
+      <AgentManagementClient agent={agent} />
+    </MobileRestriction>
+  );
 }

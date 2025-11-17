@@ -132,20 +132,20 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
     <div className="min-h-screen bg-navy-gradient">
       {/* Header */}
       <div className="bg-navy-gradient border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Home className="w-6 h-6 text-purple-400" />
-            <h1 className="text-2xl font-bold text-white font-dm-sans">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <Home className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white font-dm-sans">
               Your Property
             </h1>
           </div>
           
-          <div className="mb-4">
-            <h2 className="text-xl text-white font-semibold">{listing.address}</h2>
-            <p className="text-white/70">Hello {listing.sellerName}</p>
+          <div className="mb-3 sm:mb-4">
+            <h2 className="text-base sm:text-lg md:text-xl text-white font-semibold">{listing.address}</h2>
+            <p className="text-white/70 text-sm sm:text-base">Hello {listing.sellerName}</p>
           </div>
           
-          <div className="flex flex-wrap gap-6 text-sm text-white/70">
+          <div className="flex flex-wrap gap-3 sm:gap-4 md:gap-6 text-xs sm:text-sm text-white/70">
             <div className="flex items-center gap-2">
               <PoundSterling className="w-4 h-4 text-green-400" />
               <span>Listed: {formatPrice(listing.listedPrice)}</span>
@@ -172,28 +172,28 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
           {/* Main Content - Offers */}
           <div className="lg:col-span-3">
             {/* Property Image */}
             {listing.mainPhoto && (
-              <div className="mb-8">
+              <div className="mb-4 sm:mb-6 md:mb-8">
                 <Image
                   src={listing.mainPhoto}
                   alt={listing.address}
                   width={800}
                   height={400}
-                  className="w-full h-64 md:h-96 object-cover rounded-lg shadow-lg"
+                  className="w-full h-48 sm:h-56 md:h-64 lg:h-96 object-cover rounded-lg shadow-lg"
                   priority
                 />
               </div>
             )}
 
-            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-white font-dm-sans">
-                  Offers on Your Property ({totalOffers || listing.offers.length})
+            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <h2 className="text-base sm:text-lg md:text-xl font-semibold text-white font-dm-sans">
+                  Offers ({totalOffers || listing.offers.length})
                 </h2>
                 <button
                   onClick={refreshOffers}
@@ -226,26 +226,26 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.1 }}
-                      className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6"
+                      className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-4 sm:p-6 overflow-hidden"
                     >
                       <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <Users className="w-5 h-5 text-blue-400" />
-                            <h3 className="text-lg font-medium text-white">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 sm:gap-3 mb-2 flex-wrap">
+                            <Users className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                            <h3 className="text-base sm:text-lg font-medium text-white break-words">
                               {offer.buyerName}
                             </h3>
                             {/* Show status badge here only if no counter offer exists or status is submitted/countered */}
                             {(!offer.counterOffer || offer.status === 'submitted' || offer.status === 'countered') && (
-                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(offer.status)}`}>
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0 ${getStatusColor(offer.status)}`}>
                                 {offer.status}
                               </span>
                             )}
                           </div>
                           
-                          <div className="flex items-center gap-6 text-sm text-white/70 mb-3">
+                          <div className="flex flex-wrap items-center gap-3 sm:gap-4 md:gap-6 text-xs sm:text-sm text-white/70 mb-3">
                             <div className="flex items-center gap-2">
-                              <span className="text-green-400 font-semibold text-xl">
+                              <span className="text-green-400 font-semibold text-lg sm:text-xl">
                                 {formatPrice(offer.amount)}
                               </span>
                               {/* Show status on initial offer only if no counter offer */}
@@ -257,36 +257,36 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                             </div>
                             
                             <div className="flex items-center gap-2">
-                              <div className={`w-2 h-2 rounded-full ${
+                              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
                                 offer.fundingType === 'Cash' ? 'bg-green-500' : 
                                 offer.fundingType === 'Mortgage' ? 'bg-blue-500' : 'bg-purple-500'
                               }`}></div>
-                              <span>{offer.fundingType}</span>
+                              <span className="whitespace-nowrap">{offer.fundingType}</span>
                             </div>
                             
                             <div className="flex items-center gap-2">
-                              <Clock className="w-4 h-4" />
-                              <span>{new Date(offer.submittedAt).toLocaleDateString()}</span>
+                              <Clock className="w-4 h-4 flex-shrink-0" />
+                              <span className="whitespace-nowrap">{new Date(offer.submittedAt).toLocaleDateString()}</span>
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-4 text-sm">
+                          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm">
                             {offer.chain && (
                               <div className="flex items-center gap-1 text-purple-400">
-                                <AlertCircle className="w-4 h-4" />
-                                <span>Has chain</span>
+                                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                                <span className="whitespace-nowrap">Has chain</span>
                               </div>
                             )}
                             {offer.aipPresent && (
                               <div className="flex items-center gap-1 text-green-400">
-                                <CheckCircle className="w-4 h-4" />
-                                <span>AIP Present</span>
+                                <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                                <span className="whitespace-nowrap">AIP Present</span>
                               </div>
                             )}
                           </div>
                           
-                          <div className="mt-3 text-white/60 text-sm">
-                            <strong>Contact:</strong> {offer.buyerEmail}
+                          <div className="mt-3 text-white/60 text-xs sm:text-sm break-all">
+                            <strong className="text-white/80">Contact:</strong> {offer.buyerEmail}
                           </div>
                         </div>
                       </div>
@@ -294,7 +294,7 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                       {offer.notes && (
                         <div className="mt-4 p-3 bg-white/5 rounded-lg">
                           <h4 className="text-white/80 font-medium text-sm mb-2">Buyer&apos;s Message:</h4>
-                          <p className="text-white/80 text-sm">{offer.notes}</p>
+                          <p className="text-white/80 text-xs sm:text-sm break-words whitespace-pre-wrap">{offer.notes}</p>
                         </div>
                       )}
 
@@ -305,9 +305,9 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                           
                           {/* Always show the buyer's initial offer first */}
                           <div className="p-3 rounded-lg border bg-white/5 border-white/10 opacity-70">
-                            <div className="flex items-center justify-between mb-1">
+                            <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
                               <span className="text-xs text-white/60">Initial Offer from Buyer</span>
-                              <span className="text-xs text-white/50">
+                              <span className="text-xs text-white/50 whitespace-nowrap">
                                 {new Date(offer.submittedAt).toLocaleDateString()}
                               </span>
                             </div>
@@ -341,37 +341,37 @@ const SellerView: React.FC<SellerViewProps> = ({ listing }) => {
                                     : 'bg-blue-500/10 border-blue-500/20'
                                 } ${!isLatest ? 'opacity-70' : ''}`}
                               >
-                                <div className="flex items-center justify-between mb-1">
-                                  <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+                                  <div className="flex flex-wrap items-center gap-2">
                                     <span className="text-xs text-white/60">
                                       {hasCounterOffer ? 'Counter Offer' : historyEntry.action.charAt(0).toUpperCase() + historyEntry.action.slice(1)}
                                     </span>
                                     {historyEntry.updatedBy && (
-                                      <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70">
+                                      <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70 whitespace-nowrap">
                                         {historyEntry.updatedBy === offer.buyerEmail ? 'Buyer' : 'Seller/Agent'}
                                       </span>
                                     )}
                                   </div>
-                                  <span className="text-xs text-white/50">
+                                  <span className="text-xs text-white/50 whitespace-nowrap">
                                     {new Date(historyEntry.timestamp).toLocaleDateString()}
                                   </span>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
                                   <p className="text-white font-semibold text-sm">{formatPrice(displayAmount!)}</p>
                                   {isLatest && (offer.status === 'accepted' || offer.status === 'rejected') && (
-                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(offer.status)}`}>
+                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0 ${getStatusColor(offer.status)}`}>
                                       {offer.status}
                                     </span>
                                   )}
                                   {isLatest && offer.status === 'countered' && historyEntry.counterAmount && (offer.counterOfferBy === 'seller' || offer.counterOfferBy === 'agent') && (
-                                    <span className="text-xs text-yellow-400 flex items-center gap-1">
-                                      <Clock className="w-3 h-3" />
+                                    <span className="text-xs text-yellow-400 flex items-center gap-1 whitespace-nowrap">
+                                      <Clock className="w-3 h-3 flex-shrink-0" />
                                       Waiting for buyer
                                     </span>
                                   )}
                                 </div>
                                 {historyEntry.notes && (
-                                  <p className="text-white/60 text-xs mt-1">{historyEntry.notes}</p>
+                                  <p className="text-white/60 text-xs mt-1 break-words">{historyEntry.notes}</p>
                                 )}
                               </div>
                             );

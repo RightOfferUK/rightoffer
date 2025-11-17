@@ -76,91 +76,91 @@ const AccessControl: React.FC<AccessControlProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-navy-gradient flex items-center justify-center px-4">
+    <div className="min-h-screen bg-navy-gradient flex items-center justify-center px-4 py-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-md w-full"
       >
-        <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-8">
+        <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6 sm:p-8">
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Home className="w-8 h-8 text-purple-400" />
-              <h1 className="text-2xl font-bold text-white font-dm-sans">
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+              <Home className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400" />
+              <h1 className="text-xl sm:text-2xl font-bold text-white font-dm-sans">
                 Property Access
               </h1>
             </div>
-            <p className="text-white/70 mb-2">{propertyAddress}</p>
-            <p className="text-white/50 text-sm">
+            <p className="text-white/70 mb-2 text-sm sm:text-base">{propertyAddress}</p>
+            <p className="text-white/50 text-xs sm:text-sm">
               Enter your access code to view property details
             </p>
           </div>
 
           {!accessType ? (
             /* Access Type Selection */
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-white text-center mb-6">
+            <div className="space-y-3 sm:space-y-4">
+              <h2 className="text-base sm:text-lg font-semibold text-white text-center mb-4 sm:mb-6">
                 I am a...
               </h2>
               
               <button
                 onClick={() => setAccessType('seller')}
-                className="w-full p-4 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 rounded-lg transition-colors group"
+                className="w-full p-3 sm:p-4 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 rounded-lg transition-colors group"
               >
                 <div className="flex items-center gap-3">
-                  <Eye className="w-6 h-6 text-blue-400" />
+                  <Eye className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400 flex-shrink-0" />
                   <div className="text-left">
-                    <h3 className="text-white font-semibold">Property Seller</h3>
-                    <p className="text-white/60 text-sm">View all offers on my property</p>
+                    <h3 className="text-white font-semibold text-sm sm:text-base">Property Seller</h3>
+                    <p className="text-white/60 text-xs sm:text-sm">View all offers on my property</p>
                   </div>
                 </div>
               </button>
 
               <button
                 onClick={() => setAccessType('buyer')}
-                className="w-full p-4 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 rounded-lg transition-colors group"
+                className="w-full p-3 sm:p-4 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 rounded-lg transition-colors group"
               >
                 <div className="flex items-center gap-3">
-                  <PoundSterling className="w-6 h-6 text-green-400" />
+                  <PoundSterling className="w-5 h-5 sm:w-6 sm:h-6 text-green-400 flex-shrink-0" />
                   <div className="text-left">
-                    <h3 className="text-white font-semibold">Potential Buyer</h3>
-                    <p className="text-white/60 text-sm">Make an offer on this property</p>
+                    <h3 className="text-white font-semibold text-sm sm:text-base">Potential Buyer</h3>
+                    <p className="text-white/60 text-xs sm:text-sm">Make an offer on this property</p>
                   </div>
                 </div>
               </button>
             </div>
           ) : (
             /* Code Entry Form */
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+              <div className="text-center mb-4 sm:mb-6">
+                <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 rounded-full">
                   {accessType === 'seller' ? (
                     <>
-                      <Eye className="w-4 h-4 text-blue-400" />
-                      <span className="text-blue-400 font-medium">Seller Access</span>
+                      <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400" />
+                      <span className="text-blue-400 font-medium text-xs sm:text-sm">Seller Access</span>
                     </>
                   ) : (
                     <>
-                      <PoundSterling className="w-4 h-4 text-green-400" />
-                      <span className="text-green-400 font-medium">Buyer Access</span>
+                      <PoundSterling className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-400" />
+                      <span className="text-green-400 font-medium text-xs sm:text-sm">Buyer Access</span>
                     </>
                   )}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white/70 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-white/70 mb-2">
                   {accessType === 'seller' ? 'Seller Code' : 'Buyer Reference Code'}
                 </label>
                 <div className="relative">
-                  <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
+                  <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-white/40" />
                   <input
                     type="text"
                     value={enteredCode}
                     onChange={(e) => setEnteredCode(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
+                    className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-base placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
                     placeholder={accessType === 'seller' ? 'Enter your seller code' : 'Enter your buyer code'}
                     required
                   />
@@ -174,11 +174,11 @@ const AccessControl: React.FC<AccessControlProps> = ({
 
               {error && (
                 <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
-                  <p className="text-red-300 text-sm">{error}</p>
+                  <p className="text-red-300 text-xs sm:text-sm">{error}</p>
                 </div>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -186,22 +186,26 @@ const AccessControl: React.FC<AccessControlProps> = ({
                     setEnteredCode('');
                     setError('');
                   }}
-                  className="flex-1 px-4 py-3 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-lg transition-colors"
+                  className="flex-1 px-4 py-2.5 sm:py-3 bg-white/10 hover:bg-white/20 text-white text-sm sm:text-base border border-white/20 rounded-lg transition-colors"
                 >
                   Back
                 </button>
                 <button
                   type="submit"
                   disabled={validatingBuyerCode}
-                  className="flex-1 px-4 py-3 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2.5 sm:py-3 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-lg transition-colors font-medium text-sm sm:text-base flex items-center justify-center gap-2"
                 >
                   {validatingBuyerCode && accessType === 'buyer' ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Validating...
+                      <span className="hidden sm:inline">Validating...</span>
+                      <span className="sm:hidden">...</span>
                     </>
                   ) : (
-                    'Access Property'
+                    <>
+                      <span className="hidden sm:inline">Access Property</span>
+                      <span className="sm:hidden">Access</span>
+                    </>
                   )}
                 </button>
               </div>

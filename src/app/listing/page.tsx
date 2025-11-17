@@ -42,43 +42,43 @@ const ListingEntryPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-navy-gradient flex items-center justify-center px-4">
+    <div className="min-h-screen bg-navy-gradient flex items-center justify-center px-4 py-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-md w-full"
       >
-        <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-8">
+        <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6 sm:p-8">
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Home className="w-8 h-8 text-purple-400" />
-              <h1 className="text-2xl font-bold text-white font-dm-sans">
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+              <Home className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400" />
+              <h1 className="text-xl sm:text-2xl font-bold text-white font-dm-sans">
                 Property Access
               </h1>
             </div>
-            <p className="text-white/70 mb-2">
+            <p className="text-white/70 mb-2 text-sm sm:text-base">
               Enter your property ID to access seller or buyer codes
             </p>
-            <p className="text-white/50 text-sm">
+            <p className="text-white/50 text-xs sm:text-sm">
               This ID was sent to you via email when the property was listed
             </p>
           </div>
 
           {/* Property ID Entry Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div>
-              <label className="block text-sm font-medium text-white/70 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-white/70 mb-2">
                 Property ID
               </label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-white/40" />
                 <input
                   type="text"
                   value={propertyId}
                   onChange={(e) => setPropertyId(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
+                  className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-base placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
                   placeholder="Enter property ID"
                   required
                   autoFocus
@@ -95,14 +95,14 @@ const ListingEntryPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg"
               >
-                <p className="text-red-300 text-sm">{error}</p>
+                <p className="text-red-300 text-xs sm:text-sm">{error}</p>
               </motion.div>
             )}
 
             <button
               type="submit"
               disabled={isValidating}
-              className="w-full px-4 py-3 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
+              className="w-full px-4 py-2.5 sm:py-3 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white rounded-lg transition-colors font-medium text-sm sm:text-base flex items-center justify-center gap-2"
             >
               {isValidating ? (
                 <>
@@ -119,9 +119,9 @@ const ListingEntryPage = () => {
           </form>
 
           {/* Help Section */}
-          <div className="mt-8 pt-6 border-t border-white/10">
-            <h3 className="text-white font-medium mb-3 text-sm">Need help?</h3>
-            <div className="space-y-2 text-xs text-white/60">
+          <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-white/10">
+            <h3 className="text-white font-medium mb-2 sm:mb-3 text-xs sm:text-sm">Need help?</h3>
+            <div className="space-y-1.5 sm:space-y-2 text-xs text-white/60">
               <p>• Check your email for the property ID</p>
               <p>• Property IDs are usually 24 characters long</p>
               <p>• Contact your agent if you can&apos;t find your ID</p>

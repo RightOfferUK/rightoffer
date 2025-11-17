@@ -155,29 +155,29 @@ const OfferActions: React.FC<OfferActionsProps> = ({
     <>
       {/* Action Buttons */}
       {!confirmAction && (
-        <div className="mt-4 flex items-center gap-2">
+        <div className="mt-3 sm:mt-4 flex flex-wrap items-center gap-2">
           <button
             onClick={() => setConfirmAction('accept')}
             disabled={isSubmitting}
-            className="flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-sm"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-xs sm:text-sm"
           >
-            <Check className="w-4 h-4" />
+            <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Accept
           </button>
           <button
             onClick={() => setConfirmAction('decline')}
             disabled={isSubmitting}
-            className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 disabled:bg-red-500/50 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-sm"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 bg-red-500 hover:bg-red-600 disabled:bg-red-500/50 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-xs sm:text-sm"
           >
-            <XCircle className="w-4 h-4" />
+            <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Decline
           </button>
           <button
             onClick={() => setConfirmAction('counter')}
             disabled={isSubmitting}
-            className="flex items-center gap-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-sm"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-xs sm:text-sm"
           >
-            <MessageSquare className="w-4 h-4" />
+            <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Counter
           </button>
         </div>
@@ -193,11 +193,11 @@ const OfferActions: React.FC<OfferActionsProps> = ({
             transition={{ duration: 0.2 }}
             className="mt-4 overflow-hidden"
           >
-            <div className="bg-white/5 border border-white/20 rounded-lg p-4">
+            <div className="bg-white/5 border border-white/20 rounded-lg p-3 sm:p-4">
               {/* Confirmation Header */}
-              <div className="flex items-center gap-2 mb-3">
-                <AlertCircle className="w-5 h-5 text-yellow-400" />
-                <h4 className="text-white font-semibold">
+              <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+                <h4 className="text-white font-semibold text-sm sm:text-base">
                   {confirmAction === 'accept' && 'Accept Offer'}
                   {confirmAction === 'decline' && 'Decline Offer'}
                   {confirmAction === 'counter' && 'Counter Offer'}
@@ -205,8 +205,8 @@ const OfferActions: React.FC<OfferActionsProps> = ({
               </div>
 
               {/* Offer Details */}
-              <div className="mb-4 p-3 bg-white/5 rounded-lg">
-                <div className="flex justify-between items-center text-sm">
+              <div className="mb-3 sm:mb-4 p-2.5 sm:p-3 bg-white/5 rounded-lg">
+                <div className="flex justify-between items-center text-xs sm:text-sm">
                   <span className="text-white/70">Buyer:</span>
                   <span className="text-white font-medium">{offer.buyerName}</span>
                 </div>
@@ -232,21 +232,21 @@ const OfferActions: React.FC<OfferActionsProps> = ({
 
               {/* Confirmation Message */}
               {confirmAction === 'accept' && (
-                <p className="text-white/80 text-sm mb-4">
+                <p className="text-white/80 text-xs sm:text-sm mb-3 sm:mb-4">
                   Are you sure you want to accept {offer.counterOffer ? 'this counter offer' : 'this offer'}? This will mark the property as sold.
                 </p>
               )}
               {confirmAction === 'decline' && (
-                <p className="text-white/80 text-sm mb-4">
+                <p className="text-white/80 text-xs sm:text-sm mb-3 sm:mb-4">
                   Are you sure you want to decline {offer.counterOffer ? 'this counter offer' : 'this offer'}?
                 </p>
               )}
 
               {/* Counter Offer Inputs */}
               {confirmAction === 'counter' && (
-                <div className="space-y-3 mb-4">
+                <div className="space-y-2.5 sm:space-y-3 mb-3 sm:mb-4">
                   <div>
-                    <label className="block text-sm text-white/70 mb-2">
+                    <label className="block text-xs sm:text-sm text-white/70 mb-1.5 sm:mb-2">
                       <PoundSterling className="inline w-3 h-3 mr-1" />
                       Your Counter Offer Amount
                     </label>
@@ -255,11 +255,11 @@ const OfferActions: React.FC<OfferActionsProps> = ({
                       value={counterAmount}
                       onChange={(e) => setCounterAmount(formatPriceInput(e.target.value))}
                       placeholder="e.g., £450,000"
-                      className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
+                      className="w-full px-2.5 sm:px-3 py-1.5 sm:py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-xs sm:text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-white/70 mb-2">
+                    <label className="block text-xs sm:text-sm text-white/70 mb-1.5 sm:mb-2">
                       Additional Notes (Optional)
                     </label>
                     <textarea
@@ -267,7 +267,7 @@ const OfferActions: React.FC<OfferActionsProps> = ({
                       onChange={(e) => setCounterNotes(e.target.value)}
                       placeholder="Add any notes..."
                       rows={2}
-                      className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm resize-none"
+                      className="w-full px-2.5 sm:px-3 py-1.5 sm:py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-xs sm:text-sm resize-none"
                     />
                   </div>
                 </div>
@@ -275,8 +275,8 @@ const OfferActions: React.FC<OfferActionsProps> = ({
 
               {/* Error Message */}
               {error && (
-                <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
-                  <p className="text-red-300 text-sm">{error}</p>
+                <div className="mb-3 sm:mb-4 p-2.5 sm:p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
+                  <p className="text-red-300 text-xs sm:text-sm">{error}</p>
                 </div>
               )}
 
@@ -285,14 +285,14 @@ const OfferActions: React.FC<OfferActionsProps> = ({
                 <button
                   onClick={handleCancel}
                   disabled={isSubmitting}
-                  className="flex-1 px-4 py-2 border border-white/30 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-3 sm:px-4 py-1.5 sm:py-2 border border-white/30 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleConfirmAction}
                   disabled={isSubmitting}
-                  className={`flex-1 px-4 py-2 rounded-lg transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`flex-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-colors text-xs sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed ${
                     confirmAction === 'accept' 
                       ? 'bg-green-500 hover:bg-green-600 text-white' 
                       : confirmAction === 'decline'
@@ -302,9 +302,9 @@ const OfferActions: React.FC<OfferActionsProps> = ({
                 >
                   {isSubmitting ? 'Processing...' : (
                     <>
-                      {confirmAction === 'accept' && 'Confirm Accept'}
-                      {confirmAction === 'decline' && 'Confirm Decline'}
-                      {confirmAction === 'counter' && 'Send Counter Offer'}
+                      {confirmAction === 'accept' && <><span className="hidden sm:inline">Confirm Accept</span><span className="sm:hidden">Accept</span></>}
+                      {confirmAction === 'decline' && <><span className="hidden sm:inline">Confirm Decline</span><span className="sm:hidden">Decline</span></>}
+                      {confirmAction === 'counter' && <><span className="hidden sm:inline">Send Counter Offer</span><span className="sm:hidden">Send</span></>}
                     </>
                   )}
                 </button>
