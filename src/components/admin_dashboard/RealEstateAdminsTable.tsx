@@ -477,7 +477,7 @@ const QuickEditModal: React.FC<{
               value={editData.maxListings}
               onChange={(e) => setEditData({ ...editData, maxListings: parseInt(e.target.value) || 0 })}
               className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-              placeholder="10"
+              placeholder="15"
               min="1"
             />
           </div>

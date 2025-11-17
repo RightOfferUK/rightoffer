@@ -16,7 +16,7 @@ const AddRealEstateAdminForm = () => {
     email: '',
     name: '',
     companyName: '',
-    maxListings: 10,
+    maxListings: 15,
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,7 +46,7 @@ const AddRealEstateAdminForm = () => {
 
       if (response.ok) {
         setSuccess('Company created successfully!');
-        setFormData({ email: '', name: '', companyName: '', maxListings: 10 });
+        setFormData({ email: '', name: '', companyName: '', maxListings: 15 });
         
         // Trigger table refresh
         window.dispatchEvent(new CustomEvent('refreshAdminData'));
@@ -154,7 +154,7 @@ const AddRealEstateAdminForm = () => {
             required
             min="1"
             className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
-            placeholder="10"
+            placeholder="15"
           />
         </div>
 
