@@ -6,10 +6,12 @@ import ForSellers from '@/components/home/ForSellers';
 import PricingContact from '@/components/home/PricingContact';
 import Footer from '@/components/layout/Footer';
 import DisclaimerPopup from '@/components/layout/DisclaimerPopup';
+import StructuredData from '@/components/seo/StructuredData';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-navy">
+      <StructuredData />
       <Navbar />
       <Hero />
       <HowItWorks />
