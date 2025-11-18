@@ -131,20 +131,15 @@ const ForSellers = () => {
               className="mt-6 sm:mt-8"
               variants={itemVariants}
             >
-              <motion.button
-                className="btn-primary-gradient w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-dm-sans font-semibold text-sm sm:text-base"
+              <motion.a
+                href="/listing"
+                className="btn-primary-gradient w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-dm-sans font-semibold text-sm sm:text-base inline-block text-center"
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                onClick={() => {
-                  const element = document.querySelector('/listing');
-                  if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
               >
                 Have a Seller Code?
-              </motion.button>
+              </motion.a>
             </motion.div>
           </motion.div>
         </div>

@@ -129,19 +129,9 @@ const PricingContact = () => {
                     </span>
                   </div>
                 </div>
-
-                {/* CTA */}
-                <motion.button
-                  className="btn-primary-gradient w-full px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-dm-sans font-semibold text-base sm:text-lg"
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ duration: 0.2 }}
-                  onClick={() => {
-                    window.location.href = '#pricing-contact';
-                  }}
-                >
-                  Get Started
-                </motion.button>
+                <p className="text-center text-white/90 font-dm-sans text-base sm:text-lg font-semibold mt-2">
+                  <span>Contact us to get started</span>
+                </p>
               </motion.div>
             </div>
           </motion.div>
