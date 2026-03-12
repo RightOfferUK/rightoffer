@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const Footer = () => {
   return (
@@ -38,6 +39,27 @@ const Footer = () => {
           <div className="flex flex-col items-center text-white/60 font-dm-sans text-sm">
             <span>© 2025 Transparency UK Limited.</span>
             <span className="mt-1">Company No. 16769713</span>
+          </div>
+        </div>
+
+        {/* Regulation section */}
+        <div className="mt-6 flex flex-col items-center gap-2 text-center font-dm-sans text-sm text-white/60">
+          <span className="uppercase tracking-wide text-xs text-white/70">
+            Regulation
+          </span>
+          <div className="flex flex-col items-center gap-3">
+            <div className="border border-white/40 rounded-md px-3 py-2 bg-white">
+              <Image
+                src="/TPO-Logo.jpeg"
+                alt="The Property Ombudsman"
+                width={236}
+                height={78}
+                className="h-12 w-auto object-contain"
+              />
+            </div>
+            <span>Member of The Property Ombudsman Scheme</span>
+            <span>Transparency UK Limited t/a RightOffer</span>
+            <span>Membership No: T13903</span>
           </div>
         </div>
       </div>
