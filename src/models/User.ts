@@ -49,7 +49,7 @@ const UserSchema = new Schema<IUser>({
   },
   isActive: {
     type: Boolean,
-    default: function() {
+    default: function(this: IUser): boolean {
       return this.role === 'agent';
     }
   },
@@ -58,7 +58,7 @@ const UserSchema = new Schema<IUser>({
   companyName: {
     type: String,
     trim: true,
-    required: function() {
+    required: function(this: IUser): boolean {
       return this.role === 'real_estate_admin';
     }
   },
@@ -66,7 +66,7 @@ const UserSchema = new Schema<IUser>({
     type: Number,
     default: 0,
     min: 0,
-    required: function() {
+    required: function(this: IUser): boolean {
       return this.role === 'real_estate_admin';
     }
   },
@@ -80,11 +80,11 @@ const UserSchema = new Schema<IUser>({
   realEstateAdminId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: function() {
+    required: function(this: IUser): boolean {
       return this.role === 'agent';
     },
     validate: {
-      validator: async function(value: mongoose.Types.ObjectId) {
+      validator: async function(this: IUser, value: mongoose.Types.ObjectId): Promise<boolean> {
         if (this.role !== 'agent') return true;
         
         const admin = await mongoose.models.User.findById(value);

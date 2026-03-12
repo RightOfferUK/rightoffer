@@ -1,12 +1,15 @@
 import NextAuth from "next-auth"
 import { MongoDBAdapter } from "@auth/mongodb-adapter"
+import type { Adapter } from "next-auth/adapters"
 import Resend from "next-auth/providers/resend"
 import client, { cachedMongooseConnection } from "./lib/db"
 import User from "./models/User"
 import { sendMagicLinkEmail } from "./lib/resend"
 
+const mongodbAdapter = MongoDBAdapter(client) as unknown as Adapter
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: MongoDBAdapter(client),
+  adapter: mongodbAdapter,
   providers: [
     Resend({
       apiKey: process.env.AUTH_RESEND_KEY,
