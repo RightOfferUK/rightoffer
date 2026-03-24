@@ -60,6 +60,7 @@ const Footer = () => {
             <span>Member of The Property Ombudsman Scheme</span>
             <span>Transparency UK Limited t/a RightOffer</span>
             <span>Membership No: T13903</span>
+            <span>Trademark Number: No. UK00004274483</span>
           </div>
         </div>
       </div>
